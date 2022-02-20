@@ -66,6 +66,7 @@
 ;//pin assignments:
 ;#define WSDI  RA3; //RA3 = WS input stream (from controller or previous WS281X pixels)
 ;#define BREAKOUT  RA0; //RA0 = WS breakout pixels, or simple LED for dev/debug
+#define FRPANEL  RA4; //WS breakout pixel(s)
 ;#define LEDOUT  IIFDEBUG(SEG4OUT, -1); //RA5 = simple LED output; ONLY FOR DEV/DEBUG
 ;#define WSCLK  4-2; //RA4 = WS input clock (recovered from WS input data signal); EUSART sync rcv clock needs a real I/O pin?
 ;#define SEG1OUT  RA1; //RA1 = WS output segment 1
@@ -74,7 +75,7 @@
 ;#define SEG4OUT  RA4; //RA4 = WS output segment 4
 ;;#define RGSWAP  0x321; //3 = R, 2 = G, 1 = B; default = 0x321 = RGB
 ;;#define RGSWAP  0x231; //3 = R, 2 = G, 1 = B; default = 0x321 = RGB
-;#define RGB_ORDER  0x123; //R = byte[1-1], G = byte[2-1], B = byte[3-1]; default = 0x123 = RGB
+#define RGB_ORDER  0x213; //R = byte[1-1], G = byte[2-1], B = byte[3-1]; default = 0x123 = RGB
 ;//             default    test strip
 ;//order 0x123: RGBYMCW => BRGMCYW
 ;//order 0x132: RGBYMCW => RBGMYCW
@@ -84,7 +85,7 @@
 ;//order 0x321: RGBYMCW => GRBYCMW
 ; messg [TODO] R is sending blue(3rd byte), G is sending red(first byte), B is sending green(second byte)
 ;test strip is GRB order
-#define WANT_ISR  10; reserve space for small ISR
+;#define WANT_ISR  10; reserve space for small ISR
 
     EXPAND_POP
     LIST_POP
@@ -99,11 +100,65 @@
 
     THREAD_DEF main, 6; 6 levels: wrapper->ws_player->drip->anim->ws_send->nop
 
+#if 0
+macro test
+;    setbit LATA, RA0, TRUE;
+;    mov24 fpcolor, LITERAL(0x020000);
+    ws1_sendpx BITWRAP(LATA, FRPANEL), LITERAL(0x020000), ORG$-1, ORG$, ORG$;
+    WAIT 1 sec
+;    setbit LATA, RA0, FALSE;
+;    mov24 fpcolor, LITERAL(0x000200);
+    ws1_sendpx BITWRAP(LATA, FRPANEL), LITERAL(0x000200), ORG$-1, ORG$, ORG$;
+    WAIT 1 sec
+;    mov24 fpcolor, LITERAL(0x000002);
+    ws1_sendpx BITWRAP(LATA, FRPANEL), LITERAL(0x000002), ORG$-1, ORG$, ORG$;
+    WAIT 1 sec
+    ws1_sendpx BITWRAP(LATA, FRPANEL), LITERAL(0), ORG$-1, ORG$, ORG$;
+    WAIT 1 sec
+    endm
+#endif
+
+    doing_init TRUE;
+    i2c_init
+    nbDCL24 fpcolor;
+
 ;placeholder:
 ;real logic goes here
 main: DROP_CONTEXT;
-    setbit LATA, RA0, TRUE;
-    setbit LATA, RA0, FALSE;
+;    test
+    wait4i2c ORG$, ORG$;
+    mov8 i2cbuf, SSP1BUF; //read SSPBUF to clear BF
+    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read
+    
+    if(1 == SSP1STATbits.R_nW)
+    {
+        if((1 == SSP1STATbits.D_nA) && (1 == SSP1CON2bits.ACKSTAT))
+        {
+            // callback routine can perform any post-read processing
+            I2C1_StatusCallback(I2C1_SLAVE_READ_COMPLETED);
+        }
+        else
+        {
+            // callback routine should write data into SSPBUF
+            I2C1_StatusCallback(I2C1_SLAVE_READ_REQUEST);
+        }
+    }
+    else if(0 == SSP1STATbits.D_nA)
+    {
+        // this is an I2C address
+
+        // callback routine should prepare to receive data from the master
+        I2C1_StatusCallback(I2C1_SLAVE_WRITE_REQUEST);
+    }
+    else
+    {
+        I2C1_slaveWriteData   = i2c_data;
+        // callback routine should process I2C1_slaveWriteData from the master
+        I2C1_StatusCallback(I2C1_SLAVE_WRITE_COMPLETED);
+    }
+
+    SSP1CON1bits.CKP    = 1;    // release SCL
+
     GOTO main;
 
     THREAD_END;
@@ -111,6 +166,360 @@ main: DROP_CONTEXT;
     EXPAND_POP
     LIST_POP
     messg end of hoist 5 @__LINE__
+;#else; too deep :(
+#endif
+#if HOIST == 4; //ws1 24bpp WS281X xmit helpers (used for front panel)
+    messg hoist 4: ws1 24 bpp WS281X xmit helpers @__LINE__
+    LIST_PUSH TRUE
+    EXPAND_PUSH FALSE
+;; 1 bpp wsplayer helpers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;only 2 colors are supported @1 bpp:
+;    constant FGCOLOR = 0x010101;
+;    constant BGCOLOR = 0x000000;
+;    messg [TODO] allow var colors @__LINE__
+    
+ws1_sendbit macro latbit, databit, idler2, idler4; pre_idler4, idler2
+;    CONTEXT_SAVE wsbit_idler4
+;    pre_idler4; glue or prep for next bit
+;    nopif $ == CONTEXT_ADDR(wsbit_idler4), 4
+    setbit REGOF(latbit), BITOF(latbit), TRUE; bit start
+    ifbit REGOF(databit), BITOF(databit), FALSE, RESERVE(1)
+        ORG$-1; kludge: fill in placeholder using stmt with params
+        setbit REGOF(latbit), BITOF(latbit), FALSE; bit data
+    CONTEXT_SAVE wsbit_idler2
+    idler2; other processing
+    nopif $ == CONTEXT_ADDR(wsbit_idler2), 2
+    setbit REGOF(latbit), BITOF(latbit), FALSE; bit end
+    CONTEXT_SAVE wsbit_idler4
+    idler4; glue or prep for next bit
+    nopif $ == CONTEXT_ADDR(wsbit_idler4), 4
+    CONTEXT_SAVE wsbit_after
+    endm
+
+
+    nbDCL8 pxbits8;
+;    ERRIF(BANKOF(pxbits8) != BANKOF(LATA), [ERROR] ws vars must be in same bank as LATA @__LINE__);
+;WREG must contain byte to send
+ws1_sendbyte macro latbit, glue2, glue4
+;first bit inlined to allow more prep time:
+    ws1_sendbit latbit, #v(BITWRAP(WREG, log2(0x80))), RESERVE(2), RESERVE(4)
+        CONTEXT_RESTORE wsbit_idler2
+        LSLF WREG, F;
+        LSLF WREG, F; 0x40 -> C for loop
+        CONTEXT_RESTORE wsbit_idler4
+	MOVWF pxbits8; kludge: save WREG in target then swap (need to preserve WREG)
+;	swapreg WREG, pxgrp8;
+	XORLW 6; WREG ^ 6
+	XORWF pxbits8, F; == 6
+	XORWF pxbits8, W; == WREG
+        CONTEXT_RESTORE wsbit_after
+    LOCAL bitloop;
+bitloop: ;//6x
+    ws1_sendbit latbit, #v(BITWRAP(STATUS, Carry)), RESERVE(0), RESERVE(4)
+        CONTEXT_RESTORE wsbit_idler4
+        LSLF WREG, F
+;	ifbit EQUALS0 FALSE, goto bitloop;
+	decfsz pxbits8, F
+	    goto bitloop;
+;        CONTEXT_SAVE wsbyte_preload1
+	NOP 1
+;        nopif $ == CONTEXT_ADDR(wsbyte_preload1), 1
+        CONTEXT_RESTORE wsbit_after
+;last bit inlined to allow custom glue logic:
+    ws1_sendbit latbit, #v(BITWRAP(STATUS, Carry)), glue2, glue4;
+    endm
+
+
+#ifndef RGB_ORDER
+ #define RGB_ORDER  0x123; //R = byte[1-1], G = byte[2-1], B = byte[3-1]; default = 0x123 = RGB
+#endif
+
+#define RGB_BYTE(n)  RGB_#v(n); (n) % 3); controls byte order (BYTEOF)
+;#ifdef RGSWAP; set color order
+;line too long :( #define RGB_ORDER(n)  (((RGSWAP >> (8 - 4 * (n))) & 0xF) - 1)
+    CONSTANT RGB_#v(0) = (((RGB_ORDER >> 8) & 0xF) - 1);
+    CONSTANT RGB_#v(1) = (((RGB_ORDER >> 4) & 0xF) - 1);
+    CONSTANT RGB_#v(2) = (((RGB_ORDER >> 0) & 0xF) - 1);
+    messg [DEBUG] rgb order RGB_ORDER, R = #v(RGB_BYTE(0)), G = #v(RGB_BYTE(1)), B = #v(RGB_BYTE(2)) @__LINE__
+;#else; default color order R,G,B (0x123)
+; #define RGB_ORDER(n)  ((n) % 3)
+;    CONSTANT RGB_#v(0) = 0;
+;    CONSTANT RGB_#v(1) = 1;
+;    CONSTANT RGB_#v(2) = 2;
+;#endif
+;R/G/B offsets within pal ent for each RGB order:
+;mpasm !like consts for MOVIW [FSR] offsets :(
+;    constant ROFS_#v(0) = 1-1, GOFS_#v(0) = 2-1, BOFS_#v(0) = 3-1; //default 0x123 = RGB
+;    constant ROFS_#v(0x123) = 1-1, GOFS_#v(0x123) = 2-1, BOFS_#v(0x123) = 3-1;
+;    constant ROFS_#v(0x132) = 1-1, GOFS_#v(0x132) = 3-1, BOFS_#v(0x132) = 2-1;
+;    constant ROFS_#v(0x213) = 2-1, GOFS_#v(0x213) = 1-1, BOFS_#v(0x213) = 3-1;
+;    constant ROFS_#v(0x231) = 3-1, GOFS_#v(0x231) = 1-1, BOFS_#v(0x231) = 2-1;
+;    constant ROFS_#v(0x312) = 2-1, GOFS_#v(0x312) = 3-1, BOFS_#v(0x312) = 1-1;
+;    constant ROFS_#v(0x321) = 3-1, GOFS_#v(0x321) = 2-1, BOFS_#v(0x321) = 1-1;
+
+
+;ws1_sendpx macro rgb24, wait_first, first_idler, more_idler
+ws1_sendpx macro latbit, rgb24, prep_first, glue2, glue4
+; messg HIBYTE(rgb24)
+; messg MIDBYTE(rgb24)
+; messg LOBYTE(rgb24)
+;    LOCAL HI;
+;HI = HIBYTE(rgb24); line too long :(
+;    LOCAL MID;
+;MID = MIDBYTE(rgb24);
+;    LOCAL LO;
+;LO = LOBYTE(rgb24);
+    LOCAL FIRST_BYTE
+FIRST_BYTE = BYTEOF(rgb24, 2 - RGB_BYTE(0));
+    LOCAL MID_BYTE
+MID_BYTE = BYTEOF(rgb24, 2 - RGB_BYTE(1));
+    LOCAL LAST_BYTE
+LAST_BYTE = BYTEOF(rgb24, 2 - RGB_BYTE(2));
+    LOCAL before_prep = $
+    prep_first; prep first byte
+    if $ < before_prep; setup for first px
+	ORG before_prep
+        mov8 WREG, FIRST_BYTE; //only safe to do first time
+	BANKCHK REGOF(latbit)
+    endif
+;    ws1_send_byte FIRST_BYTE, wait_first, first_idler, more_idler; REGHI(rgb24);
+;    ws1_send_byte MID_BYTE, wait_first, first_idler, more_idler; REGMID(rgb24);
+;    ws1_send_byte LAST_BYTE, wait_first, first_idler, more_idler; REGLO(rgb24);
+    ws1_sendbyte latbit, ORG$+2, ORG$;
+        CONTEXT_RESTORE wsbit_idler2
+	mov8 WREG, MID_BYTE
+	NOP CONTEXT_ADDR(wsbit_idler2)+2 - $
+        CONTEXT_RESTORE wsbit_after
+    ws1_sendbyte latbit, ORG$+2, ORG$;
+        CONTEXT_RESTORE wsbit_idler2
+	mov8 WREG, LAST_BYTE
+	NOP CONTEXT_ADDR(wsbit_idler2)+2 - $
+        CONTEXT_RESTORE wsbit_after
+    ws1_sendbyte latbit, glue2, glue4;
+;    ws1_send_byte MID_BYTE, wait_first, first_idler, more_idler; REGMID(rgb24);
+;    ws1_send_byte LAST_BYTE, wait_first, first_idler, more_idler; REGLO(rgb24);
+    endm
+
+    
+    EXPAND_POP
+    LIST_POP
+    messg end of hoist 4 @__LINE__
+;#else; too deep :(
+#endif
+#if HOIST == 3
+    messg hoist 3: app helpers @__LINE__
+    LIST_PUSH FALSE; don't show this section in .LST file
+    EXPAND_PUSH FALSE
+;; fps helpers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;    nbDCL FPS,; breakout value (used as counter until breakout is refreshed)
+;    nbDCL numfr,; internal counter
+
+    VARIABLE CURRENT_FPS_usec = -1;
+WAIT macro duration_usec
+    if duration_usec != CURRENT_FPS_usec
+        fps_init duration_usec;
+	NOP 2; give T0IF time to settle?
+    endif
+    wait4frame ORG$, goto $-1; //busy wait; use YIELD for multi-tasking
+    endm
+
+
+;set up recurring frames:
+;uses Timer 0 rollover as recurring 1 sec elapsed timer
+;also used for frame timer during power-on breakout animation
+;nope-uses NCO for 1 sec interval; other timers are busy :(
+;#define NICKS_FOSC  b'0000'; should be in p16f15313.inc
+;#define NCO_ROLLOVER  FOSC_FREQ
+;#define wait4_1sec  ifbit PIR7, NCO1IF, FALSE, goto $-1
+;#define T2SRC_FOSC  b'0010'; run Timer2 at same speed as Fosc (16 MHz)
+;    VARIABLE T0_WAITCOUNT = 0; generate unique labels; also remembers init
+;    CONSTANT MAX_ACCURACY = 1 << 20; 1 MHz; max accuracy to give caller; use nop for < 1 usec delays
+#define T0SRC_FOSC4  b'010'; FOSC / 4; should be in p16f15313.inc
+#define T0_prescaler(freq)  prescaler(FOSC_FREQ/4, freq); log2(FOSC_FREQ / 4 / (freq)); (1 MHz)); set pre-scalar for 1 usec ticks
+;#define T0_prescfreq(prescaler)  (FOSC_FREQ / 4 / BIT(prescaler)); (1 MHz)); set pre-scalar for 1 usec ticks
+;    messg ^^ REINSTATE @__LINE__
+;#define T0_postscaler  log2(1); 1-to-1 post-scalar
+;#define T0_ROLLOVER  50; 50 ticks @1 usec = 50 usec; WS281X latch time = 50 usec
+;    messg [DEBUG] T0 prescaler = #v(T0_prescale), should be 2 (1:4) @__LINE__
+;#define MY_T0CON1(tick_freq)  (T0SRC_FOSC4 << T0CS0 | NOBIT(T0ASYNC) | T0_prescaler(tick_freq) << T0CKPS0); FOSC / 4, sync, pre-scalar TBD (1:1 for now)
+;#define SETUP_NOWAIT  ORG $-1; idler to use for no-wait, setup only
+;#define wait4_t1tick  ifbit PIR5, TMR1GIF, FALSE, goto $-1; wait acq
+#define elapsed_fps  PIR0, TMR0IF
+    CONSTANT MAX_T0PRESCALER = log2(32768), MAX_T0POSTSC = log2(16);
+#ifndef TUNED
+ #define TUNED(as_is)  as_is
+#endif
+fps_init macro interval_usec;, enable_ints; wait_usec macro delay_usec, idler
+;    EXPAND_PUSH FALSE
+CURRENT_FPS_usec = interval_usec; remember last setting; TODO: add to SAVE_CONTEXT
+;TODO: don't use TUNED() unless OSCTUNE is adjusted (ws_breakout_setup)
+    LOCAL USEC = TUNED(interval_usec); CAUTION: compensate for OSCTUNE (set by ws_breakout_setup)
+;    mov8 NCO1CON, LITERAL(NOBIT(N1EN) | NOBIT(N1POL) | NOBIT(N1PFM)); NCO disable during config, active high, fixed duty mode
+;    mov8 NCO1CLK, LITERAL(N1CKS_FOSC << N1CKS0); pulse width !used
+;    mov24 NCO1INC, LITERAL(1)
+;    setbit INTCON, GIE, FALSE; disable interrupts (in case waiting for 50 usec WS latch signal)
+;    if usec == 1
+;    movlw ~(b'1111' << T0CKPS0) & 0xFF; prescaler bits
+;    BANKCHK T0CON1
+;    andwf T0CON1, F; strip previous prescaler
+;    MESSG fps_init delay_usec @__LINE__;
+;    if !WAIT_COUNT; first time init
+;        mov8 T0CON0, LITERAL(NOBIT(T0EN) | NOBIT(T016BIT) | T0_postscaler << T0OUTPS0); Timer 0 disabled during config, 8 bit mode, 1:1 post-scalar
+;    else
+;        setbit T0CON0, T0EN, FALSE;
+;    endif
+;    LOCAL ACCURACY = MAX_ACCURACY; 1 MHz; max accuracy to give caller; use nop for < 1 usec delays
+    LOCAL PRESCALER = 3, POSTSCALER; not < 1 usec needed (8 MIPS @1:8)
+    LOCAL T0tick, LIMIT, ROLLOVER;
+;    LOCAL FREQ_FIXUP; = FOSC_FREQ / 4 / BIT(PRESCALER);
+;    while ACCURACY >= 1 << 7; 125 Hz
+    messg [TODO] change this to use postscaler 1..16 instead of just powers of 2 (for more accuracy) @__LINE__
+    while PRESCALER <= MAX_T0PRESCALER + MAX_T0POSTSC; use smallest prescaler for best accuracy
+;T0FREQ = FOSC_FREQ / 4 / BIT(PRESCALER); T0_prescfreq(PRESCALER);
+T0tick = scale(FOSC_FREQ/4, PRESCALER); BIT(PRESCALER) KHz / (FOSC_FREQ / (4 KHz)); split 1M factor to avoid arith overflow; BIT(PRESCALER - 3); usec
+;presc 1<<3, freq 1 MHz, period 1 usec, max delay 256 * usec
+;presc 1<<5, freq 250 KHz, period 4 usec, max delay 256 * 4 usec ~= 1 msec
+;presc 1<<8, freq 31250 Hz, period 32 usec, max delay 256 * 32 usec ~= 8 msec
+;presc 1<<13, freq 976.6 Hz, period 1.024 msec, max delay 256 * 1.024 msec ~= .25 sec
+;presc 1<<15, freq 244.1 Hz, period 4.096 msec, max delay 256 * 4.096 msec ~= 1 sec
+LIMIT = 256 * T0tick; (1 MHz / T0FREQ); BIT(PRESCALER - 3); 32 MHz / (FOSC_FREQ / 4); MAX_ACCURACY / ACCURACY
+;	messg [DEBUG] wait #v(interval_usec) usec: prescaler #v(PRESCALER) => limit #v(LIMIT) @__LINE__
+;        messg tick #v(T0tick), presc #v(PRESCALER), max delay #v(LIMIT) usec @__LINE__
+	if USEC <= LIMIT; ) || (PRESCALER == MAX_T0PRESCALER); this prescaler allows interval to be reached
+POSTSCALER = MAX(PRESCALER - MAX_T0PRESCALER, 0); line too long :(
+PRESCALER = MIN(PRESCALER, MAX_T0PRESCALER);
+ROLLOVER = rdiv(USEC, T0tick); 1 MHz / T0FREQ); / BIT(PRESCALER - 3)
+	    messg [DEBUG] fps_init #v(interval_usec) (#v(USEC) tuned) "usec": "prescaler" #v(PRESCALER)+#v(POSTSCALER), max intv #v(LIMIT), actual #v(ROLLOVER * T0tick), rollover #v(ROLLOVER) @__LINE__
+;    messg log 2: #v(FOSC_FREQ / 4) / #v(FOSC_FREQ / 4 / BIT(PRESCALER)) = #v(FOSC_FREQ / 4 / (FOSC_FREQ / 4 / BIT(PRESCALER))) @__LINE__; (1 MHz)); set pre-scalar for 1 usec ticks
+;FREQ_FIXUP = MAX(1 MHz / T0tick, 1); T0FREQ;
+;	    if T0FREQ * BIT(PRESCALER) != FOSC_FREQ / 4; account for rounding errors
+;	    if T0tick * FREQ_FIXUP != 1 MHz; account for rounding errors
+;	        messg freq fixup: equate #v(FOSC_FREQ / 4 / MAX(FREQ_FIXUP, 1)) to #v(BIT(PRESCALER)) for t0freq #v(FREQ_FIXUP) fixup @__LINE__
+;		CONSTANT log2(FOSC_FREQ/4 / FREQ_FIXUP) = PRESCALER; kludge: apply prescaler to effective freq
+;	    endif
+	    mov8 T0CON0, LITERAL(NOBIT(T0EN) | NOBIT(T016BIT) | POSTSCALER << T0OUTPS0); Timer 0 disabled during config, 8 bit mode, 1:1 post-scalar
+	    mov8 T0CON1, LITERAL(T0SRC_FOSC4 << T0CS0 | NOBIT(T0ASYNC) | PRESCALER << T0CKPS0); FOSC / 4, sync, pre-scalar
+	    mov8 TMR0L, LITERAL(0); restart count-down with new limit
+	    mov8 TMR0H, LITERAL(ROLLOVER - 1); (usec) / (MAX_ACCURACY / ACCURACY) - 1);
+	    setbit T0CON0, T0EN, TRUE;
+	    setbit elapsed_fps, FALSE; clear previous interrupt
+;	    if !WAIT_COUNT ;first time init
+;	    if enable_ints
+;	        setbit PIE0, TMR0IE, TRUE; no, just polled
+;	    endif
+;wait_loop#v(WAIT_COUNT):
+;WAIT_COUNT += 1
+;	    idler;
+;	    if $ < wait_loop#v(WAIT_COUNT - 1); reg setup only; caller doesn't want to wait
+;		ORG wait_loop#v(WAIT_COUNT - 1)
+;		exitm
+;	    endif
+;assume idler handles BSR + WREG tracking; not needed:
+;	    if $ > wait_loop#v(WAIT_COUNT - 1)
+;		DROP_CONTEXT; TODO: idler hints; for now assume idler changed BSR or WREG
+;	    endif
+;	    ifbit elapsed_fps, FALSE, goto wait_loop#v(WAIT_COUNT - 1); wait for timer roll-over
+;	    wait4_t1roll; wait for timer roll-over
+;ACCURACY = 1 KHz; break out of loop	    exitwhile
+;    if usec >= 256
+;	movlw ~(b'1111' << T0CKPS0) & 0xFF; prescaler bits
+;	BANKCHK T0CON1
+;	andwf T0CON1, F; strip temp prescaler
+;	iorwf T0CON1, T0_prescale << T0CKPS0; restore original 8:1 pre-scalar used for WS input timeout
+;    endif
+;    mov8 TMR0H, LITERAL(T0_ROLLOVER); restoreint takes 1 extra tick but this accounts for a few instr at start of ISR
+	    exitm
+	endif
+PRESCALER += 1
+;FREQ_FIXUP = IIF(FREQ_FIXUP == 31250, 16000, FREQ_FIXUP / 2);
+    endw
+;    error [ERROR] "fps_init" #v(interval_usec) "usec" (#v(USEC) tuned) unreachable with max "prescaler" #v(MAX_T0PRESCALER), using max interval #v(UNTUNED(LIMIT)) "usec" (#v(LIMIT) tuned) @__LINE__)
+    ERRIF(TRUE, [ERROR] "fps_init" #v(interval_usec) "usec" (#v(USEC) tuned) exceeds max reachable interval #v(UNTUNED(LIMIT)) "usec" (#v(LIMIT) tuned) @__LINE__)
+;    if usec <= 256
+;;	iorwf T0CON1, T0_prescale << T0CKPS0; restore original 8:1 pre-scalar used for WS input timeout
+;        mov8 T0CON1, LITERAL(MY_T0CON1(1 MHz));
+;        mov8 TMR0H, LITERAL(usec - 1);
+;    else
+;	if usec <= 1 M; 1 sec
+;            mov8 T0CON1, LITERAL(MY_T0CON1(250 Hz));
+;	    mov8 TMR0H, LITERAL((usec) / (1 KHz) - 1);
+;	else
+;	    if usec <= 256 K
+;		mov8 T0CON1, LITERAL(MY_T0CON1(1 KHz));
+;		mov8 TMR0H, LITERAL((usec) / (1 KHz) - 1);
+;	    else
+;	    endif
+;	endif
+;    endif
+;    EXPAND_POP
+    endm
+;    mov8 T0CON0, LITERAL(NOBIT(T0EN) | NOBIT(T016BIT) | T0_postscale << T0OUTPS0); Timer 0 disabled during config, 8 bit mode, 1:1 post-scalar
+;;    mov8 T0CON1, LITERAL(MY_T0CON1(MAX(FREQ_FIXUP, 1))); FREQ_FIXUP)); FOSC_FREQ / 4 / BIT(PRESCALER)));
+;    mov8 T0CON1, LITERAL(T0SRC_FOSC4 << T0CS0 | NOBIT(T0ASYNC) | MAX_T0PRESCALER << T0CKPS0); FOSC / 4, sync, pre-scalar TBD (1:1 for now)
+;    mov8 TMR0L, LITERAL(0); restart count-down with new limit
+;    mov8 TMR0H, LITERAL(ROLLOVER - 1); (usec) / (MAX_ACCURACY / ACCURACY) - 1);
+;    setbit T0CON0, T0EN, TRUE;
+;    setbit elapsed_fps, FALSE; clear previous overflow
+;init app counters:
+;    mov8 FPS, LITERAL(0)
+;    mov8 numfr, LITERAL(0)
+;    endm
+
+
+;wait for new frame:
+wait4frame macro idler, idler2
+;    EXPAND_PUSH FALSE
+; messg wait4frame: idler, idler2, #threads = #v(NUM_THREADS)
+;    ifbit elapsed_fps, FALSE, idler; bit !ready yet, let other threads run
+    idler; assume not ready yet, let other threads run
+    ifbit elapsed_fps, FALSE, idler2; more efficient than goto $-3 + call
+    setbit elapsed_fps, FALSE;
+;    EXPAND_POP
+    endm
+
+
+;; i2c helpers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+#define I2C_slave7  b'0110'; I2C Slave mode, 7-bit address; should be in p16f15313.inc
+i2c_init macro
+;//    SSP1CON1 = 0x26; // SSPEN enabled; CKP disabled; SSPM 7 Bit Polling;
+    mov8 SSP1CON1, LITERAL(NOBIT(SSPEN) | NOBIT(CKP) | I2C_slave7 << SSPM0); //I2C disabled during config, clock low, slave mode, 7-bit addr
+;//    SSP1STAT = 0x80; // SMP Standard Speed; CKE disabled;
+    mov8 SSP1STAT, LITERAL(BIT(SMP) | NOBIT(CKE)); //disable slew rate for standard speed (100 KHz), disable SMBus, 
+;//    SSP1CON2 = 0x00; // ACKEN disabled; GCEN disabled; PEN disabled; ACKDT acknowledge; RSEN disabled; RCEN disabled; SEN disabled;
+    mov8 SSP1CON2, LITERAL(NOBIT(GCEN) | NOBIT(ACKSTAT) | NOBIT(ACKDT) | NOBIT(SEN)); //disable call addr, ack status, ack data, disable clock stretching
+;//    SSP1CON3 = 0x00; // SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled;
+    mov8 SSP1CON3, LITERAL(NOBIT(PCIE) | NOBIT(SCIE) | NOBIT(BOEN) | NOBIT(SDAHT) | NOBIT(SBCDE) | NOBIT(AHEN) | NOBIT(DHEN)); //disable stop + start detect interrupts, don't ack on buf ovfl, 100 ns SDA hold time, disable slave collision detect, disable addr + data hold
+;// SSPMSK 127;
+    mov8 SSP1MSK, LITERAL(0x7F << 1); //rcv addr bit compare
+;// SSPADD 8;
+;//    SSP1ADD = (I2C1_SLAVE_ADDRESS << 1);  // adjust UI address for R/nW bit
+    mov8 SSP1ADD, LITERAL(0x50 << 1); //7-bit rcv addr
+;//    PIR3bits.SSP1IF = 0; // clear the slave interrupt flag
+    setbit PIR3, SSP1IF, FALSE; //clear slave interrupt
+;//    PIE3bits.SSP1IE = 1; // enable the master interrupt
+    setbit SSP1CON1, SSPEN, TRUE; //I2C enable
+    endm
+
+    ;wait for new frame:
+wait4i2c macro idler, idler2
+;    EXPAND_PUSH FALSE
+; messg wait4frame: idler, idler2, #threads = #v(NUM_THREADS)
+;    ifbit elapsed_fps, FALSE, idler; bit !ready yet, let other threads run
+    idler; assume not ready yet, let other threads run
+    ifbit PIR3, SSP1IF, FALSE, idler2; more efficient than goto $-3 + call
+    setbit PIR3, SSP1IF, FALSE;
+;    EXPAND_POP
+    endm
+
+;    doing_init TRUE
+;    doing_init FALSE
+
+    EXPAND_POP
+    LIST_POP
+    messg end of hoist 3 @__LINE__
 ;#else; too deep :(
 #endif
 #if HOIST == 2
@@ -483,7 +892,7 @@ pmd_init macro
     mov8 PMD4, LITERAL(DISABLED_ALL); ^ DISABLED(UART1MD)); ENABLED(UART1MD) | DISABLED(MSSP1MD) | DISABLED(CWG1MD)); disable EUSART1, CWG1, enable MSSP1
 ;    setbit PMD5, CLC4MD, DISABLED; IIFDEBUG(ENABLED, DISABLED);
 ;    setbit PMD5, CLC3MD, DISABLED;
-    messg ^v REINSTATE
+    messg ^v REINSTATE @__LINE__
 ;    mov8 PMD5, LITERAL(DISABLED(CLC4MD) | DISABLED(CLC3MD) | ENABLED(CLC2MD) | ENABLED(CLC1MD)); disable CLC 3, 4, enable CLC 1, 2
     mov8 PMD5, LITERAL(DISABLED_ALL); ENABLED_ALL); DISABLED_ALL ^ DISABLED(CLC#v(WSPASS)MD) ^ DISABLED(CLC#v(WSDO)MD)); ENABLED(CLC4MD) | ENABLED(CLC3MD) | ENABLED(CLC2MD) | ENABLED(CLC1MD)); disable CLC 3, 4, enable CLC 1, 2
     endm
@@ -1803,6 +2212,9 @@ BITDCL_COUNT += 1; _#v(banked) += 1
     ENDM
 
 eof_#v(EOF_COUNT) macro
+    if BITDCL_COUNT
+	exitm
+    endif
     messg [INFO] (non-banked) Bit vars: allocated #v(8 * divup(BITDCL_COUNT, 8)), used #v(BITDCL_COUNT) @__LINE__
     endm
 EOF_COUNT += 1;

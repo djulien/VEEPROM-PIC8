@@ -1,4 +1,4 @@
-MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   2-19-2022  14:32:14         PAGE  1
+MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   2-19-2022  23:30:36         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -48,14 +48,16 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00040 ;  - uart bootloader; ground segment 0 out to enable? auto-baud detect; verify
                       00041 ;  - custom pixel dup/skip, enforce max brightness limit?
                       00042 ;================================================================================
-Message[301]: MESSAGE: (hoist 0: generic pic/asm helpers @2433)
+Message[301]: MESSAGE: (hoist 0: generic pic/asm helpers @2814)
 Message[301]: MESSAGE: (TODO: fix this ^^^ vvv)
-Message[301]: MESSAGE: (end of hoist 0 @2963)
+Message[301]: MESSAGE: (end of hoist 0 @3344)
 Message[301]: MESSAGE: (no hoist, app config/defs @48)
+                          M     EXPAND; turn expand back on
+                      00055     EXPAND_PUSH FALSE
                           M         exitm
                       00056 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00057 
-MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   2-19-2022  14:32:14         PAGE  2
+MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   2-19-2022  23:30:36         PAGE  2
 PIC8-EEPROM - serial EEPROM emulator for 8-pin/8-bit Microchip PIC
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -73,62 +75,74 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00066 ;//pin assignments:
                       00067 ;#define WSDI  RA3; //RA3 = WS input stream (from controller or previous WS281X pixels)
                       00068 ;#define BREAKOUT  RA0; //RA0 = WS breakout pixels, or simple LED for dev/debug
-                      00069 ;#define LEDOUT  IIFDEBUG(SEG4OUT, -1); //RA5 = simple LED output; ONLY FOR DEV/DEBUG
-                      00070 ;#define WSCLK  4-2; //RA4 = WS input clock (recovered from WS input data signal); EUSART sync rcv clock
+                      00069 #define FRPANEL  RA4; //WS breakout pixel(s)
+                      00070 ;#define LEDOUT  IIFDEBUG(SEG4OUT, -1); //RA5 = simple LED output; ONLY FOR DEV/DEBUG
+                      00071 ;#define WSCLK  4-2; //RA4 = WS input clock (recovered from WS input data signal); EUSART sync rcv clock
                              needs a real I/O pin?
-                      00071 ;#define SEG1OUT  RA1; //RA1 = WS output segment 1
-                      00072 ;#define SEG2OUT  RA2; //RA2 = WS output segment 2
-                      00073 ;#define SEG3OUT  RA#v(3+2); //RA5 = WS output segment 3; RA3 is input-only, use alternate pin for segme
+                      00072 ;#define SEG1OUT  RA1; //RA1 = WS output segment 1
+                      00073 ;#define SEG2OUT  RA2; //RA2 = WS output segment 2
+                      00074 ;#define SEG3OUT  RA#v(3+2); //RA5 = WS output segment 3; RA3 is input-only, use alternate pin for segme
                             nt 3
-                      00074 ;#define SEG4OUT  RA4; //RA4 = WS output segment 4
-                      00075 ;;#define RGSWAP  0x321; //3 = R, 2 = G, 1 = B; default = 0x321 = RGB
-                      00076 ;;#define RGSWAP  0x231; //3 = R, 2 = G, 1 = B; default = 0x321 = RGB
-                      00077 ;#define RGB_ORDER  0x123; //R = byte[1-1], G = byte[2-1], B = byte[3-1]; default = 0x123 = RGB
-                      00078 ;//             default    test strip
-                      00079 ;//order 0x123: RGBYMCW => BRGMCYW
-                      00080 ;//order 0x132: RGBYMCW => RBGMYCW
-                      00081 ;//order 0x213: RGBYMCW => BGRCMYW
-                      00082 ;//order 0x231: RGBYMCW => RGBYMCW ==
-                      00083 ;//order 0x312: RGBYMCW => GBRCYMW
-                      00084 ;//order 0x321: RGBYMCW => GRBYCMW
-                      00085 ; messg [TODO] R is sending blue(3rd byte), G is sending red(first byte), B is sending green(second byte
+                      00075 ;#define SEG4OUT  RA4; //RA4 = WS output segment 4
+                      00076 ;;#define RGSWAP  0x321; //3 = R, 2 = G, 1 = B; default = 0x321 = RGB
+                      00077 ;;#define RGSWAP  0x231; //3 = R, 2 = G, 1 = B; default = 0x321 = RGB
+                      00078 #define RGB_ORDER  0x213; //R = byte[1-1], G = byte[2-1], B = byte[3-1]; default = 0x123 = RGB
+                      00079 ;//             default    test strip
+                      00080 ;//order 0x123: RGBYMCW => BRGMCYW
+                      00081 ;//order 0x132: RGBYMCW => RBGMYCW
+                      00082 ;//order 0x213: RGBYMCW => BGRCMYW
+                      00083 ;//order 0x231: RGBYMCW => RGBYMCW ==
+                      00084 ;//order 0x312: RGBYMCW => GBRCYMW
+                      00085 ;//order 0x321: RGBYMCW => GRBYCMW
+                      00086 ; messg [TODO] R is sending blue(3rd byte), G is sending red(first byte), B is sending green(second byte
                             )
-                      00086 ;test strip is GRB order
-                      00087 #define WANT_ISR  10; reserve space for small ISR
-                      00088 
+                      00087 ;test strip is GRB order
+                      00088 ;#define WANT_ISR  10; reserve space for small ISR
+                      00089 
+                      00090     EXPAND_POP
+                          M     EXPAND; turn expand back on
+                      00091     LIST_POP
+                          M     EXPAND_PUSH FALSE; hide clutter in LST file
 Message[301]: MESSAGE: (end of !hoist @88)
-Message[301]: MESSAGE: (hoist 1: custom opc @655)
-Message[301]: MESSAGE: ([INFO] COMPILED FOR DEV/DEBUG! @669)
+Message[301]: MESSAGE: (hoist 1: custom opc @1033)
+Message[301]: MESSAGE: ([INFO] COMPILED FOR DEV/DEBUG! @1047)
+                          M     EXPAND; turn expand back on
   80000000                M ASM_MSB EQU -2147483648
+                          M     EXPAND_POP
 Message[301]: MESSAGE: ([TODO]: need to UNLIT WREG_TRACKER when used in arith (else upper bits might be affected))
+                          M     EXPAND; turn expand back on
 0000                      M init_0:
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
 0000                      M     ORG 0
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
                           M     nop_multi 1
+                          M     EXPAND_PUSH FALSE
+                          M     EXPAND; turn expand back on
 0000   0000               M     nop
-  00000003                M _69COUNT = (((ASM_MSB | ((0 + 4) - $))) & ~ASM_MSB)
-                          M     nop_multi 1
-0001   0000               M     nop
-                          M     nop_multi 1
-0002   0000               M     nop
-                          M     nop_multi 1
-0003   0000               M     nop
-000E                      M     ORG (0 + 4) + 10
-Message[301]: MESSAGE: (end of hoist 1 @2429)
-Message[301]: MESSAGE: (hoist 2: cooperative multi-tasking ukernel @117)
-000E                      M     ORG ctx_addr_0
-000E                      M init_1:
-                      00561     iopin_init;
+                          M     EXPAND_POP
+Message[301]: MESSAGE: (end of hoist 1 @2810)
+Message[301]: MESSAGE: (hoist 2: cooperative multi-tasking ukernel @495)
+                          M     EXPAND; turn expand back on
+0001                      M     ORG ctx_addr_0
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0001                      M init_1:
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+                      00939     iopin_init;
                           M     mov8 ANSELA, LITERAL(0); ; //all digital; CAUTION: do this before pin I/O
                           M ;    EXPAND_PUSH FALSE
                           M ;    NOEXPAND  ;reduce clutter
                           M ;    if (SRC == DEST) && ((srcbytes) == (destbytes)) && !(reverse)  ;nothing to do
   0000                    M     LOCAL SRC = (ASM_MSB | (0)) ;kludge; force eval (avoids "missing operand" and "missing argument" errors/MPASM bugs); also helps avoid "line too long" messages (MPASM li
   1F38                    M     LOCAL DEST = ANSELA ;kludge; force eval (avoids "missing operand" and "missing argument" errors/MPASM bugs); also helps avoid "line too long" messages (MPASM limit 200)
-                          M     WARNIF(DEST == SRC, [WARNING] useless mov8 from ANSELA to (ASM_MSB | (0)) @1122);;
-                          M ;    messg "mov8", #v(DEST), #v(SRC), #v(ISLIT(SRC)), #v(LIT2VAL(SRC)) @1123
-                          M ;    messg src, dest @1124;
+                          M     WARNIF(DEST == SRC, [WARNING] useless mov8 from ANSELA to (ASM_MSB | (0)) @1500);;
+                          M ;    messg "mov8", #v(DEST), #v(SRC), #v(ISLIT(SRC)), #v(LIT2VAL(SRC)) @1501
+                          M ;    messg src, dest @1502;
                           M     if ISLIT(SRC)  ;unpack SRC bytes
-                          M ; messg dest, #v(!LIT2VAL(SRC)), #v(DEST != WREG), #v(!(DEST & INDF0_special)), #v(!(DEST & INDF1_special)) @1126
+                          M ; messg dest, #v(!LIT2VAL(SRC)), #v(DEST != WREG), #v(!(DEST & INDF0_special)), #v(!(DEST & INDF1_special)) @1504
                           M         if !LIT2VAL(SRC) && (DEST != WREG) && !(DEST & INDF0_special) && !(DEST & INDF1_special)
                           M ;           BANKCHK dest;
                           M ;           BANKSAFE clrf dest; special case
@@ -136,171 +150,991 @@ Message[301]: MESSAGE: (hoist 2: cooperative multi-tasking ukernel @117)
                           M             CLRF ANSELA;
                           M ;    EXPAND_PUSH FALSE
                           M     BANKCHK ANSELA
-000E   017E               M     banksel ANSELA
-000F   01B8               M     clrf ANSELA
-0010   3008               M     movlw (((ASM_MSB | ((1 << (RA3))))) & ~ASM_MSB)
-0011   00B9               M     movwf WPUA
-0012   0140               M     banksel LATA
-0013   0198               M     clrf LATA
-0014   0092               M     movwf TRISA
-0015   0151               M     banksel OSCCON3
+                          M     EXPAND_PUSH FALSE; reduce clutter in LST file
+                          M     EXPAND; turn expand back on
+0001   017E               M     banksel ANSELA
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0002   01B8               M     clrf ANSELA
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0003   3008               M     movlw (((ASM_MSB | ((1 << (RA3))))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0004   00B9               M     movwf WPUA
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0005   0140               M     banksel LATA
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0006   0198               M     clrf LATA
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0007   0092               M     movwf TRISA
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0008   0151               M     banksel OSCCON3
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
                           M     withbit_7 bcf OSCCON3
-0016   138F               M     bcf OSCCON3, 7
-0017   3060               M     movlw (((ASM_MSB | (b'110' << NOSC0 | 0 << NDIV0))) & ~ASM_MSB)
-0018   008D               M     movwf OSCCON1
-0019   3006               M     movlw (((ASM_MSB | (HFFRQ_32000000))) & ~ASM_MSB)
-001A   0093               M     movwf OSCFRQ
-001B   307B               M     movlw (((ASM_MSB | (0xFF ^ (1 << (SYSCMD)) ^ (1 << (NVMMD))))) & ~ASM_MSB)
-001C   014F               M     banksel PMD0
-001D   0096               M     movwf PMD0
-001E   30F8               M     movlw (((ASM_MSB | (0xFF ^ (1 << (TMR2MD)) ^ (1 << (TMR1MD)) ^ (1 << (TMR0MD))))) & ~ASM_MSB)
-001F   0097               M     movwf PMD1
-0020   30FF               M     movlw (((ASM_MSB | (0xFF))) & ~ASM_MSB)
-0021   0098               M     movwf PMD2
-0022   0099               M     movwf PMD3
-0023   009A               M     movwf PMD4
-Message[301]: MESSAGE: (^v REINSTATE)
-0024   009B               M     movwf PMD5
-Message[301]: MESSAGE: ([TODO] use RSTOSC HFINT 1MHz? @601)
-Message[301]: MESSAGE: ([TODO] boot loader + LVP? @620)
-8007   178C           00632     __config _CONFIG1, MY_CONFIG1
-8008   2FFE           00633     __config _CONFIG2, MY_CONFIG2
-8009   3F9F           00634     __config _CONFIG3, MY_CONFIG3
-800A   1FFF           00635     __config _CONFIG4, MY_CONFIG4
-800B   3FFF           00636     __config _CONFIG5, MY_CONFIG5
-Message[301]: MESSAGE: (end of hoist 2 @651)
-Message[301]: MESSAGE: (hoist 5: custom main @95)
+0009   138F               M     bcf OSCCON3, 7
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+000A   3060               M     movlw (((ASM_MSB | (b'110' << NOSC0 | 0 << NDIV0))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+000B   008D               M     movwf OSCCON1
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+000C   3006               M     movlw (((ASM_MSB | (HFFRQ_32000000))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+000D   0093               M     movwf OSCFRQ
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+000E   307B               M     movlw (((ASM_MSB | (0xFF ^ (1 << (SYSCMD)) ^ (1 << (NVMMD))))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+000F   014F               M     banksel PMD0
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0010   0096               M     movwf PMD0
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0011   30F8               M     movlw (((ASM_MSB | (0xFF ^ (1 << (TMR2MD)) ^ (1 << (TMR1MD)) ^ (1 << (TMR0MD))))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0012   0097               M     movwf PMD1
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0013   30FF               M     movlw (((ASM_MSB | (0xFF))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0014   0098               M     movwf PMD2
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0015   0099               M     movwf PMD3
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0016   009A               M     movwf PMD4
+                          M     EXPAND_POP
+Message[301]: MESSAGE: (^v REINSTATE @864)
+                          M     EXPAND; turn expand back on
+0017   009B               M     movwf PMD5
+                          M     EXPAND_POP
+Message[301]: MESSAGE: ([TODO] use RSTOSC HFINT 1MHz? @979)
+Message[301]: MESSAGE: ([TODO] boot loader + LVP? @998)
+8007   178C           01010     __config _CONFIG1, MY_CONFIG1
+8008   2FFE           01011     __config _CONFIG2, MY_CONFIG2
+8009   3F9F           01012     __config _CONFIG3, MY_CONFIG3
+800A   1FFF           01013     __config _CONFIG4, MY_CONFIG4
+800B   3FFF           01014     __config _CONFIG5, MY_CONFIG5
+                      01015     LIST_POP; pop
+Message[301]: MESSAGE: (end of hoist 2 @1029)
+Message[301]: MESSAGE: (hoist 3: app helpers @280)
+Message[301]: MESSAGE: (end of hoist 3 @491)
+Message[301]: MESSAGE: (hoist 4: ws1 24 bpp WS281X xmit helpers @141)
+                          M     EXPAND; turn expand back on
+                      00143     EXPAND_PUSH FALSE
                           M         exitm
-                      00098 ;; custom main ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00099 
-                      00100     THREAD_DEF main, 6; 6 levels: wrapper->ws_player->drip->anim->ws_send->nop
+                      00144 ;; 1 bpp wsplayer helpers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00145 
+                      00146 ;only 2 colors are supported @1 bpp:
+                      00147 ;    constant FGCOLOR = 0x010101;
+                      00148 ;    constant BGCOLOR = 0x000000;
+                      00149 ;    messg [TODO] allow var colors @149
+                      00150     
+                      00151 ws1_sendbit macro latbit, databit, idler2, idler4; pre_idler4, idler2
+                      00152 ;    CONTEXT_SAVE wsbit_idler4
+                      00153 ;    pre_idler4; glue or prep for next bit
+                      00154 ;    nopif $ == CONTEXT_ADDR(wsbit_idler4), 4
+                      00155     setbit REGOF(latbit), BITOF(latbit), TRUE; bit start
+                      00156     ifbit REGOF(databit), BITOF(databit), FALSE, RESERVE(1)
+                      00157         ORG$-1; kludge: fill in placeholder using stmt with params
+                      00158         setbit REGOF(latbit), BITOF(latbit), FALSE; bit data
+                      00159     CONTEXT_SAVE wsbit_idler2
+                      00160     idler2; other processing
+                      00161     nopif $ == CONTEXT_ADDR(wsbit_idler2), 2
+                      00162     setbit REGOF(latbit), BITOF(latbit), FALSE; bit end
+                      00163     CONTEXT_SAVE wsbit_idler4
+                      00164     idler4; glue or prep for next bit
+                      00165     nopif $ == CONTEXT_ADDR(wsbit_idler4), 4
+                      00166     CONTEXT_SAVE wsbit_after
+                      00167     endm
+                      00168 
+                      00169 
+                      00170     nbDCL8 pxbits8;
+                          M     EXPAND; turn expand back on
                           M     CBLOCK NEXT_RAM9999; BOOL2INT(banked))  ;continue where we left off last time
-  00000070                M         stkptr_0 
+  00000070                M         pxbits8 
                           M     ENDC  ;can't span macros
-Message[301]: MESSAGE: (creating main thread# 0 @39, stack size 6, host stack remaining: 10 @170)
-0025                      M     ORG ctx_addr_1
-0025                      M init_2:
-0025   3180               M     MOVLP ((stack_alloc_0) / 0x100)
-0026   2030               M     call stack_alloc_0
-0027   2036               M     call main
-0028   282C               M     goto yield_again
-0029   017F               M     banksel STKPTR
+                          M     EXPAND_POP
+                      00171 ;    ERRIF(BANKOF(pxbits8) != BANKOF(LATA), [ERROR] ws vars must be in same bank as LATA @171);
+                      00172 ;WREG must contain byte to send
+                      00173 ws1_sendbyte macro latbit, glue2, glue4
+                      00174 ;first bit inlined to allow more prep time:
+                      00175     ws1_sendbit latbit, #v(BITWRAP(WREG, log2(0x80))), RESERVE(2), RESERVE(4)
+                      00176         CONTEXT_RESTORE wsbit_idler2
+                      00177         LSLF WREG, F;
+                      00178         LSLF WREG, F; 0x40 -> C for loop
+                      00179         CONTEXT_RESTORE wsbit_idler4
+                      00180         MOVWF pxbits8; kludge: save WREG in target then swap (need to preserve WREG)
+                      00181 ;       swapreg WREG, pxgrp8;
+                      00182         XORLW 6; WREG ^ 6
+                      00183         XORWF pxbits8, F; == 6
+                      00184         XORWF pxbits8, W; == WREG
+                      00185         CONTEXT_RESTORE wsbit_after
+                      00186     LOCAL bitloop;
+                      00187 bitloop: ;//6x
+                      00188     ws1_sendbit latbit, #v(BITWRAP(STATUS, Carry)), RESERVE(0), RESERVE(4)
+                      00189         CONTEXT_RESTORE wsbit_idler4
+                      00190         LSLF WREG, F
+                      00191 ;       ifbit EQUALS0 FALSE, goto bitloop;
+                      00192         decfsz pxbits8, F
+                      00193             goto bitloop;
+                      00194 ;        CONTEXT_SAVE wsbyte_preload1
+                      00195         NOP 1
+                      00196 ;        nopif $ == CONTEXT_ADDR(wsbyte_preload1), 1
+                      00197         CONTEXT_RESTORE wsbit_after
+                      00198 ;last bit inlined to allow custom glue logic:
+                      00199     ws1_sendbit latbit, #v(BITWRAP(STATUS, Carry)), glue2, glue4;
+                      00200     endm
+                      00201 
+                      00202 
+                      00203 #ifndef RGB_ORDER
+                      00204  #define RGB_ORDER  0x123; //R = byte[1-1], G = byte[2-1], B = byte[3-1]; default = 0x123 = RGB
+                      00205 #endif
+                      00206 
+                      00207 #define RGB_BYTE(n)  RGB_#v(n); (n) % 3); controls byte order (BYTEOF)
+                      00208 ;#ifdef RGSWAP; set color order
+                      00209 ;line too long :( #define RGB_ORDER(n)  (((RGSWAP >> (8 - 4 * (n))) & 0xF) - 1)
+  0001                00210     CONSTANT RGB_0     = (((RGB_ORDER >> 8) & 0xF) - 1);;
+  0000                00211     CONSTANT RGB_1     = (((RGB_ORDER >> 4) & 0xF) - 1);;
+  0002                00212     CONSTANT RGB_2     = (((RGB_ORDER >> 0) & 0xF) - 1);;
+Message[301]: MESSAGE: ([DEBUG] rgb order 0x213, R = 1, G = 0, B = 2 @213)
+                      00213     messg [DEBUG] rgb order RGB_ORDER, R = 1,               G = 0,               B = 2               @213
+                      00214 ;#else; default color order R,G,B (0x123)
+                      00215 ; #define RGB_ORDER(n)  ((n) % 3)
+                      00216 ;    CONSTANT RGB_#v(0) = 0;
+                      00217 ;    CONSTANT RGB_#v(1) = 1;
+                      00218 ;    CONSTANT RGB_#v(2) = 2;
+                      00219 ;#endif
+                      00220 ;R/G/B offsets within pal ent for each RGB order:
+                      00221 ;mpasm !like consts for MOVIW [FSR] offsets :(
+                      00222 ;    constant ROFS_#v(0) = 1-1, GOFS_#v(0) = 2-1, BOFS_#v(0) = 3-1; //default 0x123 = RGB
+                      00223 ;    constant ROFS_#v(0x123) = 1-1, GOFS_#v(0x123) = 2-1, BOFS_#v(0x123) = 3-1;
+                      00224 ;    constant ROFS_#v(0x132) = 1-1, GOFS_#v(0x132) = 3-1, BOFS_#v(0x132) = 2-1;
+                      00225 ;    constant ROFS_#v(0x213) = 2-1, GOFS_#v(0x213) = 1-1, BOFS_#v(0x213) = 3-1;
+                      00226 ;    constant ROFS_#v(0x231) = 3-1, GOFS_#v(0x231) = 1-1, BOFS_#v(0x231) = 2-1;
+                      00227 ;    constant ROFS_#v(0x312) = 2-1, GOFS_#v(0x312) = 3-1, BOFS_#v(0x312) = 1-1;
+                      00228 ;    constant ROFS_#v(0x321) = 3-1, GOFS_#v(0x321) = 2-1, BOFS_#v(0x321) = 1-1;
+                      00229 
+                      00230 
+                      00231 ;ws1_sendpx macro rgb24, wait_first, first_idler, more_idler
+                      00232 ws1_sendpx macro latbit, rgb24, prep_first, glue2, glue4
+                      00233 ; messg HIBYTE(rgb24)
+                      00234 ; messg MIDBYTE(rgb24)
+                      00235 ; messg LOBYTE(rgb24)
+                      00236 ;    LOCAL HI;
+                      00237 ;HI = HIBYTE(rgb24); line too long :(
+                      00238 ;    LOCAL MID;
+                      00239 ;MID = MIDBYTE(rgb24);
+                      00240 ;    LOCAL LO;
+                      00241 ;LO = LOBYTE(rgb24);
+                      00242     LOCAL FIRST_BYTE
+                      00243 FIRST_BYTE = BYTEOF(rgb24, 2 - RGB_BYTE(0));
+                      00244     LOCAL MID_BYTE
+                      00245 MID_BYTE = BYTEOF(rgb24, 2 - RGB_BYTE(1));
+                      00246     LOCAL LAST_BYTE
+                      00247 LAST_BYTE = BYTEOF(rgb24, 2 - RGB_BYTE(2));
+                      00248     LOCAL before_prep = $
+                      00249     prep_first; prep first byte
+                      00250     if $ < before_prep; setup for first px
+                      00251         ORG before_prep
+                      00252         mov8 WREG, FIRST_BYTE; //only safe to do first time
+                      00253         BANKCHK REGOF(latbit)
+                      00254     endif
+                      00255 ;    ws1_send_byte FIRST_BYTE, wait_first, first_idler, more_idler; REGHI(rgb24);
+                      00256 ;    ws1_send_byte MID_BYTE, wait_first, first_idler, more_idler; REGMID(rgb24);
+                      00257 ;    ws1_send_byte LAST_BYTE, wait_first, first_idler, more_idler; REGLO(rgb24);
+                      00258     ws1_sendbyte latbit, ORG$+2, ORG$;
+                      00259         CONTEXT_RESTORE wsbit_idler2
+                      00260         mov8 WREG, MID_BYTE
+                      00261         NOP CONTEXT_ADDR(wsbit_idler2)+2 - $
+                      00262         CONTEXT_RESTORE wsbit_after
+                      00263     ws1_sendbyte latbit, ORG$+2, ORG$;
+                      00264         CONTEXT_RESTORE wsbit_idler2
+                      00265         mov8 WREG, LAST_BYTE
+                      00266         NOP CONTEXT_ADDR(wsbit_idler2)+2 - $
+                      00267         CONTEXT_RESTORE wsbit_after
+                      00268     ws1_sendbyte latbit, glue2, glue4;
+                      00269 ;    ws1_send_byte MID_BYTE, wait_first, first_idler, more_idler; REGMID(rgb24);
+                      00270 ;    ws1_send_byte LAST_BYTE, wait_first, first_idler, more_idler; REGLO(rgb24);
+                      00271     endm
+                      00272 
+                      00273     
+                      00274     EXPAND_POP
+                          M     EXPAND; turn expand back on
+                      00275     LIST_POP
+                          M     EXPAND_PUSH FALSE; hide clutter in LST file
+Message[301]: MESSAGE: (end of hoist 4 @276)
+Message[301]: MESSAGE: (hoist 5: custom main @96)
+                          M     EXPAND; turn expand back on
+                      00098     EXPAND_PUSH FALSE
+                          M         exitm
+                      00099 ;; custom main ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00100 
+                      00101     THREAD_DEF main, 6; 6 levels: wrapper->ws_player->drip->anim->ws_send->nop
+                          M     EXPAND; turn expand back on
+                          M     CBLOCK NEXT_RAM9999; BOOL2INT(banked))  ;continue where we left off last time
+  00000071                M         stkptr_0 
+                          M     ENDC  ;can't span macros
+                          M     EXPAND_POP
+Message[301]: MESSAGE: (creating main thread# 0 @26, stack size 6, host stack remaining: 10 @548)
+                          M     EXPAND; turn expand back on
+0018                      M     ORG ctx_addr_1
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0018                      M init_2:
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0018   3180               M     MOVLP ((stack_alloc_0) / 0x100)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0019   2023               M     call stack_alloc_0
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+001A   2037               M     call main
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+001B   281F               M     goto yield_again
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+001C   017F               M     banksel STKPTR
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
                           M     withdest_0 movf STKPTR
-002A   086D               M     movf STKPTR, W;
-002B   00F0               M     movwf stkptr_0
-002F   0008               M     return
-0030   017F               M     banksel STKPTR
+001D   086D               M     movf STKPTR, W;
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+001E   00F1               M     movwf stkptr_0
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0022   0008               M     return
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0023   017F               M     banksel STKPTR
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
                           M     withdest_0 movf STKPTR
-0031   086D               M     movf STKPTR, W;
-0032   00F0               M     movwf stkptr_0
-0033   3005               M     movlw 6 - 1
+0024   086D               M     movf STKPTR, W;
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0025   00F1               M     movwf stkptr_0
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0026   3005               M     movlw 6 - 1
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
                           M     withdest_1 addwf STKPTR
-0034   07ED               M     addwf STKPTR, F;
-                      00101 
-                      00102 ;placeholder:
-                      00103 ;real logic goes here
-                      00104 main: DROP_CONTEXT;
-                      00105     setbit LATA, RA0, TRUE;
-0036   0140               M     banksel LATA
-                          M     withbit_0 bsf LATA
-0037   1418               M     bsf LATA, 0;
-                      00106     setbit LATA, RA0, FALSE;
-                          M     withbit_0 bcf LATA
-0038   1018               M     bcf LATA, 0;
-                      00107     GOTO main;
-0039   2836               M     goto main
-                      00108 
-                      00109     THREAD_END;
-                      00110 
-Message[301]: MESSAGE: (end of hoist 5 @113)
-Message[301]: MESSAGE: (epilog @2967)
-0035                      M     ORG ctx_addr_3
-0035   283A               M     goto init_3
-003A                      M     ORG ctx_addr_4
+0027   07ED               M     addwf STKPTR, F;
+                          M     EXPAND_POP
+                      00102 
+                      00103 #if 0
+                      00104 macro test
+                      00105 ;    setbit LATA, RA0, TRUE;
+                      00106 ;    mov24 fpcolor, LITERAL(0x020000);
+                      00107     ws1_sendpx BITWRAP(LATA, FRPANEL), LITERAL(0x020000), ORG$-1, ORG$, ORG$;;
+                      00108     WAIT 1 sec
+                      00109 ;    setbit LATA, RA0, FALSE;
+                      00110 ;    mov24 fpcolor, LITERAL(0x000200);
+                      00111     ws1_sendpx BITWRAP(LATA, FRPANEL), LITERAL(0x000200), ORG$-1, ORG$, ORG$;;
+                      00112     WAIT 1 sec
+                      00113 ;    mov24 fpcolor, LITERAL(0x000002);
+                      00114     ws1_sendpx BITWRAP(LATA, FRPANEL), LITERAL(0x000002), ORG$-1, ORG$, ORG$;;
+                      00115     WAIT 1 sec
+                      00116     ws1_sendpx BITWRAP(LATA, FRPANEL), LITERAL(0), ORG$-1, ORG$, ORG$;;
+                      00117     WAIT 1 sec
+                      00118     endm
+                      00119 #endif
+                      00120 
+                      00121     doing_init TRUE;
+                          M     EXPAND; turn expand back on
+0028                      M     ORG ctx_addr_3
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0028                      M init_3:
+                          M     EXPAND_POP
+                      00122     i2c_init
+                          M     EXPAND; turn expand back on
+0028   3006               M     movlw (((ASM_MSB | (0 | 0 | b'0110' << SSPM0))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0029   0143               M     banksel SSP1CON1
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+002A   0090               M     movwf SSP1CON1
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+002B   3080               M     movlw (((ASM_MSB | ((1 << (SMP)) | 0))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+002C   008F               M     movwf SSP1STAT
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+002D   0191               M     clrf SSP1CON2
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+002E   0192               M     clrf SSP1CON3
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+002F   30FE               M     movlw (((ASM_MSB | (0x7F << 1))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0030   008E               M     movwf SSP1MSK
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0031   30A0               M     movlw (((ASM_MSB | (0x50 << 1))) & ~ASM_MSB)
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0032   008D               M     movwf SSP1ADD
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0033   014E               M     banksel PIR3
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+                          M     withbit_0 bcf PIR3
+0034   100F               M     bcf PIR3, 0;
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0035   0143               M     banksel SSP1CON1
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+                          M     withbit_5 bsf SSP1CON1
+0036   1690               M     bsf SSP1CON1, 5
+                          M     EXPAND_POP
+                      00123     nbDCL24 fpcolor;
+                          M     EXPAND; turn expand back on
+                          M     CBLOCK NEXT_RAM9999; BOOL2INT(banked))  ;continue where we left off last time
+  00000072                M         fpcolor :3
+                          M     ENDC  ;can't span macros
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+  0073                    M     CONSTANT fpcolor0mid = fpcolor + 1
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+  0074                    M     CONSTANT fpcolor0hi = fpcolor + 2
+                          M     EXPAND_POP
+                      00124 
+                      00125 ;placeholder:
+                      00126 ;real logic goes here
+                      00127 main: DROP_CONTEXT;
+                      00128 ;    test
+                      00129     wait4i2c ORG$, ORG$;;
+                          M     EXPAND; turn expand back on
+0037   014E               M     banksel PIR3
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0039                      M     ORG$
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0038                      M     ORG ctx_addr_4
+                          M     EXPAND_POP
+Message[301]: MESSAGE: ([INFO] emitted extraneous banksel (no ORG$ for ifbit) @2388)
+                          M     EXPAND; turn expand back on
+                          M     withbit_0 bcf PIR3
+0038   100F               M     bcf PIR3, 0;
+                          M     EXPAND_POP
+Warning[207]: Found label after column 1. (mo8v)
+0039                  00130     mo8v
+                      00131     GOTO main;
+                          M     EXPAND; turn expand back on
+0039   2837               M     goto main
+                          M     EXPAND_POP
+                      00132 
+                      00133     THREAD_END;
+                      00134 
+                      00135     EXPAND_POP
+                          M     EXPAND; turn expand back on
+                      00136     LIST_POP
+                          M     EXPAND_PUSH FALSE; hide clutter in LST file
+Message[301]: MESSAGE: (end of hoist 5 @137)
+Message[301]: MESSAGE: (epilog @3348)
+                          M     EXPAND; turn expand back on
+0028                      M     ORG ctx_addr_3
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+Error[118]  : Overwriting previous address contents (0028)
+Error[118]  : Overwriting previous address contents (0028)
+0028   2828               M     goto init_3
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+003A                      M     ORG ctx_addr_6
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+Error[116]  : Address label duplicated or different in second pass (init_3)
 003A                      M init_3:
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
 003A                      M at_eof_0:
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
 003A                      M at_eof_1:
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
 003A                      M at_eof_2:
-Message[301]: MESSAGE: ([INFO] optimization stats: @2955)
+                          M     EXPAND_POP
+Message[301]: MESSAGE: ([INFO] optimization stats: @3336)
+                          M     EXPAND; turn expand back on
 003A                      M at_eof_3:
-Message[301]: MESSAGE: ([INFO] bank sel: 7 (39%), dropped: 11 (61%) @868)
+                          M     EXPAND_POP
+Message[301]: MESSAGE: ([INFO] bank sel: 10 (38%), dropped: 16 (62%) @1246)
+                          M     EXPAND; turn expand back on
 003A                      M at_eof_4:
-Message[301]: MESSAGE: ([INFO] non-banked used: 1/16 (6%) @1054)
+                          M     EXPAND_POP
+Message[301]: MESSAGE: ([INFO] non-banked used: 5/16 (31%) @1432)
+                          M     EXPAND; turn expand back on
 003A                      M at_eof_5:
-Message[301]: MESSAGE: ([INFO] (non-banked) Bit vars: allocated 0, used 0 @1806)
+                          M     EXPAND_POP
+Message[301]: MESSAGE: ([INFO] (non-banked) Bit vars: allocated 0, used 0 @2187)
+                          M     EXPAND; turn expand back on
 003A                      M at_eof_6:
-Message[301]: MESSAGE: ([INFO] page sel: 1 (20%), dropped: 4 (80%) @2344)
-Message[301]: MESSAGE: ([INFO] page0 used: 58/2048 (3%) @2346)
+                          M     EXPAND_POP
+Message[301]: MESSAGE: ([INFO] page sel: 1 (20%), dropped: 4 (80%) @2725)
+Message[301]: MESSAGE: ([INFO] page0 used: 58/2048 (3%) @2727)
+                          M     EXPAND; turn expand back on
 003A                      M at_eof_7:
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
 003A                      M at_eof_8:
-Message[301]: MESSAGE: ([INFO] #threads: 1, stack alloc: 6/16 (38%) @363)
-Message[301]: MESSAGE: ([DEBUG] why is banksel needed here? 24 @369)
+                          M     EXPAND_POP
+Message[301]: MESSAGE: ([INFO] #threads: 1, stack alloc: 6/16 (38%) @741)
+Message[301]: MESSAGE: ([DEBUG] why is banksel needed here? 1807 @747)
+                          M     EXPAND; turn expand back on
                           M     withdest_0 movf stkptr_1
-003A   0870               M     movf stkptr_1, W;
+003A   0871               M     movf stkptr_1, W;
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
 003B   017F               M     banksel STKPTR
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
 003C   00ED               M     movwf STKPTR
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
 003D   0008               M     return
-002C                      M     ORG ctx_addr_2
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+001F                      M     ORG ctx_addr_2
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
                           M     withdest_0 movf stkptr_1
-002C   0870               M     movf stkptr_1, W;
-002D   017F               M     banksel STKPTR
-002E   00ED               M     movwf STKPTR
-003E                      M     ORG ctx_addr_5
-Message[301]: MESSAGE: (end of epilog @3003)
-MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   2-19-2022  14:32:14         PAGE  3
+001F   0871               M     movf stkptr_1, W;
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0020   017F               M     banksel STKPTR
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+0021   00ED               M     movwf STKPTR
+                          M     EXPAND_POP
+                          M     EXPAND; turn expand back on
+003E                      M     ORG ctx_addr_7
+                          M     EXPAND_POP
+Message[301]: MESSAGE: (end of epilog @3384)
+MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   2-19-2022  23:30:36         PAGE  3
 PIC8-EEPROM - serial EEPROM emulator for 8-pin/8-bit Microchip PIC
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+ABDEN                             00000000
+ABDOVF                            00000007
 ABS                               IIF((x) < 0, -(x), x)
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACKTIM                            00000007
+ADACT                             0000009F
+ADACT0                            00000000
+ADACT1                            00000001
+ADACT2                            00000002
+ADACT3                            00000003
+ADACT4                            00000004
+ADACTPPS                          00001EC3
+ADACTPPS0                         00000000
+ADACTPPS1                         00000001
+ADACTPPS2                         00000002
+ADACTPPS3                         00000003
+ADACTPPS4                         00000004
+ADACTPPS5                         00000005
+ADCMD                             00000005
+ADCON0                            0000009D
+ADCON1                            0000009E
+ADCS0                             00000004
+ADCS1                             00000005
+ADCS2                             00000006
+ADDEN                             00000003
 ADDLW                             addlw_tracker
 ADDWF                             addwf_banksafe
+ADFM                              00000007
+ADFVR0                            00000000
+ADFVR1                            00000001
+ADIE                              00000000
+ADIF                              00000000
+ADMSK1                            00000001
+ADMSK2                            00000002
+ADMSK3                            00000003
+ADMSK4                            00000004
+ADMSK5                            00000005
+ADOEN                             00000002
+ADON                              00000000
+ADOR                              00000002
+ADPREF0                           00000000
+ADPREF1                           00000001
+ADRES                             0000009B
+ADRESH                            0000009C
+ADRESH0                           00000000
+ADRESH1                           00000001
+ADRESH2                           00000002
+ADRESH3                           00000003
+ADRESH4                           00000004
+ADRESH5                           00000005
+ADRESH6                           00000006
+ADRESH7                           00000007
+ADRESL                            0000009B
+ADRESL0                           00000000
+ADRESL1                           00000001
+ADRESL2                           00000002
+ADRESL3                           00000003
+ADRESL4                           00000004
+ADRESL5                           00000005
+ADRESL6                           00000006
+ADRESL7                           00000007
+ADTIF                             00000001
+AHEN                              00000001
 ALIAS_DCL24                       
 ALLOC_GPR                         
 ANDLW                             andlw_tracker
+ANSA0                             00000000
+ANSA1                             00000001
+ANSA2                             00000002
+ANSA4                             00000004
+ANSA5                             00000005
+ANSELA                            00001F38
+AS0E                              00000000
+AS1E                              00000001
+AS2E                              00000002
+AS3E                              00000003
+AS4E                              00000004
 ASM_MSB                           80000000
 BANKCHK                           
 BANKLEN                           0x80
 BANKOF                            IIF(ISBANKED(reg), REG2ADDR(reg) / BANKLEN, BANK_UNKN)
 BANKOFS                           ((reg) % BANKLEN)
 BANKSAFE                          
-BANKSEL_DROP                      0000000B
-BANKSEL_KEEP                      00000009
+BANKSEL_DROP                      00000010
+BANKSEL_KEEP                      0000000C
 BANK_TRACKER                      00001FED
 BANK_UNKN                         -1
+BAUD1CON                          0000011F
+BAUDCON                           0000011F
+BAUDCON1                          0000011F
+BAUDCTL                           0000011F
+BAUDCTL1                          0000011F
 BCF                               bcf_tracker
+BCL1IE                            00000001
+BCL1IF                            00000001
+BF                                00000000
 BIT                               (1 << (n))
 BITDCL                            
 BITDCL_COUNT                      00000000
 BITOF                             ((bitwrap) & 0x0F)
 BITPARENT                         BITVARS#v(name / 8), 7 - name % 8
 BITWRAP                           (((reg) << 4) | ((bitnum) & 0x0F))
+BOEN                              00000004
 BOOL2INT                          ((val) != 0)
+BORCON                            00000811
+BORRDY                            00000000
 BORROW                            STATUS, Carry, !
+BRG16                             00000003
+BRGH                              00000002
 BSF                               bsf_tracker
+BSR                               00000008
+BSR0                              00000000
+BSR1                              00000001
+BSR2                              00000002
+BSR3                              00000003
+BSR4                              00000004
+BSR5                              00000005
+BSR_SHAD                          00001FE6
 BYTEOF                            IIF(ISLIT(val), BYTEOF_LIT(val, which), BYTEOF_REG(val, which))
 BYTEOF_LIT                        LITERAL(((val) >> (8 * (which))) & 0xFF)
 BYTEOF_REG                        REGISTER((val) + (which))
+C                                 00000000
+C1EN                              00000007
+C1HYS                             00000001
+C1IE                              00000000
+C1IF                              00000000
+C1INTN                            00000000
+C1INTP                            00000001
+C1NCH0                            00000000
+C1NCH1                            00000001
+C1NCH2                            00000002
+C1OUT_CM1CON0                     00000006
+C1OUT_CMOUT                       00000000
+C1OUT_CMSTAT                      00000000
+C1PCH0                            00000000
+C1PCH1                            00000001
+C1PCH2                            00000002
+C1POL                             00000004
+C1SYNC                            00000000
+C2OUT                             00000001
 CALL                              call_pagesafe
 CALLIF                            
 CARRY                             STATUS, Carry,
+CCP1CAP                           0000030F
+CCP1CON                           0000030E
+CCP1CTS0                          00000000
+CCP1CTS1                          00000001
+CCP1CTS2                          00000002
+CCP1EN                            00000007
+CCP1FMT                           00000004
+CCP1IE                            00000000
+CCP1IF                            00000000
+CCP1MD                            00000000
+CCP1MODE0                         00000000
+CCP1MODE1                         00000001
+CCP1MODE2                         00000002
+CCP1MODE3                         00000003
+CCP1OUT                           00000005
+CCP1PPS                           00001EA1
+CCP1PPS0                          00000000
+CCP1PPS1                          00000001
+CCP1PPS2                          00000002
+CCP1PPS3                          00000003
+CCP1PPS4                          00000004
+CCP1PPS5                          00000005
+CCP2CAP                           00000313
+CCP2CON                           00000312
+CCP2CTS0                          00000000
+CCP2CTS1                          00000001
+CCP2CTS2                          00000002
+CCP2EN                            00000007
+CCP2FMT                           00000004
+CCP2IE                            00000001
+CCP2IF                            00000001
+CCP2MD                            00000001
+CCP2MODE0                         00000000
+CCP2MODE1                         00000001
+CCP2MODE2                         00000002
+CCP2MODE3                         00000003
+CCP2OUT                           00000005
+CCP2PPS                           00001EA2
+CCP2PPS0                          00000000
+CCP2PPS1                          00000001
+CCP2PPS2                          00000002
+CCP2PPS3                          00000003
+CCP2PPS4                          00000004
+CCP2PPS5                          00000005
+CCPR1                             0000030C
+CCPR1H                            0000030D
+CCPR1L                            0000030C
+CCPR2                             00000310
+CCPR2H                            00000311
+CCPR2L                            00000310
+CDAFVR0                           00000002
+CDAFVR1                           00000003
+CDIV0                             00000000
+CDIV1                             00000001
+CDIV2                             00000002
+CDIV3                             00000003
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CHS4                              00000006
+CHS5                              00000007
+CKE                               00000006
+CKP                               00000004
+CKPOL                             00000006
+CKPS0                             00000004
+CKPS1                             00000005
+CKPS2                             00000006
+CKSYNC                            00000005
+CLC1CON                           00001E10
+CLC1GLS0                          00001E16
+CLC1GLS1                          00001E17
+CLC1GLS2                          00001E18
+CLC1GLS3                          00001E19
+CLC1IE                            00000004
+CLC1IF                            00000004
+CLC1MD                            00000001
+CLC1POL                           00001E11
+CLC1SEL0                          00001E12
+CLC1SEL1                          00001E13
+CLC1SEL2                          00001E14
+CLC1SEL3                          00001E15
+CLC2CON                           00001E1A
+CLC2GLS0                          00001E20
+CLC2GLS1                          00001E21
+CLC2GLS2                          00001E22
+CLC2GLS3                          00001E23
+CLC2IE                            00000005
+CLC2IF                            00000005
+CLC2MD                            00000002
+CLC2POL                           00001E1B
+CLC2SEL0                          00001E1C
+CLC2SEL1                          00001E1D
+CLC2SEL2                          00001E1E
+CLC2SEL3                          00001E1F
+CLC3CON                           00001E24
+CLC3GLS0                          00001E2A
+CLC3GLS1                          00001E2B
+CLC3GLS2                          00001E2C
+CLC3GLS3                          00001E2D
+CLC3IE                            00000006
+CLC3IF                            00000006
+CLC3MD                            00000003
+CLC3POL                           00001E25
+CLC3SEL0                          00001E26
+CLC3SEL1                          00001E27
+CLC3SEL2                          00001E28
+CLC3SEL3                          00001E29
+CLC4CON                           00001E2E
+CLC4GLS0                          00001E34
+CLC4GLS1                          00001E35
+CLC4GLS2                          00001E36
+CLC4GLS3                          00001E37
+CLC4IE                            00000007
+CLC4IF                            00000007
+CLC4MD                            00000004
+CLC4POL                           00001E2F
+CLC4SEL0                          00001E30
+CLC4SEL1                          00001E31
+CLC4SEL2                          00001E32
+CLC4SEL3                          00001E33
+CLCDATA                           00001E0F
+CLCIN0PPS                         00001EBB
+CLCIN0PPS0                        00000000
+CLCIN0PPS1                        00000001
+CLCIN0PPS2                        00000002
+CLCIN0PPS3                        00000003
+CLCIN0PPS4                        00000004
+CLCIN0PPS5                        00000005
+CLCIN1PPS                         00001EBC
+CLCIN1PPS0                        00000000
+CLCIN1PPS1                        00000001
+CLCIN1PPS2                        00000002
+CLCIN1PPS3                        00000003
+CLCIN1PPS4                        00000004
+CLCIN1PPS5                        00000005
+CLCIN2PPS                         00001EBD
+CLCIN2PPS0                        00000000
+CLCIN2PPS1                        00000001
+CLCIN2PPS2                        00000002
+CLCIN2PPS3                        00000003
+CLCIN2PPS4                        00000004
+CLCIN2PPS5                        00000005
+CLCIN3PPS                         00001EBE
+CLCIN3PPS0                        00000000
+CLCIN3PPS1                        00000001
+CLCIN3PPS2                        00000002
+CLCIN3PPS3                        00000003
+CLCIN3PPS4                        00000004
+CLCIN3PPS5                        00000005
+CLKRCLK                           00000896
+CLKRCLK0                          00000000
+CLKRCLK1                          00000001
+CLKRCLK2                          00000002
+CLKRCLK3                          00000003
+CLKRCON                           00000895
+CLKRDC0                           00000003
+CLKRDC1                           00000004
+CLKRDIV0                          00000000
+CLKRDIV1                          00000001
+CLKRDIV2                          00000002
+CLKREN                            00000007
+CLKRMD                            00000001
 CLRF                              clrf_tracker
 CLRW                              CLRF WREG
+CM1CON0                           00000990
+CM1CON1                           00000991
+CM1NCH                            00000992
+CM1PCH                            00000993
+CMOUT                             0000098F
+CMP1MD                            00000001
+CMSTAT                            0000098F
 COMMON_END                        0xC
 CONTEXT_ADDR                      ctx_addr_#v(name)
 CONTEXT_RESTORE                   
 CONTEXT_SAVE                      
+COSC0                             00000004
+COSC1                             00000005
+COSC2                             00000006
+CPUDOZE                           0000088C
+CREN                              00000004
+CS                                00000000
+CS0                               00000000
+CS1                               00000001
+CS2                               00000002
+CS3                               00000003
+CSRC                              00000007
+CSWHOLD                           00000007
+CSWIE                             00000006
+CSWIF                             00000006
+CTS0                              00000000
+CTS1                              00000001
+CTS2                              00000002
+CURRENT_FPS_usec                  FFFFFFFF
+CWG1AS0                           00000612
+CWG1AS1                           00000613
+CWG1CLKCON                        0000060C
+CWG1CON0                          00000610
+CWG1CON1                          00000611
+CWG1CS                            00000000
+CWG1DAT                           0000060D
+CWG1DAT0                          00000000
+CWG1DAT1                          00000001
+CWG1DAT2                          00000002
+CWG1DAT3                          00000003
+CWG1DBF                           0000060F
+CWG1DBF0                          00000000
+CWG1DBF1                          00000001
+CWG1DBF2                          00000002
+CWG1DBF3                          00000003
+CWG1DBF4                          00000004
+CWG1DBF5                          00000005
+CWG1DBR                           0000060E
+CWG1DBR0                          00000000
+CWG1DBR1                          00000001
+CWG1DBR2                          00000002
+CWG1DBR3                          00000003
+CWG1DBR4                          00000004
+CWG1DBR5                          00000005
+CWG1EN                            00000007
+CWG1IE                            00000000
+CWG1IF                            00000000
+CWG1IN                            00000005
+CWG1LD                            00000006
+CWG1LSAC0                         00000002
+CWG1LSAC1                         00000003
+CWG1LSBD0                         00000004
+CWG1LSBD1                         00000005
+CWG1MD                            00000000
+CWG1MODE0                         00000000
+CWG1MODE1                         00000001
+CWG1MODE2                         00000002
+CWG1OVRA                          00000004
+CWG1OVRB                          00000005
+CWG1OVRC                          00000006
+CWG1OVRD                          00000007
+CWG1POLA                          00000000
+CWG1POLB                          00000001
+CWG1POLC                          00000002
+CWG1POLD                          00000003
+CWG1PPS                           00001EB1
+CWG1PPS0                          00000000
+CWG1PPS1                          00000001
+CWG1PPS2                          00000002
+CWG1PPS3                          00000003
+CWG1PPS4                          00000004
+CWG1PPS5                          00000005
+CWG1REN                           00000006
+CWG1SHUTDOWN                      00000007
+CWG1STR                           00000614
+CWG1STRA                          00000000
+CWG1STRB                          00000001
+CWG1STRC                          00000002
+CWG1STRD                          00000003
 Carry                             00000000
+D1N                               00000000
+D1S0                              00000000
+D1S1                              00000001
+D1S2                              00000002
+D1S3                              00000003
+D1S4                              00000004
+D1S5                              00000005
+D1T                               00000001
+D2N                               00000002
+D2S0                              00000000
+D2S1                              00000001
+D2S2                              00000002
+D2S3                              00000003
+D2S4                              00000004
+D2S5                              00000005
+D2T                               00000003
+D3N                               00000004
+D3S0                              00000000
+D3S1                              00000001
+D3S2                              00000002
+D3S3                              00000003
+D3S4                              00000004
+D3S5                              00000005
+D3T                               00000005
+D4N                               00000006
+D4S0                              00000000
+D4S1                              00000001
+D4S2                              00000002
+D4S3                              00000003
+D4S4                              00000004
+D4S5                              00000005
+D4T                               00000007
+DAC1CON0                          0000090E
+DAC1CON1                          0000090F
+DAC1EN                            00000007
+DAC1MD                            00000006
+DAC1NSS                           00000000
+DAC1OE1                           00000005
+DAC1OE2                           00000004
+DAC1PSS0                          00000002
+DAC1PSS1                          00000003
+DAC1R0                            00000000
+DAC1R1                            00000001
+DAC1R2                            00000002
+DAC1R3                            00000003
+DAC1R4                            00000004
+DATA_ADDRESS                      00000005
+DBF0                              00000000
+DBF1                              00000001
+DBF2                              00000002
+DBF3                              00000003
+DBF4                              00000004
+DBF5                              00000005
+DBR0                              00000000
+DBR1                              00000001
+DBR2                              00000002
+DBR3                              00000003
+DBR4                              00000004
+DBR5                              00000005
+DC                                00000001
+DC0                               00000006
+DC1                               00000007
+DC2                               00000000
+DC3                               00000001
+DC4                               00000002
+DC5                               00000003
+DC6                               00000004
+DC7                               00000005
+DC8                               00000006
+DC9                               00000007
+DDS1MD                            00000007
 DECF                              decf_banksafe
 DECFSZ                            decfsz_tracker
+DHEN                              00000000
 DISABLED                          BIT(n)
 DISABLED_ALL                      0xFF
+DOE                               00000004
+DOZE0                             00000000
+DOZE1                             00000001
+DOZE2                             00000002
+DOZEN                             00000006
 DROP_BANK                         
 DROP_CONTEXT                      
 DROP_WREG                         
+D_A                               00000005
+D_NOT_A                           00000005
 EMIT                              
 EMITL                             
+EN                                00000007
 ENABLED                           NOBIT(n)
 ENABLED_ALL                       0
 ENDOF                             (name + SIZEOF(name))
@@ -314,45 +1148,458 @@ EXPAND_CTL
 EXPAND_POP                        EXPAND_CTL -1
 EXPAND_PUSH                       EXPAND_CTL
 EXPAND_RESTORE                    EXPAND_CTL 0xf00d
+EXTOEN                            00000007
+EXTOR                             00000007
 Equals0                           00000002
+F                                 00000001
 FALSE                             0
+FERR                              00000002
+FMT                               00000004
 FOSC_FREQ                         (32 MHz)
 FOUND_MSB                         00000000
+FREE                              00000004
+FRPANEL                           RA4
+FSR0                              00000004
 FSR00hi                           00000005
+FSR0H                             00000005
+FSR0H_SHAD                        00001FE9
+FSR0L                             00000004
+FSR0L_SHAD                        00001FE8
+FSR0_SHAD                         00001FE8
+FSR1                              00000006
 FSR10hi                           00000007
+FSR1H                             00000007
+FSR1H_SHAD                        00001FEB
+FSR1L                             00000006
+FSR1L_SHAD                        00001FEA
+FSR1_SHAD                         00001FEA
+FVRCON                            0000090C
+FVREN                             00000007
+FVRMD                             00000006
+FVRRDY                            00000006
+G1EN                              00000007
+G1POL                             00000000
+G2POL                             00000001
+G3POL                             00000002
+G4D1N                             00000000
+G4D1T                             00000001
+G4D2N                             00000002
+G4D2T                             00000003
+G4D3N                             00000004
+G4D3T                             00000005
+G4D4N                             00000006
+G4D4T                             00000007
+G4POL                             00000003
+GCEN                              00000007
+GE                                00000007
+GGO_NOT_DONE                      00000003
+GIE                               00000007
 GOTO                              goto_pagesafe
+GOnDONE                           00000001
+GPOL                              00000006
 GPR_END                           0x70
 GPR_START                         0x20
+GSPM                              00000004
+GSS0                              00000000
+GSS1                              00000001
+GSS2                              00000002
+GSS3                              00000003
+GSS4                              00000004
+GTM                               00000005
+GVAL                              00000002
+HFFRQ0                            00000000
+HFFRQ1                            00000001
+HFFRQ2                            00000002
+HFFRQ_1000000                     00000000
+HFFRQ_12000000                    00000004
+HFFRQ_16000000                    00000005
+HFFRQ_2000000                     00000001
+HFFRQ_32000000                    00000006
+HFFRQ_4000000                     00000002
+HFFRQ_8000000                     00000003
+HFOEN                             00000006
+HFOR                              00000006
+HFTUN0                            00000000
+HFTUN1                            00000001
+HFTUN2                            00000002
+HFTUN3                            00000003
+HFTUN4                            00000004
+HFTUN5                            00000005
 HIBYTE16                          BYTEOF(val, 1)
 HIBYTE24                          BYTEOF(val, 2)
 HOST_STKLEN                       16-0
+HYS                               00000001
+I2C_DAT                           00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+I2C_slave7                        b'0110'
+IDLEN                             00000007
 IGNORE_EOL                        
 IIF                               IIF_#v(((TF) != 0))(tval,  fval)
 IIFDEBUG                          expr_true
 IIF_0                             (fval)
 IIF_1                             (tval)
+IN                                00000005
 INCF                              incf_banksafe
 INCFSZ                            incfsz_tracker
 INCW                              ADDLW 1
+INDF0                             00000000
 INDF0_postdec                     00020003
 INDF0_postinc                     00020002
 INDF0_predec                      00020001
 INDF0_preinc                      00020000
 INDF0_special                     00020000
+INDF1                             00000001
 INDF1_postdec                     00010003
 INDF1_postinc                     00010002
 INDF1_predec                      00010001
 INDF1_preinc                      00010000
 INDF1_special                     00010000
 INIT_COUNT                        00000004
+INLVLA                            00001F3C
+INLVLA0                           00000000
+INLVLA1                           00000001
+INLVLA2                           00000002
+INLVLA3                           00000003
+INLVLA4                           00000004
+INLVLA5                           00000005
+INTCON                            0000000B
+INTE                              00000000
+INTEDG                            00000000
+INTF                              00000000
+INTN_CLC1CON                      00000003
+INTN_CLC2CON                      00000003
+INTN_CLC3CON                      00000003
+INTN_CLC4CON                      00000003
+INTN_CM1CON1                      00000000
+INTPPS                            00001E90
+INTPPS0                           00000000
+INTPPS1                           00000001
+INTPPS2                           00000002
+INTPPS3                           00000003
+INTPPS4                           00000004
+INTPPS5                           00000005
+INTP_CLC1CON                      00000004
+INTP_CLC2CON                      00000004
+INTP_CLC3CON                      00000004
+INTP_CLC4CON                      00000004
+INTP_CM1CON1                      00000001
 IN_THREAD                         00000000
+IOCAF                             00001F3F
+IOCAF0                            00000000
+IOCAF1                            00000001
+IOCAF2                            00000002
+IOCAF3                            00000003
+IOCAF4                            00000004
+IOCAF5                            00000005
+IOCAN                             00001F3E
+IOCAN0                            00000000
+IOCAN1                            00000001
+IOCAN2                            00000002
+IOCAN3                            00000003
+IOCAN4                            00000004
+IOCAN5                            00000005
+IOCAP                             00001F3D
+IOCAP0                            00000000
+IOCAP1                            00000001
+IOCAP2                            00000002
+IOCAP3                            00000003
+IOCAP4                            00000004
+IOCAP5                            00000005
+IOCIE                             00000004
+IOCIF                             00000004
+IOCMD                             00000000
 IORLW                             iorlw_tracker
 ISBANKED                          ((BANKOFS(reg) >= COMMON_END) && (BANKOFS(reg) < GPR_END))
 ISLIT                             ((val) & ASM_MSB)
 ISR_VECTOR                        (RESET_VECTOR + 4)
 KHz                               * 1000
 LAST_INIT                         00000040
+LATA                              00000018
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+LATA4                             00000004
+LATA5                             00000005
 LATEST_RAM1                       00000071
+LATEST_RAM2                       00000072
+LATEST_RAM3                       00000075
+LC1D1S0                           00000000
+LC1D1S1                           00000001
+LC1D1S2                           00000002
+LC1D1S3                           00000003
+LC1D1S4                           00000004
+LC1D1S5                           00000005
+LC1D2S0                           00000000
+LC1D2S1                           00000001
+LC1D2S2                           00000002
+LC1D2S3                           00000003
+LC1D2S4                           00000004
+LC1D2S5                           00000005
+LC1D3S0                           00000000
+LC1D3S1                           00000001
+LC1D3S2                           00000002
+LC1D3S3                           00000003
+LC1D3S4                           00000004
+LC1D3S5                           00000005
+LC1D4S0                           00000000
+LC1D4S1                           00000001
+LC1D4S2                           00000002
+LC1D4S3                           00000003
+LC1D4S4                           00000004
+LC1D4S5                           00000005
+LC1EN                             00000007
+LC1G1D1N                          00000000
+LC1G1D1T                          00000001
+LC1G1D2N                          00000002
+LC1G1D2T                          00000003
+LC1G1D3N                          00000004
+LC1G1D3T                          00000005
+LC1G1D4N                          00000006
+LC1G1D4T                          00000007
+LC1G1POL                          00000000
+LC1G2D1N                          00000000
+LC1G2D1T                          00000001
+LC1G2D2N                          00000002
+LC1G2D2T                          00000003
+LC1G2D3N                          00000004
+LC1G2D3T                          00000005
+LC1G2D4N                          00000006
+LC1G2D4T                          00000007
+LC1G2POL                          00000001
+LC1G3D1N                          00000000
+LC1G3D1T                          00000001
+LC1G3D2N                          00000002
+LC1G3D2T                          00000003
+LC1G3D3N                          00000004
+LC1G3D3T                          00000005
+LC1G3D4N                          00000006
+LC1G3D4T                          00000007
+LC1G3POL                          00000002
+LC1G4D1N                          00000000
+LC1G4D1T                          00000001
+LC1G4D2N                          00000002
+LC1G4D2T                          00000003
+LC1G4D3N                          00000004
+LC1G4D3T                          00000005
+LC1G4D4N                          00000006
+LC1G4D4T                          00000007
+LC1G4POL                          00000003
+LC1INTN                           00000003
+LC1INTP                           00000004
+LC1MODE0                          00000000
+LC1MODE1                          00000001
+LC1MODE2                          00000002
+LC1OUT                            00000005
+LC1POL                            00000007
+LC2D1S0                           00000000
+LC2D1S1                           00000001
+LC2D1S2                           00000002
+LC2D1S3                           00000003
+LC2D1S4                           00000004
+LC2D1S5                           00000005
+LC2D2S0                           00000000
+LC2D2S1                           00000001
+LC2D2S2                           00000002
+LC2D2S3                           00000003
+LC2D2S4                           00000004
+LC2D2S5                           00000005
+LC2D3S0                           00000000
+LC2D3S1                           00000001
+LC2D3S2                           00000002
+LC2D3S3                           00000003
+LC2D3S4                           00000004
+LC2D3S5                           00000005
+LC2D4S0                           00000000
+LC2D4S1                           00000001
+LC2D4S2                           00000002
+LC2D4S3                           00000003
+LC2D4S4                           00000004
+LC2D4S5                           00000005
+LC2EN                             00000007
+LC2G1D1N                          00000000
+LC2G1D1T                          00000001
+LC2G1D2N                          00000002
+LC2G1D2T                          00000003
+LC2G1D3N                          00000004
+LC2G1D3T                          00000005
+LC2G1D4N                          00000006
+LC2G1D4T                          00000007
+LC2G1POL                          00000000
+LC2G2D1N                          00000000
+LC2G2D1T                          00000001
+LC2G2D2N                          00000002
+LC2G2D2T                          00000003
+LC2G2D3N                          00000004
+LC2G2D3T                          00000005
+LC2G2D4N                          00000006
+LC2G2D4T                          00000007
+LC2G2POL                          00000001
+LC2G3D1N                          00000000
+LC2G3D1T                          00000001
+LC2G3D2N                          00000002
+LC2G3D2T                          00000003
+LC2G3D3N                          00000004
+LC2G3D3T                          00000005
+LC2G3D4N                          00000006
+LC2G3D4T                          00000007
+LC2G3POL                          00000002
+LC2G4D1N                          00000000
+LC2G4D1T                          00000001
+LC2G4D2N                          00000002
+LC2G4D2T                          00000003
+LC2G4D3N                          00000004
+LC2G4D3T                          00000005
+LC2G4D4N                          00000006
+LC2G4D4T                          00000007
+LC2G4POL                          00000003
+LC2INTN                           00000003
+LC2INTP                           00000004
+LC2MODE0                          00000000
+LC2MODE1                          00000001
+LC2MODE2                          00000002
+LC2OUT                            00000005
+LC2POL                            00000007
+LC3D1S0                           00000000
+LC3D1S1                           00000001
+LC3D1S2                           00000002
+LC3D1S3                           00000003
+LC3D1S4                           00000004
+LC3D1S5                           00000005
+LC3D2S0                           00000000
+LC3D2S1                           00000001
+LC3D2S2                           00000002
+LC3D2S3                           00000003
+LC3D2S4                           00000004
+LC3D2S5                           00000005
+LC3D3S0                           00000000
+LC3D3S1                           00000001
+LC3D3S2                           00000002
+LC3D3S3                           00000003
+LC3D3S4                           00000004
+LC3D3S5                           00000005
+LC3D4S0                           00000000
+LC3D4S1                           00000001
+LC3D4S2                           00000002
+LC3D4S3                           00000003
+LC3D4S4                           00000004
+LC3D4S5                           00000005
+LC3EN                             00000007
+LC3G1D1N                          00000000
+LC3G1D1T                          00000001
+LC3G1D2N                          00000002
+LC3G1D2T                          00000003
+LC3G1D3N                          00000004
+LC3G1D3T                          00000005
+LC3G1D4N                          00000006
+LC3G1D4T                          00000007
+LC3G1POL                          00000000
+LC3G2D1N                          00000000
+LC3G2D1T                          00000001
+LC3G2D2N                          00000002
+LC3G2D2T                          00000003
+LC3G2D3N                          00000004
+LC3G2D3T                          00000005
+LC3G2D4N                          00000006
+LC3G2D4T                          00000007
+LC3G2POL                          00000001
+LC3G3D1N                          00000000
+LC3G3D1T                          00000001
+LC3G3D2N                          00000002
+LC3G3D2T                          00000003
+LC3G3D3N                          00000004
+LC3G3D3T                          00000005
+LC3G3D4N                          00000006
+LC3G3D4T                          00000007
+LC3G3POL                          00000002
+LC3G4D1N                          00000000
+LC3G4D1T                          00000001
+LC3G4D2N                          00000002
+LC3G4D2T                          00000003
+LC3G4D3N                          00000004
+LC3G4D3T                          00000005
+LC3G4D4N                          00000006
+LC3G4D4T                          00000007
+LC3G4POL                          00000003
+LC3INTN                           00000003
+LC3INTP                           00000004
+LC3MODE0                          00000000
+LC3MODE1                          00000001
+LC3MODE2                          00000002
+LC3OUT                            00000005
+LC3POL                            00000007
+LC4D1S0                           00000000
+LC4D1S1                           00000001
+LC4D1S2                           00000002
+LC4D1S3                           00000003
+LC4D1S4                           00000004
+LC4D1S5                           00000005
+LC4D2S0                           00000000
+LC4D2S1                           00000001
+LC4D2S2                           00000002
+LC4D2S3                           00000003
+LC4D2S4                           00000004
+LC4D2S5                           00000005
+LC4D3S0                           00000000
+LC4D3S1                           00000001
+LC4D3S2                           00000002
+LC4D3S3                           00000003
+LC4D3S4                           00000004
+LC4D3S5                           00000005
+LC4D4S0                           00000000
+LC4D4S1                           00000001
+LC4D4S2                           00000002
+LC4D4S3                           00000003
+LC4D4S4                           00000004
+LC4D4S5                           00000005
+LC4EN                             00000007
+LC4G1D1N                          00000000
+LC4G1D1T                          00000001
+LC4G1D2N                          00000002
+LC4G1D2T                          00000003
+LC4G1D3N                          00000004
+LC4G1D3T                          00000005
+LC4G1D4N                          00000006
+LC4G1D4T                          00000007
+LC4G1POL                          00000000
+LC4G2D1N                          00000000
+LC4G2D1T                          00000001
+LC4G2D2N                          00000002
+LC4G2D2T                          00000003
+LC4G2D3N                          00000004
+LC4G2D3T                          00000005
+LC4G2D4N                          00000006
+LC4G2D4T                          00000007
+LC4G2POL                          00000001
+LC4G3D1N                          00000000
+LC4G3D1T                          00000001
+LC4G3D2N                          00000002
+LC4G3D2T                          00000003
+LC4G3D3N                          00000004
+LC4G3D3T                          00000005
+LC4G3D4N                          00000006
+LC4G3D4T                          00000007
+LC4G3POL                          00000002
+LC4G4D1N                          00000000
+LC4G4D1T                          00000001
+LC4G4D2N                          00000002
+LC4G4D2T                          00000003
+LC4G4D3N                          00000004
+LC4G4D3T                          00000005
+LC4G4D4N                          00000006
+LC4G4D4T                          00000007
+LC4G4POL                          00000003
+LC4INTN                           00000003
+LC4INTP                           00000004
+LC4MODE0                          00000000
+LC4MODE1                          00000001
+LC4MODE2                          00000002
+LC4OUT                            00000005
+LC4POL                            00000007
+LD                                00000006
+LFOEN                             00000004
+LFOR                              00000004
 LINEAR                            (((reg) - GPR_START) | 0x2000)
 LISTCTL                           
 LIST_POP                          LISTCTL -1
@@ -365,21 +1612,73 @@ LITPAGEOF                         ((addr) / LIT_PAGELEN)
 LIT_PAGELEN                       0x800
 LOBYTE                            BYTEOF(val, 0)
 LODW                              
+LOG2_0                            00000000
+LOG2_1                            00000000
+LOG2_1024                         0000000A
+LOG2_1048576                      00000014
+LOG2_1073741824                   0000001E
+LOG2_128                          00000007
+LOG2_131072                       00000011
+LOG2_134217728                    0000001B
+LOG2_16                           00000004
+LOG2_16384                        0000000E
+LOG2_16777216                     00000018
+LOG2_2                            00000001
+LOG2_2048                         0000000B
+LOG2_2097152                      00000015
+LOG2_256                          00000008
+LOG2_262144                       00000012
+LOG2_268435456                    0000001C
+LOG2_32                           00000005
+LOG2_32768                        0000000F
+LOG2_33554432                     00000019
+LOG2_4                            00000002
+LOG2_4096                         0000000C
+LOG2_4194304                      00000016
+LOG2_512                          00000009
+LOG2_524288                       00000013
+LOG2_536870912                    0000001D
+LOG2_64                           00000006
+LOG2_65536                        00000010
+LOG2_67108864                     0000001A
+LOG2_8                            00000003
+LOG2_8192                         0000000D
+LOG2_8388608                      00000017
+LSAC0                             00000002
+LSAC1                             00000003
+LSBD0                             00000004
+LSBD1                             00000005
 LSTCTL_DEEPEST                    00000003
 LSTCTL_DEPTH                      00000000
 LSTCTL_STACK                      00000000
+LWLO                              00000005
 MAX                               IIF((x) > (y), x, y)
 MAX_RAM0                          00000070
 MAX_RAM1                          000000F0
 MAX_RAM9999                       00000080
+MAX_T0POSTSC                      00000004
+MAX_T0PRESCALER                   0000000F
+MC1OUT                            00000000
+MC2OUT                            00000001
 MEXPAND_DEEPEST                   00000004
 MEXPAND_DEPTH                     00000000
 MEXPAND_STACK                     00000001
+MFOEN                             00000005
+MFOR                              00000005
 MHz                               * 1000000
 MIDBYTE                           BYTEOF(val, 1)
 MIN                               IIF((x) < (y), x, y)
 MIN_STACK                         2
 MIPS                              * 4 MHz
+MLC1OUT                           00000000
+MLC2OUT                           00000001
+MLC3OUT                           00000002
+MLC4OUT                           00000003
+MODE0                             00000000
+MODE1                             00000001
+MODE2                             00000002
+MODE3                             00000003
+MODE4                             00000004
 MOVF                              movf_banksafe
 MOVIW_0_0                         MOVIW ++FSR0
 MOVIW_0_1                         MOVIW --FSR0
@@ -401,34 +1700,416 @@ MOVWI_1_1                         MOVWI --FSR1
 MOVWI_1_2                         MOVWI FSR1++
 MOVWI_1_3                         MOVWI FSR1--
 MOVWI_opc                         MOVWI_#v((fsr) == FSR1)_#v((mode) & 3)
+MSK0                              00000000
+MSK1                              00000001
+MSK2                              00000002
+MSK3                              00000003
+MSK4                              00000004
+MSK5                              00000005
+MSK6                              00000006
+MSK7                              00000007
+MSSP1MD                           00000004
 MY_CONFIG1                        0000178C
 MY_CONFIG2                        00002FFE
 MY_CONFIG3                        00003F9F
 MY_CONFIG4                        00001FFF
 MY_CONFIG5                        00003FFF
+N1CKS0                            00000000
+N1CKS1                            00000001
+N1CKS2                            00000002
+N1CKS3                            00000003
+N1EN                              00000007
+N1OUT                             00000005
+N1PFM                             00000000
+N1POL                             00000004
+N1PWS0                            00000005
+N1PWS1                            00000006
+N1PWS2                            00000007
+NCH0                              00000000
+NCH1                              00000001
+NCH2                              00000002
+NCO1ACC                           0000058C
+NCO1ACC0                          00000000
+NCO1ACC1                          00000001
+NCO1ACC10                         00000002
+NCO1ACC11                         00000003
+NCO1ACC12                         00000004
+NCO1ACC13                         00000005
+NCO1ACC14                         00000006
+NCO1ACC15                         00000007
+NCO1ACC16                         00000000
+NCO1ACC17                         00000001
+NCO1ACC18                         00000002
+NCO1ACC19                         00000003
+NCO1ACC2                          00000002
+NCO1ACC3                          00000003
+NCO1ACC4                          00000004
+NCO1ACC5                          00000005
+NCO1ACC6                          00000006
+NCO1ACC7                          00000007
+NCO1ACC8                          00000000
+NCO1ACC9                          00000001
+NCO1ACCH                          0000058D
+NCO1ACCL                          0000058C
+NCO1ACCU                          0000058E
+NCO1CLK                           00000593
+NCO1CON                           00000592
+NCO1IE                            00000004
+NCO1IF                            00000004
+NCO1INC                           0000058F
+NCO1INC0                          00000000
+NCO1INC1                          00000001
+NCO1INC10                         00000002
+NCO1INC11                         00000003
+NCO1INC12                         00000004
+NCO1INC13                         00000005
+NCO1INC14                         00000006
+NCO1INC15                         00000007
+NCO1INC16                         00000000
+NCO1INC17                         00000001
+NCO1INC18                         00000002
+NCO1INC19                         00000003
+NCO1INC2                          00000002
+NCO1INC3                          00000003
+NCO1INC4                          00000004
+NCO1INC5                          00000005
+NCO1INC6                          00000006
+NCO1INC7                          00000007
+NCO1INC8                          00000000
+NCO1INC9                          00000001
+NCO1INCH                          00000590
+NCO1INCL                          0000058F
+NCO1INCU                          00000591
+NCOIE                             00000004
+NCOIF                             00000004
+NCOMD                             00000007
+NDIV0                             00000000
+NDIV1                             00000001
+NDIV2                             00000002
+NDIV3                             00000003
 NEEDS_BANKSEL                     (ISBANKED(regto) && (BANKOF(regto) != BANKOF(regfrom)))
 NEXT_RAM0                         00000020
 NEXT_RAM1                         000000A0
-NEXT_RAM9999                      00000071
+NEXT_RAM9999                      00000075
 NOBANK                            0000270F
 NOBIT                             0
 NOP                               nop_multi
 NOP_expanded                      00000000
+NOSC0                             00000004
+NOSC1                             00000005
+NOSC2                             00000006
+NOSCR                             00000003
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_MEMV                          00000001
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RI                            00000002
+NOT_RMCLR                         00000003
+NOT_RWDT                          00000004
+NOT_SYNC                          00000002
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_W                             00000002
+NOT_WDTWV                         00000005
+NOT_WRITE                         00000002
+NSS                               00000000
 NULL_STMT                         ORG $
-NUM_CONTEXT                       00000007
+NUM_CONTEXT                       00000009
 NUM_THREADS                       00000001
+NVMADR                            0000081A
 NVMADR0hi                         0000081B
+NVMADRH                           0000081B
+NVMADRH0                          00000000
+NVMADRH1                          00000001
+NVMADRH2                          00000002
+NVMADRH3                          00000003
+NVMADRH4                          00000004
+NVMADRH5                          00000005
+NVMADRH6                          00000006
+NVMADRL                           0000081A
+NVMADRL0                          00000000
+NVMADRL1                          00000001
+NVMADRL2                          00000002
+NVMADRL3                          00000003
+NVMADRL4                          00000004
+NVMADRL5                          00000005
+NVMADRL6                          00000006
+NVMADRL7                          00000007
+NVMCON1                           0000081E
+NVMCON2                           0000081F
+NVMDAT                            0000081C
 NVMDAT0hi                         0000081D
+NVMDATH                           0000081D
+NVMDATH0                          00000000
+NVMDATH1                          00000001
+NVMDATH2                          00000002
+NVMDATH3                          00000003
+NVMDATH4                          00000004
+NVMDATH5                          00000005
+NVMDATL                           0000081C
+NVMDATL0                          00000000
+NVMDATL1                          00000001
+NVMDATL2                          00000002
+NVMDATL3                          00000003
+NVMDATL4                          00000004
+NVMDATL5                          00000005
+NVMDATL6                          00000006
+NVMDATL7                          00000007
+NVMIE                             00000005
+NVMIF                             00000005
+NVMMD                             00000002
+NVMREGS                           00000006
+ODCA0                             00000000
+ODCA1                             00000001
+ODCA2                             00000002
+ODCA4                             00000004
+ODCA5                             00000005
+ODCONA                            00001F3A
+OE1                               00000005
+OE2                               00000004
+OERR                              00000001
+ON_T1CON                          00000000
+ON_T2CON                          00000007
+ORDY                              00000004
+OSCCON1                           0000088D
+OSCCON2                           0000088E
+OSCCON3                           0000088F
+OSCEN                             00000891
+OSCFRQ                            00000893
+OSCSTAT                           00000890
+OSCTUNE                           00000892
+OSFIE                             00000007
+OSFIF                             00000007
+OUTPS0                            00000000
+OUTPS1                            00000001
+OUTPS2                            00000002
+OUTPS3                            00000003
+OUT_CCP1CON                       00000005
+OUT_CCP2CON                       00000005
+OUT_CLC1CON                       00000005
+OUT_CLC2CON                       00000005
+OUT_CLC3CON                       00000005
+OUT_CLC4CON                       00000005
+OUT_CM1CON0                       00000006
+OUT_PWM3CON                       00000005
+OUT_PWM4CON                       00000005
+OUT_PWM5CON                       00000005
+OUT_PWM6CON                       00000005
+OVRA                              00000004
+OVRB                              00000005
+OVRC                              00000006
+OVRD                              00000007
+P                                 00000004
 PAGECHK                           
 PAGESEL_DROP                      00000004
 PAGESEL_KEEP                      00000001
-PAGE_TRACKER                      00000036
+PAGE_TRACKER                      00000029
 PASS1_FIXUPS                      00000000
 PASS2_FIXUPS                      00000000
+PCH0                              00000000
+PCH1                              00000001
+PCH2                              00000002
+PCIE                              00000006
+PCL                               00000002
+PCLATH                            0000000A
+PCLATH_SHAD                       00001FE7
+PCON0                             00000813
+PCON1                             00000814
+PEIE                              00000006
+PEN                               00000002
+PIE0                              00000716
+PIE1                              00000717
+PIE2                              00000718
+PIE3                              00000719
+PIE4                              0000071A
+PIE5                              0000071B
+PIE6                              0000071C
+PIE7                              0000071D
+PIR0                              0000070C
+PIR1                              0000070D
+PIR2                              0000070E
+PIR3                              0000070F
+PIR4                              00000710
+PIR5                              00000711
+PIR6                              00000712
+PIR7                              00000713
 PLL                               * 2
+PLLR                              00000000
+PMD0                              00000796
+PMD1                              00000797
+PMD2                              00000798
+PMD3                              00000799
+PMD4                              0000079A
+PMD5                              0000079B
+POLA                              00000000
+POLB                              00000001
+POLC                              00000002
+POLD                              00000003
+POL_CLC1POL                       00000007
+POL_CLC2POL                       00000007
+POL_CLC3POL                       00000007
+POL_CLC4POL                       00000007
+POL_CM1CON0                       00000004
+POL_PWM3CON                       00000004
+POL_PWM4CON                       00000004
+POL_PWM5CON                       00000004
+POL_PWM6CON                       00000004
 POP                               
+PORTA                             0000000C
+PPSLOCK                           00001E8F
+PPSLOCKED                         00000000
+PR0                               0000059D
+PR1                               0000020F
+PR2                               0000028D
+PSCNT0                            00000000
+PSCNT1                            00000001
+PSCNT10                           00000002
+PSCNT11                           00000003
+PSCNT12                           00000004
+PSCNT13                           00000005
+PSCNT14                           00000006
+PSCNT15                           00000007
+PSCNT16                           00000000
+PSCNT17                           00000001
+PSCNT2                            00000002
+PSCNT3                            00000003
+PSCNT4                            00000004
+PSCNT5                            00000005
+PSCNT6                            00000006
+PSCNT7                            00000007
+PSCNT8                            00000000
+PSCNT9                            00000001
+PSS0                              00000002
+PSS1                              00000003
+PSYNC                             00000007
 PUSH                              
-RAM_BLOCK                         00000001
+PWM3CON                           00000316
+PWM3DC                            00000314
+PWM3DC0                           00000006
+PWM3DC1                           00000007
+PWM3DC2                           00000000
+PWM3DC3                           00000001
+PWM3DC4                           00000002
+PWM3DC5                           00000003
+PWM3DC6                           00000004
+PWM3DC7                           00000005
+PWM3DC8                           00000006
+PWM3DC9                           00000007
+PWM3DCH                           00000315
+PWM3DCL                           00000314
+PWM3EN                            00000007
+PWM3MD                            00000002
+PWM3OUT                           00000005
+PWM3POL                           00000004
+PWM4CON                           0000031A
+PWM4DC                            00000318
+PWM4DC0                           00000006
+PWM4DC1                           00000007
+PWM4DC2                           00000000
+PWM4DC3                           00000001
+PWM4DC4                           00000002
+PWM4DC5                           00000003
+PWM4DC6                           00000004
+PWM4DC7                           00000005
+PWM4DC8                           00000006
+PWM4DC9                           00000007
+PWM4DCH                           00000319
+PWM4DCL                           00000318
+PWM4EN                            00000007
+PWM4MD                            00000003
+PWM4OUT                           00000005
+PWM4POL                           00000004
+PWM5CON                           0000031E
+PWM5DC                            0000031C
+PWM5DC0                           00000006
+PWM5DC1                           00000007
+PWM5DC2                           00000000
+PWM5DC3                           00000001
+PWM5DC4                           00000002
+PWM5DC5                           00000003
+PWM5DC6                           00000004
+PWM5DC7                           00000005
+PWM5DC8                           00000006
+PWM5DC9                           00000007
+PWM5DCH                           0000031D
+PWM5DCL                           0000031C
+PWM5EN                            00000007
+PWM5MD                            00000004
+PWM5OUT                           00000005
+PWM5POL                           00000004
+PWM6CON                           0000038E
+PWM6DC                            0000038C
+PWM6DC0                           00000006
+PWM6DC1                           00000007
+PWM6DC2                           00000000
+PWM6DC3                           00000001
+PWM6DC4                           00000002
+PWM6DC5                           00000003
+PWM6DC6                           00000004
+PWM6DC7                           00000005
+PWM6DC8                           00000006
+PWM6DC9                           00000007
+PWM6DCH                           0000038D
+PWM6DCL                           0000038C
+PWM6EN                            00000007
+PWM6MD                            00000005
+PWM6OUT                           00000005
+PWM6POL                           00000004
+PWMPW0                            00000006
+PWMPW1                            00000007
+PWMPW2                            00000000
+PWMPW3                            00000001
+PWMPW4                            00000002
+PWMPW5                            00000003
+PWMPW6                            00000004
+PWMPW7                            00000005
+PWMPW8                            00000006
+PWMPW9                            00000007
+RA0                               00000000
+RA0PPS                            00001F10
+RA0PPS0                           00000000
+RA0PPS1                           00000001
+RA0PPS2                           00000002
+RA0PPS3                           00000003
+RA0PPS4                           00000004
+RA1                               00000001
+RA1PPS                            00001F11
+RA1PPS0                           00000000
+RA1PPS1                           00000001
+RA1PPS2                           00000002
+RA1PPS3                           00000003
+RA1PPS4                           00000004
+RA2                               00000002
+RA2PPS                            00001F12
+RA2PPS0                           00000000
+RA2PPS1                           00000001
+RA2PPS2                           00000002
+RA2PPS3                           00000003
+RA2PPS4                           00000004
+RA3                               00000003
+RA3PPS                            00001F13
+RA3PPS0                           00000000
+RA3PPS1                           00000001
+RA3PPS2                           00000002
+RA3PPS3                           00000003
+RA3PPS4                           00000004
+RA4                               00000004
+RA4PPS                            00001F14
+RA4PPS0                           00000000
+RA4PPS1                           00000001
+RA4PPS2                           00000002
+RA4PPS3                           00000003
+RA4PPS4                           00000004
+RA5                               00000005
+RA5PPS                            00001F15
+RA5PPS0                           00000000
+RA5PPS1                           00000001
+RA5PPS2                           00000002
+RA5PPS3                           00000003
+RA5PPS4                           00000004
+RAM_BLOCK                         00000003
 RAM_LEN0                          00000050
 RAM_LEN1                          00000050
 RAM_LEN9999                       00000010
@@ -437,7 +2118,20 @@ RAM_START1                        000000A0
 RAM_START9999                     00000070
 RAM_USED0                         00000000
 RAM_USED1                         00000000
-RAM_USED9999                      00000001
+RAM_USED9999                      00000005
+RC1IE                             00000005
+RC1IF                             00000005
+RC1REG                            00000119
+RC1STA                            0000011D
+RCEN                              00000003
+RCIDL                             00000006
+RCREG                             00000119
+RCREG1                            00000119
+RCSTA                             0000011D
+RCSTA1                            0000011D
+RD                                00000000
+RD16                              00000001
+READ_WRITE                        00000002
 REG2ADDR                          (a)
 REGHI                             name#v(0)hi
 REGISTER                          (a)
@@ -446,56 +2140,595 @@ REGMID                            name#v(0)mid
 REGOF                             (((bitwrap) >> 4) & 0xFFFF)
 REGPAGEOF                         ((addr) / REG_PAGELEN)
 REG_PAGELEN                       0x100
+REN                               00000006
 REPEAT                            
-REPEATER                          00000003
+REPEATER                          00000000
 RERUN_THREADS                     TRUE
 RESERVE                           ORG$+n
 RESET_VECTOR                      0
 REVBIT                            (0x80 >> (n))
+RGB_0                             00000001
+RGB_1                             00000000
+RGB_2                             00000002
+RGB_BYTE                          RGB_#v(n)
+RGB_ORDER                         0x213
+ROI                               00000005
+RSEL0                             00000000
+RSEL1                             00000001
+RSEL2                             00000002
+RSEL3                             00000003
+RSEN                              00000001
+RX1DTPPS                          00001ECB
+RX1DTPPS0                         00000000
+RX1DTPPS1                         00000001
+RX1DTPPS2                         00000002
+RX1DTPPS3                         00000003
+RX1DTPPS4                         00000004
+RX1DTPPS5                         00000005
+RX9                               00000006
+RX9D                              00000000
+R_NOT_W                           00000002
+R_W                               00000002
+S                                 00000003
+SBCDE                             00000002
+SBOREN                            00000007
+SCIE                              00000005
+SCKP                              00000004
+SDAHT                             00000003
+SEN                               00000000
+SENDB                             00000003
 SET8W                             IORLW 0xFF
+SHUTDOWN                          00000007
 SIZEOF                            name#v(0)size
+SLRA0                             00000000
+SLRA1                             00000001
+SLRA2                             00000002
+SLRA4                             00000004
+SLRA5                             00000005
+SLRCONA                           00001F3B
+SMP                               00000007
+SP1BRG                            0000011B
 SP1BRG0hi                         0000011C
+SP1BRGH                           0000011C
+SP1BRGL                           0000011B
+SPBRG                             0000011B
+SPBRG1                            0000011B
+SPBRGH                            0000011C
+SPBRGH1                           0000011C
+SPBRGL                            0000011B
+SPEN                              00000007
+SREN                              00000005
+SSP1ADD                           0000018D
+SSP1BUF                           0000018C
+SSP1CLKPPS                        00001EC5
+SSP1CLKPPS0                       00000000
+SSP1CLKPPS1                       00000001
+SSP1CLKPPS2                       00000002
+SSP1CLKPPS3                       00000003
+SSP1CLKPPS4                       00000004
+SSP1CLKPPS5                       00000005
+SSP1CON1                          00000190
+SSP1CON2                          00000191
+SSP1CON3                          00000192
+SSP1DATPPS                        00001EC6
+SSP1DATPPS0                       00000000
+SSP1DATPPS1                       00000001
+SSP1DATPPS2                       00000002
+SSP1DATPPS3                       00000003
+SSP1DATPPS4                       00000004
+SSP1DATPPS5                       00000005
+SSP1IE                            00000000
+SSP1IF                            00000000
+SSP1MSK                           0000018E
+SSP1SSPPS                         00001EC7
+SSP1SSPPS0                        00000000
+SSP1SSPPS1                        00000001
+SSP1SSPPS2                        00000002
+SSP1SSPPS3                        00000003
+SSP1SSPPS4                        00000004
+SSP1SSPPS5                        00000005
+SSP1STAT                          0000018F
+SSPEN                             00000005
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+STATE                             00000002
+STATUS                            00000003
+STATUS_SHAD                       00001FE4
+STATUS_SHAD0                      00000000
+STATUS_SHAD1                      00000001
+STATUS_SHAD2                      00000002
+STKOVF                            00000007
+STKPTR                            00001FED
+STKPTR0                           00000000
+STKPTR1                           00000001
+STKPTR2                           00000002
+STKPTR3                           00000003
+STKPTR4                           00000004
+STKUNF                            00000006
 STK_ALLOC                         00000006
+STRA                              00000000
+STRB                              00000001
+STRC                              00000002
+STRD                              00000003
 SUBLW                             sublw_tracker
 SUBLWB                            
 SUPPORTED                         TRUE
 SWAPF                             swapf_banksafe
+SWDTEN                            00000000
+SYNC_CM1CON0                      00000000
+SYNC_TX1STA                       00000004
+SYNC_TXSTA                        00000004
+SYNC_TXSTA1                       00000004
+SYSCMD                            00000007
+T016BIT                           00000004
+T0ASYNC                           00000004
+T0CKIPPS                          00001E91
+T0CKIPPS0                         00000000
+T0CKIPPS1                         00000001
+T0CKIPPS2                         00000002
+T0CKIPPS3                         00000003
+T0CKIPPS4                         00000004
+T0CKIPPS5                         00000005
+T0CKPS0                           00000000
+T0CKPS1                           00000001
+T0CKPS2                           00000002
+T0CKPS3                           00000003
+T0CON0                            0000059E
+T0CON1                            0000059F
+T0CS0                             00000005
+T0CS1                             00000006
+T0CS2                             00000007
+T0EN                              00000007
+T0OUT                             00000005
+T0OUTPS0                          00000000
+T0OUTPS1                          00000001
+T0OUTPS2                          00000002
+T0OUTPS3                          00000003
+T0PR0                             00000000
+T0PR1                             00000001
+T0PR2                             00000002
+T0PR3                             00000003
+T0PR4                             00000004
+T0PR5                             00000005
+T0PR6                             00000006
+T0PR7                             00000007
+T0PS0                             00000000
+T0PS1                             00000001
+T0PS2                             00000002
+T0PS3                             00000003
+T0SRC_FOSC4                       b'010'
+T0_prescaler                      prescaler(FOSC_FREQ/4, freq)
+T1CKIPPS                          00001E92
+T1CKIPPS0                         00000000
+T1CKIPPS1                         00000001
+T1CKIPPS2                         00000002
+T1CKIPPS3                         00000003
+T1CKIPPS4                         00000004
+T1CKIPPS5                         00000005
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CLK                             00000211
+T1CON                             0000020E
+T1CS0                             00000000
+T1CS1                             00000001
+T1CS2                             00000002
+T1CS3                             00000003
+T1GATE                            00000210
+T1GCON                            0000020F
+T1GE                              00000007
+T1GGO                             00000003
+T1GGO_NOT_DONE                    00000003
+T1GPOL                            00000006
+T1GPPS                            00001E93
+T1GPPS0                           00000000
+T1GPPS1                           00000001
+T1GPPS2                           00000002
+T1GPPS3                           00000003
+T1GPPS4                           00000004
+T1GPPS5                           00000005
+T1GSPM                            00000004
+T1GSS0                            00000000
+T1GSS1                            00000001
+T1GSS2                            00000002
+T1GSS3                            00000003
+T1GSS4                            00000004
+T1GTM                             00000005
+T1GVAL                            00000002
+T1RD16                            00000001
+T2CKPOL                           00000006
+T2CKPS0                           00000004
+T2CKPS1                           00000005
+T2CKPS2                           00000006
+T2CKSYNC                          00000005
+T2CLKCON                          00000290
+T2CON                             0000028E
+T2CS0                             00000000
+T2CS1                             00000001
+T2CS2                             00000002
+T2CS3                             00000003
+T2HLT                             0000028F
+T2INPPS                           00001E9C
+T2INPPS0                          00000000
+T2INPPS1                          00000001
+T2INPPS2                          00000002
+T2INPPS3                          00000003
+T2INPPS4                          00000004
+T2INPPS5                          00000005
+T2MODE0                           00000000
+T2MODE1                           00000001
+T2MODE2                           00000002
+T2MODE3                           00000003
+T2MODE4                           00000004
+T2ON                              00000007
+T2OUTPS0                          00000000
+T2OUTPS1                          00000001
+T2OUTPS2                          00000002
+T2OUTPS3                          00000003
+T2PR                              0000028D
+T2PSYNC                           00000007
+T2RSEL0                           00000000
+T2RSEL1                           00000001
+T2RSEL2                           00000002
+T2RSEL3                           00000003
+T2RST                             00000291
+T2TMR                             0000028C
 THREAD_DEF                        
 THREAD_END                        
+TMR0                              0000059C
+TMR0H                             0000059D
+TMR0H0                            00000000
+TMR0H1                            00000001
+TMR0H2                            00000002
+TMR0H3                            00000003
+TMR0H4                            00000004
+TMR0H5                            00000005
+TMR0H6                            00000006
+TMR0H7                            00000007
+TMR0IE                            00000005
+TMR0IF                            00000005
+TMR0L                             0000059C
+TMR0L0                            00000000
+TMR0L1                            00000001
+TMR0L2                            00000002
+TMR0L3                            00000003
+TMR0L4                            00000004
+TMR0L5                            00000005
+TMR0L6                            00000006
+TMR0L7                            00000007
+TMR0MD                            00000000
+TMR1                              0000020C
+TMR10                             00000000
+TMR11                             00000001
+TMR110                            00000002
+TMR111                            00000003
+TMR112                            00000004
+TMR113                            00000005
+TMR114                            00000006
+TMR115                            00000007
+TMR12                             00000002
+TMR13                             00000003
+TMR14                             00000004
+TMR15                             00000005
+TMR16                             00000006
+TMR17                             00000007
+TMR18                             00000000
+TMR19                             00000001
+TMR1CLK                           00000211
+TMR1GATE                          00000210
+TMR1GIE                           00000000
+TMR1GIF                           00000000
+TMR1H                             0000020D
+TMR1H0                            00000000
+TMR1H1                            00000001
+TMR1H2                            00000002
+TMR1H3                            00000003
+TMR1H4                            00000004
+TMR1H5                            00000005
+TMR1H6                            00000006
+TMR1H7                            00000007
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000020C
+TMR1L0                            00000000
+TMR1L1                            00000001
+TMR1L2                            00000002
+TMR1L3                            00000003
+TMR1L4                            00000004
+TMR1L5                            00000005
+TMR1L6                            00000006
+TMR1L7                            00000007
+TMR1MD                            00000001
+TMR1ON                            00000000
+TMR2                              0000028C
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2MD                            00000002
+TMR2ON                            00000007
 TOS                               00001FEE
 TOS0hi                            00001FEF
+TOSH                              00001FEF
+TOSH0                             00000000
+TOSH1                             00000001
+TOSH2                             00000002
+TOSH3                             00000003
+TOSH4                             00000004
+TOSH5                             00000005
+TOSH6                             00000006
+TOSH7                             00000007
+TOSL                              00001FEE
+TOSL0                             00000000
+TOSL1                             00000001
+TOSL2                             00000002
+TOSL3                             00000003
+TOSL4                             00000004
+TOSL5                             00000005
+TOSL6                             00000006
+TOSL7                             00000007
+TRISA                             00000012
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA4                            00000004
+TRISA5                            00000005
+TRMT                              00000001
 TRUE                              1
+TSEN                              00000005
+TSRNG                             00000004
+TUNED                             as_is
+TX1CKPPS                          00001ECC
+TX1CKPPS0                         00000000
+TX1CKPPS1                         00000001
+TX1CKPPS2                         00000002
+TX1CKPPS3                         00000003
+TX1CKPPS4                         00000004
+TX1CKPPS5                         00000005
+TX1IE                             00000004
+TX1IF                             00000004
+TX1REG                            0000011A
+TX1STA                            0000011E
+TX9                               00000006
+TX9D                              00000000
+TXEN                              00000005
+TXREG                             0000011A
+TXREG1                            0000011A
+TXSTA                             0000011E
+TXSTA1                            0000011E
+UA                                00000001
+UART1MD                           00000006
 UGLY_PASS12FIX                    
 USE_HFFRQ                         b'110'
+VREGCON                           00000812
+VREGPM                            00000001
+W                                 00000000
+WAIT                              
 WANT_DEBUG                        
-WANT_ISR                          10
 WARNIF                            WARNIF_#v(((assert) != 0))  msg
 WARNIF_0                          IGNORE_EOL
 WARNIF_1                          messg
-WREG_TRACKER                      00000070
+WCOL                              00000007
+WDTCON0                           0000080C
+WDTCON1                           0000080D
+WDTCS0                            00000004
+WDTCS1                            00000005
+WDTCS2                            00000006
+WDTPS0                            00000001
+WDTPS1                            00000002
+WDTPS2                            00000003
+WDTPS3                            00000004
+WDTPS4                            00000005
+WDTPSCNT0                         00000000
+WDTPSCNT1                         00000001
+WDTPSCNT10                        00000002
+WDTPSCNT11                        00000003
+WDTPSCNT12                        00000004
+WDTPSCNT13                        00000005
+WDTPSCNT14                        00000006
+WDTPSCNT15                        00000007
+WDTPSCNT16                        00000000
+WDTPSCNT17                        00000001
+WDTPSCNT2                         00000002
+WDTPSCNT3                         00000003
+WDTPSCNT4                         00000004
+WDTPSCNT5                         00000005
+WDTPSCNT6                         00000006
+WDTPSCNT7                         00000007
+WDTPSCNT8                         00000000
+WDTPSCNT9                         00000001
+WDTPSH                            0000080F
+WDTPSL                            0000080E
+WDTSEN                            00000000
+WDTSTATE                          00000002
+WDTTMR                            00000810
+WDTTMR0                           00000003
+WDTTMR1                           00000004
+WDTTMR2                           00000005
+WDTTMR3                           00000006
+WDTWINDOW0                        00000000
+WDTWINDOW1                        00000001
+WDTWINDOW2                        00000002
+WINDOW0                           00000000
+WINDOW1                           00000001
+WINDOW2                           00000002
+WPUA                              00001F39
+WPUA0                             00000000
+WPUA1                             00000001
+WPUA2                             00000002
+WPUA3                             00000003
+WPUA4                             00000004
+WPUA5                             00000005
+WR                                00000001
+WREG                              00000009
+WREG_SHAD                         00001FE5
+WREG_TRACKER                      00000071
 WREG_UNKN                         40000000
+WREN                              00000002
+WRERR                             00000003
+WUE                               00000001
 XBIT                              NOBIT(n)
 XORLW                             xorlw_tracker
 YESNO                             YESNO_#v(((val) != 0))
 YESNO_0                           false
 YESNO_1                           true
 YIELD_AGAIN_inlined               
+Z                                 00000002
+ZCDCON                            0000091F
+ZCDIE                             00000006
+ZCDIF                             00000006
+ZCDINTN                           00000000
+ZCDINTP                           00000001
+ZCDMD                             00000000
+ZCDOUT                            00000005
+ZCDPOL                            00000004
+ZCDSEN                            00000007
+_BBEN_OFF                         00003FFF
+_BBEN_ON                          00003FF7
+_BBSIZE_BB16K                     00003FFA
+_BBSIZE_BB1K                      00003FFE
+_BBSIZE_BB2K                      00003FFD
+_BBSIZE_BB32K                     00003FF9
+_BBSIZE_BB4K                      00003FFC
+_BBSIZE_BB512                     00003FFF
+_BBSIZE_BB64K                     00003FF8
+_BBSIZE_BB8K                      00003FFB
+_BOREN_NSLEEP                     00003FBF
+_BOREN_OFF                        00003F3F
+_BOREN_ON                         00003FFF
+_BOREN_SBOREN                     00003F7F
+_BORV_HI                          00003DFF
+_BORV_LO                          00003FFF
+_CLKOUTEN_OFF                     00003FFF
+_CLKOUTEN_ON                      00003EFF
+_CONFIG1                          00008007
+_CONFIG2                          00008008
+_CONFIG3                          00008009
+_CONFIG4                          0000800A
+_CONFIG5                          0000800B
+_CP_OFF                           00003FFF
+_CP_ON                            00003FFE
+_CSWEN_OFF                        000037FF
+_CSWEN_ON                         00003FFF
+_DEVID1                           00008006
+_FCMEN_OFF                        00001FFF
+_FCMEN_ON                         00003FFF
+_FEXTOSC_ECH                      00003FFF
+_FEXTOSC_ECL                      00003FFD
+_FEXTOSC_ECM                      00003FFE
+_FEXTOSC_HS                       00003FFA
+_FEXTOSC_LP                       00003FF8
+_FEXTOSC_OFF                      00003FFC
+_FEXTOSC_Reserved                 00003FFB
+_FEXTOSC_XT                       00003FF9
+_IDLOC0                           00008000
+_IDLOC1                           00008001
+_IDLOC2                           00008002
+_IDLOC3                           00008003
+_LPBOREN_OFF                      00003FFF
+_LPBOREN_ON                       00003FDF
+_LVP_OFF                          00001FFF
+_LVP_ON                           00003FFF
+_MCLRE_OFF                        00003FFE
+_MCLRE_ON                         00003FFF
+_PPS1WAY_OFF                      000037FF
+_PPS1WAY_ON                       00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FFD
+_RSTOSC_EXT1X                     00003FFF
+_RSTOSC_EXT4X                     00003FAF
+_RSTOSC_HFINT1                    00003FEF
+_RSTOSC_HFINT32                   00003F8F
+_RSTOSC_HFINTPLL                  00003F9F
+_RSTOSC_LFINT                     00003FDF
+_RSTOSC_Reserved                  00003FBF
+_SAFEN_OFF                        00003FFF
+_SAFEN_ON                         00003FEF
+_STVREN_OFF                       00002FFF
+_STVREN_ON                        00003FFF
+_WDTCCS_HFINTOSC                  00000FFF
+_WDTCCS_LFINTOSC                  000007FF
+_WDTCCS_Reserved                  000017FF
+_WDTCCS_SC                        00003FFF
+_WDTCPS_WDTCPS_0                  00003FE0
+_WDTCPS_WDTCPS_1                  00003FE1
+_WDTCPS_WDTCPS_10                 00003FEA
+_WDTCPS_WDTCPS_11                 00003FEB
+_WDTCPS_WDTCPS_12                 00003FEC
+_WDTCPS_WDTCPS_13                 00003FED
+_WDTCPS_WDTCPS_14                 00003FEE
+_WDTCPS_WDTCPS_15                 00003FEF
+_WDTCPS_WDTCPS_16                 00003FF0
+_WDTCPS_WDTCPS_17                 00003FF1
+_WDTCPS_WDTCPS_18                 00003FF2
+_WDTCPS_WDTCPS_19                 00003FF3
+_WDTCPS_WDTCPS_2                  00003FE2
+_WDTCPS_WDTCPS_20                 00003FF4
+_WDTCPS_WDTCPS_21                 00003FF5
+_WDTCPS_WDTCPS_22                 00003FF6
+_WDTCPS_WDTCPS_23                 00003FF7
+_WDTCPS_WDTCPS_24                 00003FF8
+_WDTCPS_WDTCPS_25                 00003FF9
+_WDTCPS_WDTCPS_26                 00003FFA
+_WDTCPS_WDTCPS_27                 00003FFB
+_WDTCPS_WDTCPS_28                 00003FFC
+_WDTCPS_WDTCPS_29                 00003FFD
+_WDTCPS_WDTCPS_3                  00003FE3
+_WDTCPS_WDTCPS_30                 00003FFE
+_WDTCPS_WDTCPS_31                 00003FFF
+_WDTCPS_WDTCPS_4                  00003FE4
+_WDTCPS_WDTCPS_5                  00003FE5
+_WDTCPS_WDTCPS_6                  00003FE6
+_WDTCPS_WDTCPS_7                  00003FE7
+_WDTCPS_WDTCPS_8                  00003FE8
+_WDTCPS_WDTCPS_9                  00003FE9
+_WDTCWS_WDTCWS_0                  000038FF
+_WDTCWS_WDTCWS_1                  000039FF
+_WDTCWS_WDTCWS_2                  00003AFF
+_WDTCWS_WDTCWS_3                  00003BFF
+_WDTCWS_WDTCWS_4                  00003CFF
+_WDTCWS_WDTCWS_5                  00003DFF
+_WDTCWS_WDTCWS_6                  00003EFF
+_WDTCWS_WDTCWS_7                  00003FFF
+_WDTE_NSLEEP                      00003FDF
+_WDTE_OFF                         00003F9F
+_WDTE_ON                          00003FFF
+_WDTE_SWDTEN                      00003FBF
+_WRTAPP_OFF                       00003FFF
+_WRTAPP_ON                        00003F7F
+_WRTB_OFF                         00003FFF
+_WRTB_ON                          00003EFF
+_WRTC_OFF                         00003FFF
+_WRTC_ON                          00003DFF
+_WRTSAF_OFF                       00003FFF
+_WRTSAF_ON                        000037FF
+_ZCD_OFF                          00003FFF
+_ZCD_ON                           00003BFF
 __16F15313                        00000001
-__DEBUG                           
-__MPLAB_DEBUGGER_SIMULATOR        1
 addlw_tracker                     
 addwf_banksafe                    
+after_4                           00000005
 andlw_tracker                     
 asmbit                            00000020
 asmpower2                         00000000
 at_eof                            
+at_eof_0                          0000003A
+at_eof_1                          0000003A
+at_eof_2                          0000003A
+at_eof_3                          0000003A
+at_eof_4                          0000003A
+at_eof_5                          0000003A
+at_eof_6                          0000003A
+at_eof_7                          0000003A
+at_eof_8                          0000003A
 b0DCL                             ALLOC_GPR 0,
 b0DCL16                           
 b0DCL24                           
 b0DCL8                            
 b1DCL                             ALLOC_GPR 1,
 bcf_tracker                       
-before_yield                      00000005
+before_4                          00000004
+before_yield                      00000007
 bitnum_arg                        withbit_#v(argg)
 bitoff_0                          
 bitoff_1                          
@@ -518,12 +2751,49 @@ call_pagesafe
 clrf_tracker                      
 clrw                              clrf WREG
 comf2s                            
+ctx_addr_0                        00000001
+ctx_addr_1                        00000018
+ctx_addr_2                        0000001F
+ctx_addr_3                        00000028
+ctx_addr_4                        00000038
+ctx_addr_5                        00000039
+ctx_addr_6                        0000003A
+ctx_addr_7                        0000003E
+ctx_addr_8                        0000003F
+ctx_bank_0                        FFFFFFFF
+ctx_bank_1                        00000796
+ctx_bank_2                        FFFFFFFF
+ctx_bank_3                        00001FED
+ctx_bank_4                        0000070F
+ctx_bank_5                        0000070F
+ctx_bank_6                        0000070F
+ctx_bank_7                        00001FED
+ctx_bank_8                        00001FED
+ctx_page_0                        7FFFFFFF
+ctx_page_1                        7FFFFFFF
+ctx_page_2                        0000001F
+ctx_page_3                        0000001F
+ctx_page_4                        0000001F
+ctx_page_5                        0000001F
+ctx_page_6                        00000029
+ctx_page_7                        00000029
+ctx_page_8                        00000029
+ctx_wreg_0                        40000000
+ctx_wreg_1                        800000FF
+ctx_wreg_2                        40000000
+ctx_wreg_3                        80000005
+ctx_wreg_4                        40000000
+ctx_wreg_5                        40000000
+ctx_wreg_6                        40000000
+ctx_wreg_7                        00000071
+ctx_wreg_8                        00000071
 dec16                             
 decf_banksafe                     
 decfsz_tracker                    
 dest_arg                          withdest_#v(argg)
 divup                             (((num)+(den)-1)/(den))
 doing_init                        
+elapsed_fps                       PIR0, TMR0IF
 eof                               0000003A
 eof_0                             
 eof_1                             
@@ -536,19 +2806,34 @@ eof_7
 eof_8                             
 find_msb                          
 fosc_init                         
+fpcolor                           00000072
+fpcolor0hi                        00000074
+fpcolor0mid                       00000073
+fpcolor0size                      00000003
+fps_init                          
 goto_pagesafe                     
+i2c_init                          
 ifbit                             
 ifbit_const                       
 inc16                             
 incf_banksafe                     
 incfsz_tracker                    
 incw                              addlw 1
+init_0                            00000000
+init_1                            00000001
+init_2                            00000018
+init_3                            00000028
 iopin_init                        
 iorlw_tracker                     
 khz                               rdiv(freq, 1000)
+last_init_0                       00000000
+last_init_1                       00000001
+last_init_2                       00000003
+last_init_3                       00000008
 log2                              LOG2_#v(n)
-main                              00000036
+main                              00000037
 mhz                               rdiv(freq, 1000000)
+mo8v                              00000039
 mov16                             mov_mb 16,
 mov24                             mov_mb 24,
 mov8                              
@@ -561,23 +2846,31 @@ nbDCL                             ALLOC_GPR NOBANK,
 nbDCL16                           
 nbDCL24                           
 nbDCL8                            
+next_init_3                       00000006
 nop_multi                         
 nopif                             
 pct                               rdiv(100 * (num), den)
 pmd_init                          
 pps_lock                          
 prescaler                         log2((base_freq) / (want_freq))
+pxbits8                           00000070
+pxbits80size                      00000001
 rdiv                              (((num)+(den)/2)/MAX(den, 1))
 scale                             (BIT(prescale) KHz / khz(freq))
 sec                               * 1000000
 setbit                            
 showarg_0                         
+stack_alloc_0                     00000023
+stkptr_0                          00000071
 stkptr_00size                     00000001
+stkptr_1                          00000071
 sublw_tracker                     
 swapf_banksafe                    
 swapreg                           
 usec                              * 1
 val_arg                           showarg_#v(argg)
+wait4frame                        
+wait4i2c                          
 whilebit                          
 with_arg                          witharg_#v(argg)
 witharg_0                         
@@ -591,24 +2884,30 @@ withbit_6
 withbit_7                         
 withdest_0                        
 withdest_1                        
+ws1_sendbit                       
+ws1_sendbyte                      
+ws1_sendpx                        
 xorlw_tracker                     
-yield                             00000029
-yield_again                       0000002C
+yield                             0000001C
+yield_again                       0000001F
+yield_again_0                     0000001F
+yield_from_0                      0000001C
+yield_placeholder_0               00000002
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 
-0000 : XXXX----------XX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXX-
+0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXX-
 8000 : -------XXXXX---- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Words Used:    58
-Program Memory Words Free:  1990
+Program Memory Words Used:    68
+Program Memory Words Free:  1980
 
 
-Errors   :     0
-Warnings :     0 reported,     0 suppressed
-Messages :    27 reported,    16 suppressed
+Errors   :     3
+Warnings :     1 reported,     0 suppressed
+Messages :    33 reported,    25 suppressed
 
 
