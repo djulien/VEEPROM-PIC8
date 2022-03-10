@@ -15,21 +15,21 @@ With RPi, 24C256 connections are normally as follows:
 * EEPROM GND -> RPi GND (e.g. Pin 6)
 
 With VEEPROM-PIC8, the connections change as follows:
-* VEEPROM SDA (RA2) -> RPi SDA (Pin 3); CAUTION: voltage shifter needed
-* VEEPROM SCL (RA1) -> RPi SCL (Pin 5)
-* 3 I/O pins -> available for custom use
-* MCLR -> pull-up to 5V (optional push-button to ground for reset) for LVP
-* VEEPROM Vdd -> RPi 5V (Pin 2 or 4); 5V needed for low-voltage programming
+* VEEPROM SDA (RA0) -> RPi SDA (Pin 3); CAUTION: use voltage shifter if VDD > 3.3V
+* VEEPROM SCL (RA1) -> RPi SCL (Pin 5); CAUTION: use voltage shifter if VDD > 3.3V
+* 3 I/O pins (RA2/4/5) -> available for custom use
+* MCLR (RA3) -> pull-up to VDD (optional push-button to ground for reset) for LVP
+* VEEPROM VDD -> RPi 3.3V or 5V (Pin 1 or 2); 5V requires voltage shifter on RA0/1
 * VEEPROM GND -> RPi GND (e.g. Pin 6)
 
-5V is needed for LVP (low-voltage programming).  A simple resistor divider can be used to shift the 5V SDA data signal down to 3.3V for RPi.  DO NOT CONNECT A 5V SIGNAL DIRECTLY TO RPI GPIO PINS.  TBD: maybe change veeprom to run at 3.3V to avoid the voltage issues.
+??? 5V is needed for LVP (low-voltage programming).  A simple resistor divider can be used to shift the 5V SDA data signal down to 3.3V for RPi.  DO NOT CONNECT A 5V SIGNAL DIRECTLY TO RPI GPIO PINS.  TBD: maybe change veeprom to run at 3.3V to avoid the voltage issues.
 
 ![Connection diagram](doc/connections.svg)
 
 # Build
 
 1. Open VEEPROM project in MPLABX<sup>*</sup>
-2. Edit veeprom-pic8.asm as needed (to support additional chips or add features)
+2. Edit veeprom-pic8.asm as needed (to support additional chips or features)
 3. Clean and build
 4. Use a PIC programmer such as PICKit 2 or 3 to flash .hex to PIC (first time only)
 5. Connect PIC to RPi as described above
@@ -43,8 +43,9 @@ After the PIC has been initially programmed, it can be reflashed while connected
 From a command prompt on Raspberry OS:
 * i2cdetect -l  #list I2C devices
 * i2cdetect -y 1  #list devices on I2C bus# 1
-* cat a-file | sudo tee /sys/class/i2c-dev/i2c-1/device/1-0050/eeprom  #write
-* sudo cat /sys/class/i2c-dev/i2c-1/device/1-0050/eeprom  #read veeprom
+* i2cdump -y 1 0x50
+* ?? cat a-file | sudo tee /sys/class/i2c-dev/i2c-1/device/1-0050/eeprom  #write
+* ?? sudo cat /sys/class/i2c-dev/i2c-1/device/1-0050/eeprom  #read veeprom
 
 # Status
 
