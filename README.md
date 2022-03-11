@@ -42,12 +42,20 @@ After the PIC has been initially programmed, it can be reflashed while connected
 
 # Testing
 
+To test on RPi (use pins 3 + 5):
 From a command prompt on Raspberry OS:
 * i2cdetect -l  #list I2C devices
 * i2cdetect -y 1  #list devices on I2C bus# 1
 * i2cdump -y 1 0x50
 * ?? cat a-file | sudo tee /sys/class/i2c-dev/i2c-1/device/1-0050/eeprom  #write
 * ?? sudo cat /sys/class/i2c-dev/i2c-1/device/1-0050/eeprom  #read veeprom
+
+0. i2cdetect -y 1
+1. i2cdump -y 1 0x50 
+2. sudo sh eepflash.sh -y -r -f=veeprom.eep -t=24c256 -d=1
+3. hexdump -C veeprom.eep |more
+
+NOTE: i2cdump does *not* work the same way as RPi eeprom driver. i2cdump seems to send many 1-byte read requests, while eepflash/dd use page reads.
 
 # Status
 
