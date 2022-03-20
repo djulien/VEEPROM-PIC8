@@ -22,7 +22,7 @@ With VEEPROM-PIC8, the connections change as follows:
 * VEEPROM VDD -> RPi 3.3V or 5V (Pin 1 or 2); 5V requires voltage shifter on RA0/1
 * VEEPROM GND -> RPi GND (e.g. Pin 6)
 
-The RPi also serves as an ICSP PIC programmer using the above connections.
+The RPi also serves as an ICSP PIC programmer using the above connections.  You can actually use any RPi GPIO pins - I chose pins 3, 5, and 28 so VEEPROM would work with a DPI24 Pi Hat.
 
 CAUTION: DO NOT CONNECT A 5V SIGNAL DIRECTLY TO RPI GPIO PINS.  If 5V is used, a simple resistor divider or other device can be used to shift the 5V SDA data signal down to 3.3V for RPi.  This is not needed if running the PIC at 3.3V, although a 470 ohm series resistor can be used for "safety".
 
@@ -66,17 +66,17 @@ NOTE: i2cdump does *not* work the same way as the RPi eeprom driver. i2cdump see
 # Status
 
 SOMEWHAT WORKING
-- I2C working at 100 KHz; RPi doesn't handle clock-stretching :(
+- I2C working at 100 KHz; RPi doesn't handle clock-stretching :( so run i2c at slower "standard" speed
 - JSON data: encoded okay, hard-coded for now (re-program PIC to change)
 
 Possible future changes:
 - support additional PICs?
 - implement higher eeprom endurance? (see Microchip AN1095)
 - implement higher i2c speeds?
-- detect BBB and deliver alternate eeprom contents
+- detect BBB and respond with alternate eeprom contents
 - store .JSON data in packed A2 format to reduce prog space usage
 - PCB fixes
-- bootloader? RPi + Pickle works now as ICSP programmer for blank PICs; a bootloader would require pre-programmed PICs so maybe not worth the effort
+- bootloader? RPi + Pickle works now as ICSP programmer even with blank PICs; a bootloader would require pre-programmed PICs so maybe not worth the effort
 
 # Reference Docs
 - NOTE: PIC I2C examples are useless; they all use clock stretching, and have some weird logic as well
