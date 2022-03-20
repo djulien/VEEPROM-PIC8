@@ -23,12 +23,7 @@
 ;    Custom pre- and post- build steps are used to help preprocessing or declutter .LST file
 ; 4. Flash .hex to PIC.  Use PICKit2 or 3 or equivalent; PICKit2 requires PICKitPlus for newer PICs.
 ;    After initial programming, PIC can be reflashed using I2C in-circuit.
-; Wiring (PIC @3.3V): NOTE: set RPi to use 100 KHz
-;  RA0 = I2C data (open drain); use 470 series resistor for safety?
-;  RA1 = I2C clock (open drain); use 470 series resistor for safety?
-;  RA3 = MCLR/VPP (LVP); 470 series resistor for safety, pushbutton N/O to ground for reset
-;  RA2/4/5 = available for custom usage; use one for debug output (1 or more WS281X pixels), comment out #define to disable
-; Wiring (PIC @5V): RPi okay at 400 KHz
+; Wiring:
 ;  RA0 = I2C data (open drain); use voltage shifter if VDD != 3.3V
 ;  RA1 = I2C clock (open drain); use voltage shifter if VDD != 3.3V
 ;  RA2 = debug output (1 or more WS281X pixels), comment out #define to disable
@@ -36,14 +31,9 @@
 ;  RA4 - RA5 = available for custom usage
 ; Testing:
 ;  i2cdetect -l
-;  [sudo] i2cdetect -y 1
-;  i2cdump -y 1 0x50  #only shows first 256 bytes
-;  sudo sh eepflash.sh -y -r -f=dj.eep -t=24c256 -d=1 -a=50
-;  hexdump -C dj.eep |more
-; Useful info:
-;  https://www.pedalpc.com/blog/program-pic-raspberry-pi/
-;  https://projects-raspberry.com/rpp-raspberry-pi-pic-programmer-using-gpio/
-;  https://www.teachmemicro.com/raspberry-pi-i2c/
+;  sudo i2cdetect -y 1
+;  i2cget -y 1 0x50 0x00  or  i2cset
+;  i2cdump -y 1 0x50
 ;================================================================================
     NOLIST; reduce clutter in .LST file
     NOEXPAND; don't show macro expansions until requested
@@ -65,17 +55,18 @@
 
 ;//pin assignments:
 #define SDA1_PIN  RA0; //make I2C consistent with ICSP (defaults to RA2)
-#define SCL1_PIN  RA1; //make I2C consistent with ICSP
+;#define SCL1_PIN  RA1; //make I2C consistent with ICSP
 #define FP_LED  RA4; //use bare LED for debug/front panel; comment out if not needed
-;//#define FP_WS281X  RA5; //use WS281X pixels for debug/front panel; comment out if not needed
+#define FP_WS281X  RA5; //use WS281X pixels for debug/front panel; comment out if not needed
 
 ;//compile-time options:
 #define FOSC_FREQ  (32 MHz); //max speed; WS281X assumes 8 MIPs
 ;//#define WANT_ISR  10; //ISR not used; uncomment to reserve space for ISR (or jump to)
-;//#define WANT_DEBUG; //DEV/TEST: timer calibration, threading, front panel test, extra messages
+#define WANT_DEBUG; //DEV/TEST: timer calibration, threading, front panel test, extra messages
 
 ;//other config:
 #define I2C_ADDR  0x50; //24C256 supports 0x50-0x53 via 2 addr pins; FPP looks for capes/hats @0x50
+#define I2C_BITBANG
 ;//#define ROWSIZE  32; //programming erase row size (words); comment out for write protect
 ;#define FP_WS281X; //use WS281X pixels for debug/front panel; comment out for bare LED
 #define RGB_ORDER  0x213; //WS281X color order: R = byte[1-1], G = byte[2-1], B = byte[3-1]; default = 0x123 = RGB
@@ -191,100 +182,6 @@ FrontPanel macro ignore
 #endif; //def WANT_FRPANEL
 
 
-;hard-coded VEEPROM contents:
-;//(eventually will be updatable)
-;//see FPP EEPROM.txt for details
-;//since this is just text, use A2 packing to save space
-;    ORG DATA_START; //start of EEPROM contents
-;    variable JSON_NUMPATCH = 0;
-DATA_START: ;//start of EEPROM contents
-;//first section (fixed len):
-;//0-5      EEPROM format identifier string, null terminated.  Currently "FPP02"
-;//6-31     Cape name as null terminated string (26 bytes)
-;//32-41    Cape version as null terminated string (10 bytes)
-;//42-57    Cape serial number as null terminated string (16 bytes)
-    DW 'F', 'P', 'P', '0', '2', 0; //signature string
-    DW 'D', 'P', 'I', '2', '4', 'H', 'a', 't', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; //hat/cape name
-    DW '1', '.', '0', 0, 0, 0, 0, 0, 0, 0; //hat/cape version
-    DW '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0; //serial# (not used)
-;//second section (var len, multi):
-;//0-5      LENGTH (as a string).  If the string "0", end of eeprom data
-;//6-7      Code representing the type of record.  Number between 0-99 as a string
-;//         The 2 bytes for the code is NOT included in LENGTH
-;//If code is less than 50, the code is immediately followed by:
-;//8-71     Filename as null terminated string.  ex:  "tmp/cape-info.json" (64 char)
-;//         The 64 bytes for the filename is NOT included in the LENGTH
-    DW '7', '1', '6', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
-    DW '0', 0; //uncompressed file follows
-    DW 't', 'm', 'p', '/', 'c', 'a', 'p', 'e', '-', 'i', 'n', 'f', 'o', '.', 'j', 's';
-    DW 'o', 'n', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-;JSON_PATCH#v(JSON_NUMPATCH) EQU $-12;
-;JSON_NUMPATCH += 1
-    DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-    DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-;//start of .json file:    
-JSON_START:
-    DW '{', '\n';
-    DW ' ', '"', 'n', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
-    DW ' ', '"', 'l', 'o', 'n', 'g', 'N', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
-    DW ' ', '"', 'd', 'r', 'i', 'v', 'e', 'r', '"', ':', ' ', '"', 'D', 'P', 'I', 'P', 'i', 'x', 'e', 'l', 's', '"', ',', '\n';
-    DW ' ', '"', 'n', 'u', 'm', 'S', 'e', 'r', 'i', 'a', 'l', '"', ':', ' ', '0', ',', '\n';
-    DW ' ', '"', 'o', 'u', 't', 'p', 'u', 't', 's', '"', ':', ' ', '[', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '8', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '6', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '2', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '0', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '1', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '5', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '3', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '1', '"', ' ', '}', ',', '\n';
-    DW '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '1', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '7', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '9', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '2', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '4', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '8', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '6', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '9', '"', ' ', '}', ',', '\n';
-    DW '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '6', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '4', '0', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '7', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '3', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '3', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '8', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '5', '"', ' ', '}', ',', '\n';
-    DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '2', '"', ' ', '}', '\n';
-    DW ' ', ']', ',', '\n';
-    DW ' ', '"', 'g', 'r', 'o', 'u', 'p', 's', '"', ':', ' ', '[', '\n';
-    DW ' ', ' ', '{', '\n';
-    DW ' ', ' ', ' ', '"', 's', 't', 'a', 'r', 't', '"', ':', ' ', '1', ',', '\n';
-    DW ' ', ' ', ' ', '"', 'c', 'o', 'u', 'n', 't', '"', ':', ' ', '2', '4', '\n';
-    DW ' ', ' ', '}', '\n';
-    DW ' ', ']', '\n';
-    DW '}', '\n';
-JSON_END:
-    messg [INFO] json length: #v(JSON_END - JSON_START) @__LINE__; //use this to update length above
-;//eof:
-    DW '0', 0;, 0, 0, 0, 0, 0 | LDI_EOF; //eof
-;    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
-;    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
-DATA_END: ;DATA_END SET $;    CONSTANT DATA_END = $; //DATA_END:
-;    DB 0; //read ptr clamps here
-
-;convert relative to absolute ptr:
-;rel2abs macro ptr
-;    add16 ptr, LITERAL(DATA_START | 0x8000);
-;    endm
-REL2ABS EQU LITERAL(DATA_START | 0x8000);
-;conv abs to rel ptr:
-;abs2rel macro ptr
-;    add16 ptr, LITERAL(-DATA_START & 0xFFFF | 0x8000);
-;    endm
-ABS2REL EQU LITERAL((0x8000 - DATA_START) & 0xFFFF); //wrong! -DATA_START & 0xFFFF | 0x8000);
-
-
     THREAD_DEF veeprom, 6;
 ;    nbDCL8 eepromAddress;
 ;    BITDCL is_addr; //initialized to 0
@@ -294,7 +191,7 @@ ABS2REL EQU LITERAL((0x8000 - DATA_START) & 0xFFFF); //wrong! -DATA_START & 0xFF
 
 #ifdef ROWSIZE; //rd-wr
 ; #define DATA_START  (divup(eof, ROWSIZE) * ROWSIZE); //start of space available for user storage; immediately follows code
-    messg [TODO] add bootloader (or use NVM with row erase?), decide on 8 vs 14 bit packing to allow writes @__LINE__
+    messg [TODO] turn on LVP, add bootloader (or use NVM with row erase?), decide on 8 vs 14 bit packing to allow writes @__LINE__
     RESERVE(IIF($ ^ ROWSIZE, ROWSIZE - $ ^ ROWSIZE, 0); //pad to start of next row (for row erase)
 #else; //read-only
 ; #define ROWSIZE 0
@@ -303,13 +200,16 @@ ABS2REL EQU LITERAL((0x8000 - DATA_START) & 0xFFFF); //wrong! -DATA_START & 0xFF
 #endif
 
 
-;#ifdef WANT_DEBUG; dev test/debug (timer calibration, threading, and front panel)
-#if 0
-;    nbDCL8 counter;
+;initial VEEPROM contents:
+;    ORG DATA_START; //start of EEPROM contents
+DATA_START: ;//start of EEPROM contents
+    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
+    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
+DATA_END: ;DATA_END SET $;    CONSTANT DATA_END = $; //DATA_END:
+
+
+#ifdef WANT_DEBUG; dev test/debug (timer calibration, threading, and front panel)
 fptest macro
-    PinMode FP_LED, OutLow;
-;    mov8 counter, LITERAL(5)
-;fploop: DROP_CONTEXT
 ;    FrontPanel LITERAL(0x020000);
     biton BITWRAP(LATA, FP_LED); //on/off only; TODO: PWM or serial blink?
     CALL wait1sec;
@@ -321,10 +221,7 @@ fptest macro
     CALL wait1sec;
 ;    FrontPanel LITERAL(0);
     bitoff BITWRAP(LATA, FP_LED); //on/off only; TODO: PWM or serial blink?
-;    CALL wait1sec;
-;    GOTO fploop;
-;    DECFSZ counter, F
-;    GOTO fploop;
+;    CALL wait4sec;
     endm
 
 wait1sec: DROP_CONTEXT;
@@ -338,35 +235,26 @@ fptest macro
 #endif
 
 
-;    nbDCL8 i2c_data; //next byte to send
-;    nbDCL16 debug_addr;
-;    nbDCL8 i2c_save; //incoming (addr) byte
-;    nbDCL i2c_save; //temp
 ;    nbDCL8 wrstate; //non-banked to reduce bank switching during i2c processing
 ;    BITDCL has_addr_hi;
 ;    BITDCL has_add_lo;
-;    at_init TRUE;
+    at_init TRUE;
 ;    mov8 wrstate, LITERAL(0);
 ;    mov24 fpcolor, LITERAL(0);
 ;    PinMode SDA1_PIN, OutOpenDrain;
 ;    PinMode SCL1_PIN, OutOpenDrain;
-;    i2c_init LITERAL(I2C_ADDR);
+    i2c_init LITERAL(I2C_ADDR);
 ;    mov8 eepromAddress, LITERAL(0);
 ;    LDI veepbuf;
 ;    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
 ;    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
 ;//    mov8 slaveWriteType, LITERAL(SLAVE_NORMAL_DATA);
 ;    mov16 FSR0, LITERAL(LINEAR(veepbuf)); //CAUTION: LDI uses FSR0/1
-;    setbit PMD0, NVMMD, PMD_ENABLE; //ENABLED(NVMMD); //CAUTION: must be done < any NVM reg access
-;    setbit NVMCON1, NVMREGS, FALSE; access prog space only, !config space
+    setbit PMD0, NVMMD, PMD_ENABLE; //ENABLED(NVMMD); //CAUTION: must be done < any NVM reg access
+    setbit NVMCON1, NVMREGS, FALSE; access prog space only, !config space
 ;    mov16 NVMADR, LITERAL(DATA_START); default data ptr at power-up
-;#define FSR_HATPTR  FSR0
-;#define INDF_HATPTR_postinc  INDF0_postinc
-;    mov16 FSR_HATPTR, REL2ABS; LITERAL(0);
-;    rel2abs FSR_HATPTR;
-;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-;    BANKCHK NVMADR;
-;    CALL i2c_rewind; //default data ptr at power-up
+    BANKCHK NVMADR;
+    CALL i2c_rewind; //default data ptr at power-up
 ;    PUSH LITERAL(after_reset); //look like call, return >
 ;BANK_TRACKER = NVMCON1; TODO: implement call/return bank affinity
 ;i2c_reset:
@@ -375,10 +263,8 @@ fptest macro
 ;    UGLY_PASS12FIX -1;
 ;after_reset:
 ;BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
-;    fptest
-;    mov16 FSR1, LITERAL(PIR3); //kludge: use INDF to avoid bank selects
-;#define INDF_PIR3  INDF1
-;    at_init FALSE;
+    fptest
+    at_init FALSE;
 
 
 ;24C256 behavior:
@@ -398,299 +284,26 @@ fptest macro
 ;memory size: < 7KB available, for now only using lower 8 bits of each prog word (< 4K available)
 ;TODO? bytes with either of top 2 bits set must be at even byte addr; this allows seemless use for text or opcodes/bootloader
 ;TODO: is clock stretching needed? (only if YIELD during i2c xaction)
-;    nbDCL8 i2c_data;
-;    nbDCL8 i2c_save;
-;    at_init TRUE;
-;    mov8 i2c_data, LITERAL(0x17);
-;    at_init FALSE;
-#if 1; simplified: hard-coded, read-only, works with i2cdump and eepflash -r
-#define INDF_PIR3  INDF1
-#define FSR_HATPTR  FSR0
-#define INDF_HATPTR_postinc  INDF0_postinc
+#if 1; //24C256 implementation (bit-banged)
 veeprom: DROP_CONTEXT;
-    i2c_init LITERAL(I2C_ADDR);
-    fptest
-;    mov16 FSR1, LITERAL(PIR3); //kludge: use INDF to avoid bank selects
-;    mov16 FSR_HATPTR, REL2ABS; LITERAL(0);
-;    mov8 WREG, i2c_data; //kludge: pre-load outbound byte for faster processing < first output bit
-;    BANKCHK SSP1BUF; //reduce delay after SSP1IF
-;BANK_TRACKER = SSP1STAT;
-;rdloop: ;DROP_CONTEXT;
-;#if 1; range check
-;    cmp16 FSR_HATPTR, LITERAL(DATA_END | 0x8000);
-;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
-;    cmp16 FSR_HAT
-;    MOVF REGLO(FSR_HATPTR), W;
-;    ADDLW -(JSON_PATCH#v(0) + 1) & 0xFF
-;    ifbit EQUALS0 TRUE, GOTO patch_addr_hi;
-;    DECFSZ WREG, F;
-;    GOTO veeprom;
-;patch_addr_lo:
-;    mov8 i2c_data, REGLO(debug_addr);
-;    GOTO veeprom;
-;patch_addr_hi:
-;    mov8 i2c_data, REGHI(debug_addr);
-;    cmp16 FSR_HATPTR, LITERAL(JSON_PATCH#v(0) | 0x8000)
-;    ifbit EQUALS0 FALSE, GOTO veeprom;
-;#endif
-;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-;    mov8 WREG, i2c_data; //kludge: pre-load outbound byte for faster processing < first output bit
-;    mov16 FSR_HATPTR, REL2ABS; LITERAL(0);
-;    mov8 WREG, LITERAL(0xCC); INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-;    setbit INDF_PIR3, SSP1IF, FALSE;
-;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
-;    mov8 i2c_save, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;#if 0
-;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;#if 1; read/write branch
-;eepflsh.sh sees this after first byte:
-;    mov8 SSP1BUF, i2c_data; //LITERAL(0xDD); //reply with 0 byte (return data not prepped yet)
-;#else
-;    swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;#endif
-;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
-;    ifbit SSP1STAT, D_NOT_A, TRUE, GOTO rdloop; prefetch; //not new req
-;?    ifbit SSP1STAT, ACKSTAT, TRUE, GOTO prefetch; i2c_read; //master wants more data
-;i2c_new_req:
-;    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO rdloop; prefetch; veeprom; //already did prefetch?; prefetch; i2c_read; CAUTION: only valid until next start/stop bit
-;//get 2-byte addr then ignore write data:
-;    mov8 REGLO(debug_addr), WREG;
-;    ANDLW 0x7F; //limit size
-;    mov8 i2c_data, WREG; //temp save; TRASHED
-;    mov8 i2c_save, LITERAL(0); TRASHED
-;    add16 FSR_HATPTR, LITERAL(-(DATA_START | 0x8000) & 0xFFFF); //conv back to data ofs (rel addr)
-;    abs2rel FSR_HATPTR;
-;    mov8 i2c_addr, WREG;
-;    add16 FSR_HATPTR, ABS2REL;
-;    mov8 REGLO(FSR_HATPTR), i2c_addr; NOTE: addr is little endian
-;    mov8 REGHI(FSR_HATPTR), i2c_data;
-;    rel2abs FSR_HATPTR;
-;no: might want to keep same page    mov8 REGHI(FSR_HATPTR), LITERAL(0); //in case second byte doesn't come in (i2cdump only sets one addr byte)
-;    MOVLW (DATA_START | 0x8000) >> 8;
-;    SUBWF REGHI(FSR_HATPTR), F; //conv back to raw ofs for range check
-;    CALL set_addr;
-;    mov8 WREG, LITERAL(0xDD);
-;BANK_TRACKER = SSP1STAT;
-;    mov8 WREG, i2c_data; //kludge: pre-load outbound byte for faster processing < first output bit
-;    mov8 i2c_data, INDF_HATPTR_postinc; //prefetch for next read req (in case we only get 1 addr byte)
-;    setbit INDF_PIR3, SSP1IF, FALSE;
-;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-;#if 0
-;    mov8 i2c_save, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;//never seen?
-;    mov8 SSP1BUF, LITERAL(0); //reply to dev addr byte with a 0 byte (return data not prepped yet)
-;#else
-;    swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;#endif
-;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-;    ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_new_req; //master started new req?
-;    mov8 i2c_data, WREG; //temp save
-;    mov8 REGLO(debug_addr), WREG;
-;    abs2rel FSR_HATPTR;
-;    dec16 FSR_HATPTR;
-;    mov8 i2c_addr, WREG;
-;    add16 FSR_HATPTR, ABS2REL-1;
-;    dec16 FSR_HATPTR; //undo set_addr++ above in case low byte wrapped and changed upper byte
-;    add16 FSR_HATPTR, LITERAL(-((DATA_START + 1) | 0x8000) & 0xFFFF); //conv back to data ofs (rel addr)
-;    mov8 REGHI(FSR_HATPTR), REGLO(FSR_HATPTR);
-;    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read;
-;    mov8 REGHI(FSR_HATPTR), i2c_addr; i2c_data; NOTE: addr is little endian
-;    mov8 REGLO(FSR_HATPTR), i2c_data;
-;    rel2abs FSR_HATPTR;
-;    sub8 REGHI(FSR_HATPTR), LITERAL((DATA_START | 0x8000) >> 8); //conv back to raw ofs for range check
-;    MOVLW (DATA_START | 0x8000) >> 8;
-;    SUBWF REGHI(FSR_HATPTR), F; //conv back to raw ofs for range check
-;    CALL set_addr;
-;    mov8 WREG, LITERAL(0xEE);
-    mov16 FSR1, LITERAL(PIR3); //kludge: use INDF to avoid bank selects during timing-critical section
-    mov16 FSR_HATPTR, REL2ABS; LITERAL(0);
-;prefetch in case first req is a read:
-;    mov8 WREG, LITERAL(0xCC); INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-    BANKCHK SSP1STAT; //reduce bank selects for faster processing
-;BANK_TRACKER = SSP1STAT;
-;BANK_TRACKER = SSP1STAT;
-;    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read;
-    nbDCL8 i2c_addr; //hold incoming addr byte (wr req only)
-;	mov16 i2c_addr, LITERAL(0);
-;i2c_loop: ;//ignore wr data until next req
-next_byte:
-#if 1; range check
-    cmp16 FSR_HATPTR, LITERAL(DATA_END | 0x8000);
-;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
-    ifbit BORROW TRUE, GOTO addr_ok;
-    mov16 FSR_HATPTR, LITERAL((DATA_END - 1) | 0x8000); //clamp
-addr_ok: ;//convert rel addr to abs addr
 #endif
-;TODO: update memory if write req
-    mov8 WREG, INDF_HATPTR_postinc; //prefetch in case next req is a read
-;    mov8 WREG, REGLO(FSR_HATPTR);
-;	mov8 i2c_addr, WREG;
-;    inc16 FSR_HATPTR;
-;	mov8 WREG, i2c_addr;
-;;;;;
-    setbit INDF_PIR3, SSP1IF, FALSE;
-    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;not enough time to check status < ack, so assume next req is a read and send prefetched data (i2cdump sees *only this* data, eepflsh.sh sees this at start of req):
-;    mov8 SSP1BUF, i2c_data; LITERAL(0xCC); //reply to dev addr byte with a 0 byte (return data not prepped yet)
-    swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;	mov8 
-;;    mov8 WREG, SSP1BUF;
-;;    mov8 SSP1BUF, LITERAL(0x1D);
-    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-    ifbit SSP1STAT, D_NOT_A, TRUE, GOTO next_byte; rdloop; prefetch; //not new req
-;?    ifbit SSP1STAT, ACKSTAT, TRUE, GOTO prefetch; i2c_read; //master wants more data
-    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO next_byte; rdloop; prefetch; veeprom; //already did prefetch?; prefetch; i2c_read; CAUTION: only valid until next start/stop bit
-i2c_wr_req:
-;CAUTION: i2cdump only sends 1 addr byte (LSB), but eepflah.sh/dd/eeprom driver sends 2 addr bytes (MSB then LSB)
-;in order to handle both cases, set up valid FSR_HATPTR + prefetch after *each* byte received
-	mov8 WREG, LITERAL(0); //send dummy byte in response to read/write device addr
-    setbit INDF_PIR3, SSP1IF, FALSE;
-    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-    swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;;    mov8 WREG, SSP1BUF;
-;;    mov8 SSP1BUF, LITERAL(0x3A);
-    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-    ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_wr_req; //master started new req?
-;    mov8 i2c_addr, WREG;
-;    add16 FSR_HATPTR, ABS2REL;
-;#if 0; set addr MSB
-;	mov8 REGHI(FSR_HATPTR), WREG; i2c_addr
-;	mov8 REGLO(FSR_HATPTR), LITERAL(0);
-;    CALL set_addr;
-;BANK_TRACKER = SSP1STAT;
-;#else; set addr LSB for i2cdump
-;//i2cdump is only for debug; it only sends 1 addr byte so use it as addr LSB:
-    mov8 i2c_addr, WREG; //save in case second addr byte follows
-	mov8 REGLO(FSR_HATPTR), WREG; i2c_addr
-	mov8 REGHI(FSR_HATPTR), LITERAL(0);
-;#endif
-    add16 FSR_HATPTR, REL2ABS;
-;    mov8 WREG, LITERAL(0xAA);
-;    mov8 WREG, i2c_data; //kludge: pre-load outbound byte for faster processing < first output bit
-    mov8 WREG, INDF_HATPTR_postinc; //prefetch for next read req (in case we only get 1 addr byte)
-;    mov8 WREG, REGLO(FSR_HATPTR);
-;    inc16 FSR_HATPTR;
-;	mov8 WREG, LITERAL(0xBB);
-;;;;;
-    setbit INDF_PIR3, SSP1IF, FALSE;
-    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-    swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;;    mov8 WREG, SSP1BUF;
-;;    mov8 SSP1BUF, LITERAL(0x3A);
-    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-    ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_wr_req; //master started new req?
-;	nbDCL8 i2c_addrX;
-;#if 0
-;    mov8 i2c_addr, WREG;
-;    add16 FSR_HATPTR, ABS2REL-1; //undo ++ from above (needed ++ above in case end of req)
-;    mov8 REGLO(FSR_HATPTR), i2c_addr;
-;#else
-;//set MSB+LSB addr for eepflash.sh/dd/eeprom driver:
-	mov8 REGLO(FSR_HATPTR), WREG; i2c_addr
-	mov8 REGHI(FSR_HATPTR), i2c_addr;
-;#endif
-;    CALL set_addr;
-    add16 FSR_HATPTR, REL2ABS;
-;BANK_TRACKER = SSP1STAT;
-    BANKCHK SSP1STAT; //reduce delay after SSP1IF
-    GOTO next_byte;
-;BANK_TRACKER = SSP1STAT;
-;set_addr:
-;#if 1
-;    cmp16 FSR_HATPTR, LITERAL(DATA_END - DATA_START); | 0x8000);
-;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
-;    ifbit BORROW TRUE, GOTO addr_ok;
-;    mov16 FSR_HATPTR, LITERAL(DATA_END - 1); //clamp
-;addr_ok: ;//convert rel addr to abs addr
-;#endif
-;    dec16 FSR_HATPTR;
-;    add16 FSR_HATPTR, LITERAL(DATA_START | 0x8000);
-;    MOVLW (DATA_START | 0x8000) & 0xFF;
-;    ADDWF REGLO(FSR_HATPTR), F;
-;    MOVLW (DATA_START | 0x8000) >> 8;
-;    ADDWFC REGHI(FSR_HATPTR), F;
-;    rel2abs FSR_HATPTR;
-;    add16 FSR_HATPTR, REL2ABS;
-;    mov16 FSR_HATPTR, LITERAL(DATA_START | 0x8000);
-;    mov8 i2c_data, INDF_HATPTR_postinc; //prefetch for next read req
-;    mov8 WREG, INDF_HATPTR_postinc; //prefetch for next read req
-;    BANKCHK SSP1STAT; //reduce delay after SSP1IF
-;    RETURN;
-;i2c_read:
-;    cmp16 FSR_HATPTR, LITERAL(DATA_END | 0x8000);
-;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
-;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-;    setbit INDF_PIR3, SSP1IF, FALSE;
-;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
-;    mov8 i2c_save, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
-;    mov8 SSP1BUF, i2c_data; send prepped data (not enough time to prep here)
-;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-;    ifbit SSP1STAT, ACKSTAT, TRUE, GOTO i2c_read; //master wants more data
-;    GOTO veeprom; //wait for next read/write req
-;NOTE: RPi mishandles clock stretching, so prep next data byte here while MSSP sends current byte:
-;    setbit INDF_PIR3, SSP1IF, FALSE;
-;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;#endif
-;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
-;    mov8 SSP1BUF, i2c_data; send prepped data (not enough time to prep here)
-;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-;    GOTO veeprom; //wait for next read/write request
-;i2c_write:
-;throw away device addr (never changes), save data addr (next byte):
-;    mov8 i2c_data, LITERAL(0); //prefetch first read byte; NOTE: this assumes data addr 0
-;    mov16 FSR_HATPTR, LITERAL(DATA_START | 0x8000);
-;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-;    setbit INDF_PIR3, SSP1IF, FALSE;
-;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
-;    mov8 i2c_data, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-;    ifbit SSP1STAT, I2C_START, TRUE, GOTO veeprom; //kludge: skip start bit
-;    ifbit SSP1STAT, ACKSTAT, FALSE, GOTO veeprom; //end of block
-;    GOTO veeprom;
-;    GOTO prefetch;
-#endif
-#if 0; comm check: echo seq# (wrapped) or status bits
+#if 0
     nbDCL8 i2c_data;
-;BANK_TRACKER = SSP1STAT;
-;i2c_ignore:
+    at_init TRUE;
+    mov8 i2c_data, LITERAL(0x17);
+    at_init FALSE;
 veeprom: DROP_CONTEXT;
-    setbit PIR3, SSP1IF, FALSE;
-    whilebit PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
-    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
-;SSP1CON2 == 0x01 (SEN)
-    mov8 SSP1BUF, SSP1STAT; i2c_data;
-;    mov8 SSP1BUF, SSP1CON2; i2c_data;
-#if 0; //takes too long :(
-    MOVF SSP1STAT, W;
-    ADDLW 0x3D;
-    ifbit SSP1CON2, ACKSTAT, TRUE, IORLW 0x40;
-    ifbit SSP1CON2, ACKDT, TRUE, IORLW 0x80;
-    MOVWF SSP1BUF;
-#endif
-    setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
-;    ifbit SSP1STAT, I2C_START, TRUE, GOTO veeprom; //kludge:
-;    setbit PIR3, SSP1IF, FALSE;
-    ifbit SSP1STAT, D_NOT_A, FALSE, GOTO veeprom; //address
-    ifbit SSP1STAT, R_NOT_W, FALSE, GOTO veeprom; //write
-;    ifbit SSP1STAT, I2C_START, TRUE, GOTO veeprom; //kludge: skip start bit
+    wait4i2c RESERVE(0), RESERVE(0); YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
+    mov8 WREG, SSP1BUF; //i2c_data;
+    mov8 SSP1BUF, i2c_data;
     INCF i2c_data, F;
-    cmp8 i2c_data, LITERAL(0x67);
-    ifbit BORROW TRUE, GOTO veeprom;
-    mov8 i2c_data, LITERAL(0x17); //wrap 0x67 -> 0x17
-;    ifbit SSP1STAT, ACKSTAT, FALSE, GOTO veeprom; //end of block
     GOTO veeprom;
 #endif
 #if 0; //24C256 implementation
+    nbDCL8 i2c_data;
+;    at_init TRUE;
+;    mov8 i2c_data, LITERAL(0x17);
+;    at_init FALSE;
 BANK_TRACKER = SSP1CON1; TODO: implement call/return bank affinity
 ;i2c_rewind:
 ;    mov8 i2c_data, LITERAL(0);
@@ -700,7 +313,6 @@ i2c_err: DROP_CONTEXT;
     setbit LATA, FP_LED, TRUE;
     BANKCHK SSP1CON1
 i2c_done: ;DROP_CONTEXT;
-;    set_timeout 30 usec, RESERVE(0); kludge: force clock strech > 1 bit time
     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
 veeprom: DROP_CONTEXT;
     wait4i2c RESERVE(0), RESERVE(0); YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
@@ -828,10 +440,10 @@ i2c_retry:
     GOTO i2c_done;
 ;i2c_rdloop:
 #endif
-;BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
-;i2c_rewind:
-;    mov16 NVMADR, LITERAL(DATA_START); default data ptr at power-up
-;    RETURN;
+BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
+i2c_rewind:
+    mov16 NVMADR, LITERAL(DATA_START); default data ptr at power-up
+    RETURN;
 #if 0; //no worky; generic example
 i2c_wrdone: DROP_CONTEXT;
     setbit BITPARENT(is_addr), FALSE;
@@ -901,18 +513,6 @@ i2c_rddata:
     mov16 FSR0, LITERAL(LINEAR(veepbuf)); //addr wrap
     GOTO i2c_done;
 ;?    GOTO i2c_wrdone;
-#endif
-#if 0
-    nbDCL8 i2c_data;
-    at_init TRUE;
-    mov8 i2c_data, LITERAL(0x17);
-    at_init FALSE;
-veeprom: DROP_CONTEXT;
-    wait4i2c RESERVE(0), RESERVE(0); YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
-    mov8 WREG, SSP1BUF; //i2c_data;
-    mov8 SSP1BUF, i2c_data;
-    INCF i2c_data, F;
-    GOTO veeprom;
 #endif
     THREAD_END;
 
@@ -1579,8 +1179,13 @@ after_ldi:
 #define PPS_SDA1OUT  0x16; should be in p16f15313.inc
 #define PPS_SCL1OUT  0x15; should be in p16f15313.inc
 
+    VARIABLE I2C_ADDR = -1;
 i2c_init macro addr
+#ifndef I2C_BITBANG
     setbit PMD4, MSSP1MD, PMD_ENABLE; //ENABLED(TRUE); //CAUTION: must be done < any reg access
+#else
+I2C_ADDR = addr;
+#endif
 ;//set I2C I/O pins:
 #if SDA1_PIN != RA2
     messg [INFO] SDA1 remapped from RA#v(RA2) to RA#v(SDA1_PIN) @__LINE__
@@ -1600,19 +1205,17 @@ i2c_init macro addr
     EMIT2 PinMode SDA1_PIN, InDigital;
     EMIT2 PinMode SCL1_PIN, InDigital;
 ;//I2C control regs:
+#ifndef I2C_BITBANG
 ;TODO: enable clock stretch? (SSP1CON1.CKP, SSP1CON2.SEN)
 ;//    SSP1CON1 = 0x26; // SSPEN enabled; CKP disabled; SSPM 7 Bit Polling;
     mov8 SSP1CON1, LITERAL(NOBIT(SSPEN) | BIT(CKP) | I2C_slave7 << SSPM0); //I2C disabled during config, enable clock, slave mode, 7-bit addr
 ;//    SSP1STAT = 0x80; // SMP Standard Speed; CKE disabled;
-;NOTE: need to use 100 KHz because PIC response is too slow at 3.3V?
-;also need to use 100 KHz (slowest clock) because RPi clock stretching no worky :(
-    mov8 SSP1STAT, LITERAL(BIT(SMP)); // | NOBIT(CKE)); //disable slew rate for standard speed (100 KHz), disable SMBus,  clock edge !used
+;NOTE: need to use 100 KHz (slowest clock) because RPi clock stretching no worky :(
+    mov8 SSP1STAT, LITERAL(BIT(SMP)); // | NOBIT(CKE)); //disable slew rate for high-speed mode (400 KHz), disable SMBus,  clock edge !used
 ;//    SSP1CON2 = 0x00; // ACKEN disabled; GCEN disabled; PEN disabled; ACKDT acknowledge; RSEN disabled; RCEN disabled; SEN disabled;
 ;//CAUTION: RPi doesn't handle clock stretching correctly consistently :(
-;    mov8 SSP1CON2, LITERAL(NOBIT(GCEN) | NOBIT(ACKDT) | BIT(SEN)); //disable call addr, ack status, ack data, enable clock stretching for safety
-    mov8 SSP1CON2, LITERAL(NOBIT(GCEN) | NOBIT(ACKDT) | BIT(SEN)); //disable call addr, ack status, ack data, enable clock stretching for safety
+    mov8 SSP1CON2, LITERAL(NOBIT(GCEN) | NOBIT(ACKDT) | NOBIT(SEN)); //disable call addr, ack status, ack data, enable clock stretching for safety
 ;//    SSP1CON3 = 0x00; // SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled;
-;//NOTE: SCIE is ignored (treated as ON) in slave mode!
     mov8 SSP1CON3, LITERAL(NOBIT(PCIE) | NOBIT(SCIE) | NOBIT(BOEN) | NOBIT(SDAHT) | NOBIT(SBCDE) | NOBIT(AHEN) | NOBIT(DHEN)); //disable stop + start detect interrupts, don't ack on buf ovfl, 100 ns SDA hold time, disable slave collision detect, disable addr + data hold
 ;;;;;???????????????
 ;    mov8 SSP1CON1, LITERAL(NOBIT(SSPEN) | NOBIT(CKP) | I2C_slave7 << SSPM0); //I2C disabled during config, clock low, slave mode, 7-bit addr
@@ -1634,17 +1237,39 @@ i2c_init macro addr
     setbit PIR3, SSP1IF, FALSE; //clear slave interrupt flag
 ;//    PIE3bits.SSP1IE = 1; // enable the master interrupt
     setbit SSP1CON1, SSPEN, TRUE; //I2C enable
+#endif
     endm; @__LINE__
 
-    ;wait for new frame:
+
+#ifdef I2C_BITBANG
+i2c_wait4start macro
+    LOCAL not_start;
+    BANKCHK LATA;
+ EMITL not_start:
+    ifbit LATA, SCL1_PIN, FALSE, GOTO not_start; wait for clock high
+    ifbit LATA, SDA1_PIN, FALSE, GOTO not_start; data must start high
+    
+    endm
+#endif
+
+
+;wait for new frame:
+#ifdef I2C_BITBANG
+    BITDCL i2c_rcv;
+#endif
 wait4i2c macro idler, idler2
 ;    EXPAND_PUSH FALSE, @__LINE__
 ; messg wait4frame: idler, idler2, #threads = #v(NUM_THREADS)
 ;    ifbit elapsed_fps, FALSE, idler; bit !ready yet, let other threads run
     idler; assume not ready yet, let other threads run
 ;    ifbit PIR3, SSP1IF, FALSE, idler2; more efficient than goto $-3 + call
+#ifndef I2C_BITBANG
     whilebit PIR3, SSP1IF, FALSE, idler2;
     setbit PIR3, SSP1IF, FALSE;
+#else
+    whilebit BITPARENT(i2c_rcv), FALSE, idler2;
+    setbit BITPARENT(i2c_rcv), FALSE;
+#endif
 ;    EXPAND_POP @__LINE__
     endm; @__LINE__
 
@@ -1914,6 +1539,7 @@ stkptr_#v(NUM_THREADS) EQU stkptr_#v(0); wrap-around for round robin yield
 ;	EMITL start_threads:; only used for debug
 ;	mov8 STKPTR, stkptr_#v(NUM_THREADS); % MAX_THREADS); #v(curthread + 1); round robin
 ;	EMIT return;
+  messg [DEBUG] why is banksel needed here? #v(BANK_TRACKER) @__LINE__
 	YIELD_AGAIN_inlined; start first thread
     endif; @__LINE__
 ;unneeded? generic yield:
@@ -2241,8 +1867,8 @@ MY_CONFIG3 &= _WDTE_OFF  ; WDT operating mode->WDT Disabled, SWDTEN is ignored
 ; config WDTCWS = WDTCWS_7    ; WDT Window Select bits->window always open (100%); software control; keyed access not required
 ; config WDTCCS = SC    ; WDT input clock selector->Software Control
     VARIABLE MY_CONFIG4 = -1  ;start with all Memory bits on, then EXPLICITLY turn them off below
-    MESSG [TODO] boot loader? @__LINE__
-MY_CONFIG4 &= _LVP_ON  ; Low Voltage Programming Enable bit->High Voltage on MCLR/Vpp must be used for programming
+    MESSG [TODO] boot loader + LVP? @__LINE__
+MY_CONFIG4 &= _LVP_OFF ;ON?  ; Low Voltage Programming Enable bit->High Voltage on MCLR/Vpp must be used for programming
 MY_CONFIG4 &= _WRTSAF_OFF  ; Storage Area Flash Write Protection bit->SAF not write protected
 MY_CONFIG4 &= _WRTC_OFF  ; Configuration Register Write Protection bit->Configuration Register not write protected
 MY_CONFIG4 &= _WRTB_OFF  ; Boot Block Write Protection bit->Boot Block not write protected
@@ -2866,36 +2492,6 @@ lhs = WREG2
     endm; @__LINE__
 
 
-;16-bit lhs += rhs
-add16 macro lhs, rhs
-	if (lhs == FSR0) || (lhs == FSR1)
-	messg [DEBUG] special case: #v(LIT2VAL(rhs)), #v(LIT2VAL(-31)), #v(LIT2VAL(-31) - LIT2VAL(rhs)) @__LINE__
-		if ISLIT(rhs) && (LIT2VAL(rhs) < 32)
-			ADDFSR lhs, LIT2VAL(rhs);
-			exitm
-		endif
-		if ISLIT(rhs) && (LIT2VAL(rhs) > LIT2VAL(-31))
-			ADDFSR lhs, LIT2VAL(-31) - LIT2VAL(rhs)
-			exitm
-		endif
-	endif
-;	MOVLW LIT2VAL(rhs) & 0xFF;
-;	ADDWF REGLO(lhs), F;
-;	MOVLW LIT2VAL(rhs) >> 8;
-;	ADDWFC REGHI(lhs), F;
-;    else
-;	MOVF REGLO(rhs), W;
-;	ADDWF REGLO(lhs), F;
-;	MOVF REGHI(rhs), W;
-;	ADDWFC REGHI(lhs), F;
-;    endif
-    mov8 WREG, BYTEOF(#v(rhs), 0)
-    ADDWF REGLO(lhs), F;
-    mov8 WREG, BYTEOF(#v(rhs), 1);
-    ADDWFC REGHI(lhs), F;
-    endm
-
-
 cmp16 macro lhs, rhs
     LOCAL not_eq;
 ;    LOCAL LHS = #v(lhs)
@@ -3115,18 +2711,6 @@ ADDWF macro reg, dest
 ;    EXPAND_PUSH FALSE
     BANKCHK reg
     BANKSAFE EMIT dest_arg(dest) addwf reg;, dest;
-    if (reg == WREG) || !BOOL2INT(dest)
-WREG_TRACKER = WREG_UNKN; IIF(ISLIT(WREG_TRACKER), WREG_TRACKER + 1, WREG_UNKN)
-    endif; @__LINE__
-;    EXPAND_POP
-    endm; @__LINE__
-
-
-#define ADDWFC  addwfc_banksafe
-ADDWFC macro reg, dest
-;    EXPAND_PUSH FALSE
-    BANKCHK reg
-    BANKSAFE EMIT dest_arg(dest) addwfc reg;, dest;
     if (reg == WREG) || !BOOL2INT(dest)
 WREG_TRACKER = WREG_UNKN; IIF(ISLIT(WREG_TRACKER), WREG_TRACKER + 1, WREG_UNKN)
     endif; @__LINE__
