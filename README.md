@@ -68,6 +68,7 @@ NOTE: i2cdump does *not* work the same way as the RPi eeprom driver. i2cdump see
 SOMEWHAT WORKING
 - I2C working at 100 KHz; RPi doesn't handle clock-stretching :( so run i2c at slower "standard" speed
 - JSON data: encoded okay, hard-coded for now (re-program PIC to change)
+- TODO: clean up source code :P
 
 Possible future changes:
 - support additional PICs?
