@@ -68,6 +68,7 @@
 #define SCL1_PIN  RA1; //make I2C consistent with ICSP
 #define FP_LED  RA4; //use bare LED for debug/front panel; comment out if not needed
 ;//#define FP_WS281X  RA5; //use WS281X pixels for debug/front panel; comment out if not needed
+#define A2PACK; //saves space but only allows text
 
 ;//compile-time options:
 #define FOSC_FREQ  (32 MHz); //max speed; WS281X assumes 8 MIPs
@@ -195,6 +196,144 @@ FrontPanel macro ignore
 ;//(eventually will be updatable)
 ;//see FPP EEPROM.txt for details
 ;//since this is just text, use A2 packing to save space
+#ifdef A2PACK; use A2 packing; CAUTION: suitable only for text, ensure even length to avpod embedded nulls
+DATA_START: ;//start of EEPROM contents
+;//first section (fixed len):
+;//0-5      EEPROM format identifier string, null terminated.  Currently "FPP02"
+;//6-31     Cape name as null terminated string (26 bytes)
+;//32-41    Cape version as null terminated string (10 bytes)
+;//42-57    Cape serial number as null terminated string (16 bytes)
+    DA "FPP02\x00"; //signature string
+    DA "DPI24Hat\x00                 "; //hat/cape name
+    DA "1.0\x00      "; //hat/cape version
+    DA "000000000000000\x00"; //serial# (not used)
+;//second section (var len, multi):
+;//0-5      LENGTH (as a string).  If the string "0", end of eeprom data
+;//6-7      Code representing the type of record.  Number between 0-99 as a string
+;//         The 2 bytes for the code is NOT included in LENGTH
+;//If code is less than 50, the code is immediately followed by:
+;//8-71     Filename as null terminated string.  ex:  "tmp/cape-info.json" (64 char)
+;//         The 64 bytes for the filename is NOT included in the LENGTH
+	DA "298\x00  "; //length of json file contents; CAUTION: must match JSON length below
+    DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+    DA "tmp/cape-info.json\x00                                             ";
+;//start of first .json file:    
+;//start of .json file:    
+JSON1_START: ;//	/tmp/cape-info.json
+    DA "{\n";
+    DA " \"id\": \"DPI24Hat(v1.0)\", \n";
+    DA " \"version\": \"1.0\", \n";
+    DA " \"name\": \"DPI24Hat\", \n";
+    DA " \"defaultSettings\": {\n";
+;	DW "  "showAllOptions": "1"\n";
+    DA " },\n";
+    DA " \"provides\": [ \"strings\" ],\n";
+    DA " \"designer\": \"djulien\",\n";
+    DA " \"copyFiles\": {\n";
+	DA "  \"tmp/co-pixelStrings.json\": \"config/co-pixelStrings.json\", \n";
+	DA "  \"tmp/DPI24Hat.json\": \"/opt/fpp/capes/pi/strings/DPI24Hat.json\" \n";
+    DA " } \n";
+    DA "}\n";
+JSON1_END:
+    messg [INFO] json1 length: #v(2 * (JSON1_END - JSON1_START)) @__LINE__; //use this to update length above
+;//second file:
+	DA "654\x00  "; //length of json file contents; CAUTION: must match JSON length below
+    DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+    DA "tmp/DPI24Hat.json\x00                                              "; //hat/cape name
+;//start of .json file:    
+JSON2_START: ;//	/tmp/strings/DPI24Hat.json
+    DA "{\n";
+    DA " \"name\": \"DPI24Hat\", \n";
+    DA " \"longName\": \"DPI24Hat\", \n";
+    DA " \"driver\": \"DPIPixels\",\n";
+    DA " \"numSerial\": 0, \n";
+    DA " \"outputs\": [\n";
+    DA "  {\"pin\": \"P1-8\"}, \n";
+    DA "  {\"pin\": \"P1-16\"},\n";
+    DA "  {\"pin\": \"P1-12\"},\n";
+    DA "  {\"pin\": \"P1-10\"},\n";
+    DA "  {\"pin\": \"P1-21\"},\n";
+    DA "  {\"pin\": \"P1-15\"},\n";
+    DA "  {\"pin\": \"P1-13\"},\n";
+    DA "  {\"pin\": \"P1-11\"},\n";
+    DA " \n";
+    DA "  {\"pin\": \"P1-31\"},\n";
+    DA "  {\"pin\": \"P1-7\"}, \n";
+    DA "  {\"pin\": \"P1-19\"},\n";
+    DA "  {\"pin\": \"P1-22\"},\n";
+    DA "  {\"pin\": \"P1-24\"},\n";
+    DA "  {\"pin\": \"P1-18\"},\n";
+    DA "  {\"pin\": \"P1-26\"},\n";
+    DA "  {\"pin\": \"P1-29\"},\n";
+    DA " \n";
+    DA "  {\"pin\": \"P1-36\"},\n";
+    DA "  {\"pin\": \"P1-40\"},\n";
+    DA "  {\"pin\": \"P1-37\"},\n";
+    DA "  {\"pin\": \"P1-33\"},\n";
+    DA "  {\"pin\": \"P1-23\"},\n";
+    DA "  {\"pin\": \"P1-38\"},\n";
+    DA "  {\"pin\": \"P1-35\"},\n";
+    DA "  {\"pin\": \"P1-32\"} \n";
+    DA " ],\n";
+    DA " \"groups\": [ \n";
+    DA "  {\n";
+    DA "   \"start\": 1, \n";
+    DA "   \"count\": 24 \n";
+    DA "  }\n";
+;FPP seems to want a blank line @eof and is picky about how it ends:  :(
+;	DA "] }\n";
+;    DA "\n\n";
+	DA " ] }\n\n";
+JSON2_END:
+    messg [INFO] json2 length: #v(2 * (JSON2_END - JSON2_START)) @__LINE__; //use this to update length above
+;//third file:
+	DA "1234\x00 "; //length of json file contents; CAUTION: must match JSON length below
+    DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+    DA "tmp/co-pixelStrings.json\x00                                       ";
+;//start of .json file:    
+JSON3_START: ;//	/tmp/defaults/config/co-pixelStrings.json
+    DA "{\n";
+    DA " \"channelOutputs\": [ \n";
+    DA " { \n";
+    DA "  \"type\": \"DPIPixels\", \n";
+    DA "  \"subType\": \"DPI24Hat\", \n";
+    DA "  \"pinoutVersion\": \"1.x\",\n";
+    DA "  \"outputs\": [ \n";
+    DA "  { \"portNumber\": 0, \"protocol\": \"ws2811\" }, \n";
+;    DA "   \"virtualStrings\": [ { \"description\": \"\"} \n";
+    DA "  { \"portNumber\": 1, \"protocol\": \"ws2811\" }, \n";
+    DA "  { \"portNumber\": 2, \"protocol\": \"ws2811\" }, \n";
+    DA "  { \"portNumber\": 3, \"protocol\": \"ws2811\" }, \n";
+    DA "  { \"portNumber\": 4, \"protocol\": \"ws2811\" }, \n";
+    DA "  { \"portNumber\": 5, \"protocol\": \"ws2811\" }, \n";
+    DA "  { \"portNumber\": 6, \"protocol\": \"ws2811\" }, \n";
+    DA "  { \"portNumber\": 7, \"protocol\": \"ws2811\" }, \n";
+    DA "  { \"portNumber\": 8, \"protocol\": \"ws2811\" }, \n";
+    DA "  { \"portNumber\": 9, \"protocol\": \"ws2811\" }, \n";
+    DA "  { \"portNumber\": 10, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 11, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 12, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 13, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 14, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 15, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 16, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 17, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 18, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 19, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 20, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 21, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 22, \"protocol\": \"ws2811\" },\n";
+    DA "  { \"portNumber\": 23, \"protocol\": \"ws2811\" } \n";
+    DA " ] } \n";
+    DA "] }\n";
+JSON3_END:
+    messg [INFO] json3 length: #v(2 * (JSON3_END - JSON3_START)) @__LINE__; //use this to update length above
+;//eof:
+    DA "0\x00    "; | LDI_EOF; //eof
+;    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
+;    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
+DATA_END: ;DATA_END SET $;    CONSTANT DATA_END = $; //DATA_END:
+#else ;1 byte/word (takes up too much space)
 ;    ORG DATA_START; //start of EEPROM contents
 ;    variable JSON_NUMPATCH = 0;
 DATA_START: ;//start of EEPROM contents
@@ -214,8 +353,8 @@ DATA_START: ;//start of EEPROM contents
 ;//If code is less than 50, the code is immediately followed by:
 ;//8-71     Filename as null terminated string.  ex:  "tmp/cape-info.json" (64 char)
 ;//         The 64 bytes for the filename is NOT included in the LENGTH
-    DW '7', '1', '6', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
-    DW '0', 0; //uncompressed file follows
+	DW '2', '9', '2', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
+    DW '0', 0; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
     DW 't', 'm', 'p', '/', 'c', 'a', 'p', 'e', '-', 'i', 'n', 'f', 'o', '.', 'j', 's';
     DW 'o', 'n', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 ;JSON_PATCH#v(JSON_NUMPATCH) EQU $-12;
@@ -223,7 +362,35 @@ DATA_START: ;//start of EEPROM contents
     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 ;//start of .json file:    
-JSON_START:
+JSON1_START: ;//	/tmp/cape-info.json
+    DW '{', '\n';
+    DW ' ', '"', 'i', 'd', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '(', 'v', '1', '.', '0', ')', '"', ',', '\n';
+    DW ' ', '"', 'v', 'e', 'r', 's', 'i', 'o', 'n', '"', ':', ' ', '"', '1', '.', '0', '"', ',', '\n';
+    DW ' ', '"', 'n', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
+    DW ' ', '"', 'd', 'e', 'f', 'a', 'u', 'l', 't', 'S', 'e', 't', 't', 'i', 'n', 'g', 's', '"', ':', ' ', '{', '\n';
+;	DW ' ', ' ', '"', 's', 'h', 'o', 'w', 'A', 'l', 'l', 'O', 'p', 't', 'i', 'o', 'n', 's', '"', ':', ' ', '"', '1', '"', '\n';
+    DW ' ', '}', ',', '\n';
+    DW ' ', '"', 'p', 'r', 'o', 'v', 'i', 'd', 'e', 's', '"', ':', ' ', '[', ' ', '"', 's', 't', 'r', 'i', 'n', 'g', 's', '"', ' ', ']', ',', '\n';
+    DW ' ', '"', 'd', 'e', 's', 'i', 'g', 'n', 'e', 'r', '"', ':', ' ', '"', 'd', 'j', 'u', 'l', 'i', 'e', 'n', '"', ',', '\n';
+    DW ' ', '"', 'c', 'o', 'p', 'y', 'F', 'i', 'l', 'e', 's', '"', ':', ' ', '{', '\n';
+	DW ' ', ' ', '"', 't', 'm', 'p', '/', 'c', 'o', '-', 'p', 'i', 'x', 'e', 'l', 'S', 't', 'r', 'i', 'n', 'g', 's', '.', 'j', 's', 'o', 'n', '"', ':', ' ';
+    DW '"', 'c', 'o', 'n', 'f', 'i', 'g', '/', 'c', 'o', '-', 'p', 'i', 'x', 'e', 'l', 'S', 't', 'r', 'i', 'n', 'g', 's', '.', 'j', 's', 'o', 'n', '"', ',', '\n';
+	DW ' ', ' ', '"', 't', 'm', 'p', '/', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '.', 'j', 's', 'o', 'n', '"', ':', ' ';
+    DW '"', '/', 'o', 'p', 't', '/', 'f', 'p', 'p', '/', 'c', 'a', 'p', 'e', 's', '/', 'p', 'i', '/', 's', 't', 'r', 'i', 'n', 'g', 's', '/', 'D', 'P', 'I', '2', '4', 'H', 'a', 't';
+	DW '.', 'j', 's', 'o', 'n', '"', '\n';
+    DW ' ', '}', '\n';
+    DW '}', '\n';
+JSON1_END:
+    messg [INFO] json1 length: #v(JSON1_END - JSON1_START) @__LINE__; //use this to update length above
+;//second file:
+	DW '7', '1', '4', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
+    DW '0', 0; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+    DW 't', 'm', 'p', '/', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '.', 'j', 's', 'o';
+	DW 'n', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+    DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+    DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+;//start of .json file:    
+JSON2_START: ;//	/tmp/strings/DPI24Hat.json
     DW '{', '\n';
     DW ' ', '"', 'n', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
     DW ' ', '"', 'l', 'o', 'n', 'g', 'N', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
@@ -264,25 +431,145 @@ JSON_START:
     DW ' ', ' ', '}', '\n';
     DW ' ', ']', '\n';
     DW '}', '\n';
-JSON_END:
-    messg [INFO] json length: #v(JSON_END - JSON_START) @__LINE__; //use this to update length above
+JSON2_END:
+    messg [INFO] json2 length: #v(JSON2_END - JSON2_START) @__LINE__; //use this to update length above
+;//third file:
+	DW '3', '2', '5', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
+    DW '0', 0; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+    DW 't', 'm', 'p', '/', 'c', 'o', '-', 'p', 'i', 'x', 'e', 'l', 'S', 't', 'r', 'i';
+	DW 'n', 'g', 's', '.', 'j', 's', 'o', 'n', 0, 0, 0, 0, 0, 0, 0, 0;
+    DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+    DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+;//start of .json file:    
+JSON3_START: ;//	/tmp/defaults/config/co-pixelStrings.json
+    DW '{', '\n';
+    DW ' ', '"', 'c', 'h', 'a', 'n', 'n', 'e', 'l', 'O', 'u', 't', 'p', 'u', 't', 's', '"', ':', ' ', '[', '\n';
+    DW ' ', '{', '\n';
+    DW ' ', ' ', '"', 't', 'y', 'p', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', 'P', 'i', 'x', 'e', 'l', 's', '"', ',', '\n';
+    DW ' ', ' ', '"', 's', 'u', 'b', 'T', 'y', 'p', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
+    DW ' ', ' ', '"', 'p', 'i', 'n', 'o', 'u', 't', 'V', 'e', 'r', 's', 'i', 'o', 'n', '"', ':', ' ', '"', '1', '.', 'x', '"', ',', '\n';
+    DW ' ', ' ', '"', 'o', 'u', 't', 'p', 'u', 't', 's', '"', ':', ' ', '[', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '0', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+;    DW ' ', ' ', ' ', '"', 'v', 'i', 'r', 't', 'u', 'a', 'l', 'S', 't', 'r', 'i', 'n', 'g', 's', '"', ':', ' ', '[', ' ', '{', ' ', '"', 'd', 'e', 's', 'c', 'r', 'i', 'p', 't', 'i', 'o', 'n', '"';
+;	DW ':';
+;	DW ' ', '"', '"', ' ', '}', ' ', ']', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '3', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '4', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '5', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '6', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '7', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '8', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '9', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '0', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '1', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '2', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '3', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '4', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '5', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '6', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '7', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '8', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '9', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '0', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '1', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '2', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ',', '\n';
+    DW ' ', ' ', '{', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '3', ',', '\n';
+    DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+    DW ' ', ' ', '}', ' ', ']', '\n';
+    DW ' ', '}', ' ', ']', '\n';
+    DW '}', '\n';
+JSON3_END:
+    messg [INFO] json3 length: #v(JSON3_END - JSON3_START) @__LINE__; //use this to update length above
 ;//eof:
     DW '0', 0;, 0, 0, 0, 0, 0 | LDI_EOF; //eof
 ;    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
 ;    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
 DATA_END: ;DATA_END SET $;    CONSTANT DATA_END = $; //DATA_END:
 ;    DB 0; //read ptr clamps here
+#endif; //def A2PACK
 
 ;convert relative to absolute ptr:
 ;rel2abs macro ptr
 ;    add16 ptr, LITERAL(DATA_START | 0x8000);
 ;    endm
-REL2ABS EQU LITERAL(DATA_START | 0x8000);
+;REL2ABS EQU LITERAL(DATA_START | 0x8000);
 ;conv abs to rel ptr:
 ;abs2rel macro ptr
 ;    add16 ptr, LITERAL(-DATA_START & 0xFFFF | 0x8000);
 ;    endm
-ABS2REL EQU LITERAL((0x8000 - DATA_START) & 0xFFFF); //wrong! -DATA_START & 0xFFFF | 0x8000);
+;ABS2REL EQU LITERAL((0x8000 - DATA_START) & 0xFFFF); //wrong! -DATA_START & 0xFFFF | 0x8000);
 
 
     THREAD_DEF veeprom, 6;
@@ -338,49 +625,6 @@ fptest macro
 #endif
 
 
-;    nbDCL8 i2c_data; //next byte to send
-;    nbDCL16 debug_addr;
-;    nbDCL8 i2c_save; //incoming (addr) byte
-;    nbDCL i2c_save; //temp
-;    nbDCL8 wrstate; //non-banked to reduce bank switching during i2c processing
-;    BITDCL has_addr_hi;
-;    BITDCL has_add_lo;
-;    at_init TRUE;
-;    mov8 wrstate, LITERAL(0);
-;    mov24 fpcolor, LITERAL(0);
-;    PinMode SDA1_PIN, OutOpenDrain;
-;    PinMode SCL1_PIN, OutOpenDrain;
-;    i2c_init LITERAL(I2C_ADDR);
-;    mov8 eepromAddress, LITERAL(0);
-;    LDI veepbuf;
-;    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
-;    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
-;//    mov8 slaveWriteType, LITERAL(SLAVE_NORMAL_DATA);
-;    mov16 FSR0, LITERAL(LINEAR(veepbuf)); //CAUTION: LDI uses FSR0/1
-;    setbit PMD0, NVMMD, PMD_ENABLE; //ENABLED(NVMMD); //CAUTION: must be done < any NVM reg access
-;    setbit NVMCON1, NVMREGS, FALSE; access prog space only, !config space
-;    mov16 NVMADR, LITERAL(DATA_START); default data ptr at power-up
-;#define FSR_HATPTR  FSR0
-;#define INDF_HATPTR_postinc  INDF0_postinc
-;    mov16 FSR_HATPTR, REL2ABS; LITERAL(0);
-;    rel2abs FSR_HATPTR;
-;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-;    BANKCHK NVMADR;
-;    CALL i2c_rewind; //default data ptr at power-up
-;    PUSH LITERAL(after_reset); //look like call, return >
-;BANK_TRACKER = NVMCON1; TODO: implement call/return bank affinity
-;i2c_reset:
-;    mov16 NVMADR, LITERAL(DATA_START); default data ptr at power-up
-;    RETURN;
-;    UGLY_PASS12FIX -1;
-;after_reset:
-;BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
-;    fptest
-;    mov16 FSR1, LITERAL(PIR3); //kludge: use INDF to avoid bank selects
-;#define INDF_PIR3  INDF1
-;    at_init FALSE;
-
-
 ;24C256 behavior:
 ;A0/A1 addr: defaults to 0 so device addr is 0b1010000x (0x50)
 ;WP: disables write
@@ -395,208 +639,90 @@ fptest macro
 ;memory reset: !implemented
 ;write protect: set at compile time
 ;memory endurance: much lower (can be improved with software, see AN)
-;memory size: < 7KB available, for now only using lower 8 bits of each prog word (< 4K available)
-;TODO? bytes with either of top 2 bits set must be at even byte addr; this allows seemless use for text or opcodes/bootloader
-;TODO: is clock stretching needed? (only if YIELD during i2c xaction)
-;    nbDCL8 i2c_data;
-;    nbDCL8 i2c_save;
-;    at_init TRUE;
-;    mov8 i2c_data, LITERAL(0x17);
-;    at_init FALSE;
-#if 1; simplified: hard-coded, read-only, works with i2cdump and eepflash -r
-#define INDF_PIR3  INDF1
-#define FSR_HATPTR  FSR0
-#define INDF_HATPTR_postinc  INDF0_postinc
+;memory size: < 7KB available
+#if 1; hard-coded, read-only, works with i2cdump and eepflash -r
+	nbDCL16 addr; //relative byte addr
 veeprom: DROP_CONTEXT;
     i2c_init LITERAL(I2C_ADDR);
+    setbit PMD0, NVMMD, PMD_ENABLE; //ENABLED(NVMMD); //CAUTION: must be done < any NVM reg access
+    setbit NVMCON1, NVMREGS, FALSE; access prog space only, !config space
     fptest
-;    mov16 FSR1, LITERAL(PIR3); //kludge: use INDF to avoid bank selects
-;    mov16 FSR_HATPTR, REL2ABS; LITERAL(0);
-;    mov8 WREG, i2c_data; //kludge: pre-load outbound byte for faster processing < first output bit
-;    BANKCHK SSP1BUF; //reduce delay after SSP1IF
-;BANK_TRACKER = SSP1STAT;
-;rdloop: ;DROP_CONTEXT;
-;#if 1; range check
-;    cmp16 FSR_HATPTR, LITERAL(DATA_END | 0x8000);
-;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
-;    cmp16 FSR_HAT
-;    MOVF REGLO(FSR_HATPTR), W;
-;    ADDLW -(JSON_PATCH#v(0) + 1) & 0xFF
-;    ifbit EQUALS0 TRUE, GOTO patch_addr_hi;
-;    DECFSZ WREG, F;
-;    GOTO veeprom;
-;patch_addr_lo:
-;    mov8 i2c_data, REGLO(debug_addr);
-;    GOTO veeprom;
-;patch_addr_hi:
-;    mov8 i2c_data, REGHI(debug_addr);
-;    cmp16 FSR_HATPTR, LITERAL(JSON_PATCH#v(0) | 0x8000)
-;    ifbit EQUALS0 FALSE, GOTO veeprom;
-;#endif
-;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-;    mov8 WREG, i2c_data; //kludge: pre-load outbound byte for faster processing < first output bit
-;    mov16 FSR_HATPTR, REL2ABS; LITERAL(0);
-;    mov8 WREG, LITERAL(0xCC); INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-;    setbit INDF_PIR3, SSP1IF, FALSE;
-;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
-;    mov8 i2c_save, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;#if 0
-;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;#if 1; read/write branch
-;eepflsh.sh sees this after first byte:
-;    mov8 SSP1BUF, i2c_data; //LITERAL(0xDD); //reply with 0 byte (return data not prepped yet)
-;#else
-;    swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;#endif
-;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
-;    ifbit SSP1STAT, D_NOT_A, TRUE, GOTO rdloop; prefetch; //not new req
-;?    ifbit SSP1STAT, ACKSTAT, TRUE, GOTO prefetch; i2c_read; //master wants more data
-;i2c_new_req:
-;    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO rdloop; prefetch; veeprom; //already did prefetch?; prefetch; i2c_read; CAUTION: only valid until next start/stop bit
-;//get 2-byte addr then ignore write data:
-;    mov8 REGLO(debug_addr), WREG;
-;    ANDLW 0x7F; //limit size
-;    mov8 i2c_data, WREG; //temp save; TRASHED
-;    mov8 i2c_save, LITERAL(0); TRASHED
-;    add16 FSR_HATPTR, LITERAL(-(DATA_START | 0x8000) & 0xFFFF); //conv back to data ofs (rel addr)
-;    abs2rel FSR_HATPTR;
-;    mov8 i2c_addr, WREG;
-;    add16 FSR_HATPTR, ABS2REL;
-;    mov8 REGLO(FSR_HATPTR), i2c_addr; NOTE: addr is little endian
-;    mov8 REGHI(FSR_HATPTR), i2c_data;
-;    rel2abs FSR_HATPTR;
-;no: might want to keep same page    mov8 REGHI(FSR_HATPTR), LITERAL(0); //in case second byte doesn't come in (i2cdump only sets one addr byte)
-;    MOVLW (DATA_START | 0x8000) >> 8;
-;    SUBWF REGHI(FSR_HATPTR), F; //conv back to raw ofs for range check
-;    CALL set_addr;
-;    mov8 WREG, LITERAL(0xDD);
-;BANK_TRACKER = SSP1STAT;
-;    mov8 WREG, i2c_data; //kludge: pre-load outbound byte for faster processing < first output bit
-;    mov8 i2c_data, INDF_HATPTR_postinc; //prefetch for next read req (in case we only get 1 addr byte)
-;    setbit INDF_PIR3, SSP1IF, FALSE;
-;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-;#if 0
-;    mov8 i2c_save, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-;//never seen?
-;    mov8 SSP1BUF, LITERAL(0); //reply to dev addr byte with a 0 byte (return data not prepped yet)
-;#else
-;    swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;#endif
-;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-;    ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_new_req; //master started new req?
-;    mov8 i2c_data, WREG; //temp save
-;    mov8 REGLO(debug_addr), WREG;
-;    abs2rel FSR_HATPTR;
-;    dec16 FSR_HATPTR;
-;    mov8 i2c_addr, WREG;
-;    add16 FSR_HATPTR, ABS2REL-1;
-;    dec16 FSR_HATPTR; //undo set_addr++ above in case low byte wrapped and changed upper byte
-;    add16 FSR_HATPTR, LITERAL(-((DATA_START + 1) | 0x8000) & 0xFFFF); //conv back to data ofs (rel addr)
-;    mov8 REGHI(FSR_HATPTR), REGLO(FSR_HATPTR);
-;    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read;
-;    mov8 REGHI(FSR_HATPTR), i2c_addr; i2c_data; NOTE: addr is little endian
-;    mov8 REGLO(FSR_HATPTR), i2c_data;
-;    rel2abs FSR_HATPTR;
-;    sub8 REGHI(FSR_HATPTR), LITERAL((DATA_START | 0x8000) >> 8); //conv back to raw ofs for range check
-;    MOVLW (DATA_START | 0x8000) >> 8;
-;    SUBWF REGHI(FSR_HATPTR), F; //conv back to raw ofs for range check
-;    CALL set_addr;
-;    mov8 WREG, LITERAL(0xEE);
-    mov16 FSR1, LITERAL(PIR3); //kludge: use INDF to avoid bank selects during timing-critical section
-    mov16 FSR_HATPTR, REL2ABS; LITERAL(0);
-;prefetch in case first req is a read:
-;    mov8 WREG, LITERAL(0xCC); INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-    BANKCHK SSP1STAT; //reduce bank selects for faster processing
-;BANK_TRACKER = SSP1STAT;
-;BANK_TRACKER = SSP1STAT;
-;    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read;
-    nbDCL8 i2c_addr; //hold incoming addr byte (wr req only)
-;	mov16 i2c_addr, LITERAL(0);
-;i2c_loop: ;//ignore wr data until next req
-next_byte:
-#if 1; range check
-    cmp16 FSR_HATPTR, LITERAL(DATA_END | 0x8000);
-;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
-    ifbit BORROW TRUE, GOTO addr_ok;
-    mov16 FSR_HATPTR, LITERAL((DATA_END - 1) | 0x8000); //clamp
-addr_ok: ;//convert rel addr to abs addr
-#endif
-;TODO: update memory if write req
-    mov8 WREG, INDF_HATPTR_postinc; //prefetch in case next req is a read
-;    mov8 WREG, REGLO(FSR_HATPTR);
-;	mov8 i2c_addr, WREG;
-;    inc16 FSR_HATPTR;
-;	mov8 WREG, i2c_addr;
-;;;;;
-    setbit INDF_PIR3, SSP1IF, FALSE;
-    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
+    mov16 FSR#v(PIR3 & 1), LITERAL(PIR3); //kludge: use INDF to avoid bank selects during timing-critical section
+	mov16 addr, LITERAL(0);
+next_byte: DROP_CONTEXT;
+	CALL get_byte; pre-fetch for next byte read; takes too long to do during SSP1BUF handling
+BANK_TRACKER = SSP1BUF; //reduce delay after SSP1IF
+    setbit INDF#v(PIR3 & 1), SSP1IF, FALSE;
+    whilebit INDF#v(PIR3 & 1), SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
 ;not enough time to check status < ack, so assume next req is a read and send prefetched data (i2cdump sees *only this* data, eepflsh.sh sees this at start of req):
 ;    mov8 SSP1BUF, i2c_data; LITERAL(0xCC); //reply to dev addr byte with a 0 byte (return data not prepped yet)
     swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;	mov8 
-;;    mov8 WREG, SSP1BUF;
-;;    mov8 SSP1BUF, LITERAL(0x1D);
     setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
     ifbit SSP1STAT, D_NOT_A, TRUE, GOTO next_byte; rdloop; prefetch; //not new req
 ;?    ifbit SSP1STAT, ACKSTAT, TRUE, GOTO prefetch; i2c_read; //master wants more data
     ifbit SSP1STAT, R_NOT_W, TRUE, GOTO next_byte; rdloop; prefetch; veeprom; //already did prefetch?; prefetch; i2c_read; CAUTION: only valid until next start/stop bit
 i2c_wr_req:
 ;CAUTION: i2cdump only sends 1 addr byte (LSB), but eepflah.sh/dd/eeprom driver sends 2 addr bytes (MSB then LSB)
-;in order to handle both cases, set up valid FSR_HATPTR + prefetch after *each* byte received
+;in order to handle both cases, set up valid addr + prefetch after *each* byte received
 	mov8 WREG, LITERAL(0); //send dummy byte in response to read/write device addr
-    setbit INDF_PIR3, SSP1IF, FALSE;
-    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
+;    BANKCHK SSP1BUF; //reduce delay after SSP1IF
+    setbit INDF#v(PIR3 & 1), SSP1IF, FALSE;
+    whilebit INDF#v(PIR3 & 1), SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
     swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;;    mov8 WREG, SSP1BUF;
-;;    mov8 SSP1BUF, LITERAL(0x3A);
     setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_wr_req; //master started new req?
-;    mov8 i2c_addr, WREG;
-;    add16 FSR_HATPTR, ABS2REL;
-;#if 0; set addr MSB
-;	mov8 REGHI(FSR_HATPTR), WREG; i2c_addr
-;	mov8 REGLO(FSR_HATPTR), LITERAL(0);
-;    CALL set_addr;
-;BANK_TRACKER = SSP1STAT;
-;#else; set addr LSB for i2cdump
 ;//i2cdump is only for debug; it only sends 1 addr byte so use it as addr LSB:
-    mov8 i2c_addr, WREG; //save in case second addr byte follows
-	mov8 REGLO(FSR_HATPTR), WREG; i2c_addr
-	mov8 REGHI(FSR_HATPTR), LITERAL(0);
-;#endif
-    add16 FSR_HATPTR, REL2ABS;
-;    mov8 WREG, LITERAL(0xAA);
-;    mov8 WREG, i2c_data; //kludge: pre-load outbound byte for faster processing < first output bit
-    mov8 WREG, INDF_HATPTR_postinc; //prefetch for next read req (in case we only get 1 addr byte)
-;    mov8 WREG, REGLO(FSR_HATPTR);
-;    inc16 FSR_HATPTR;
-;	mov8 WREG, LITERAL(0xBB);
-;;;;;
-    setbit INDF_PIR3, SSP1IF, FALSE;
-    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
+	mov8 REGLO(addr), WREG;
+	mov8 REGHI(addr), LITERAL(0);
+	CALL get_byte;
+BANK_TRACKER = SSP1BUF; //reduce delay after SSP1IF
+    setbit INDF#v(PIR3 & 1), SSP1IF, FALSE;
+    whilebit INDF#v(PIR3 & 1), SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
     swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-;;    mov8 WREG, SSP1BUF;
-;;    mov8 SSP1BUF, LITERAL(0x3A);
     setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_wr_req; //master started new req?
-;	nbDCL8 i2c_addrX;
-;#if 0
-;    mov8 i2c_addr, WREG;
-;    add16 FSR_HATPTR, ABS2REL-1; //undo ++ from above (needed ++ above in case end of req)
-;    mov8 REGLO(FSR_HATPTR), i2c_addr;
-;#else
 ;//set MSB+LSB addr for eepflash.sh/dd/eeprom driver:
-	mov8 REGLO(FSR_HATPTR), WREG; i2c_addr
-	mov8 REGHI(FSR_HATPTR), i2c_addr;
-;#endif
-;    CALL set_addr;
-    add16 FSR_HATPTR, REL2ABS;
-;BANK_TRACKER = SSP1STAT;
-    BANKCHK SSP1STAT; //reduce delay after SSP1IF
+	dec16 addr; //compensate for ++ in above speculative get_byte
+	swapreg REGLO(addr), WREG;
+	mov8 REGHI(addr), WREG;
     GOTO next_byte;
+
+;get next byte from prog space:
+get_byte: DROP_CONTEXT;
+#if 1; want range check
+	cmp16 addr, LITERAL(2 * (DATA_END - DATA_START));
+    ifbit BORROW FALSE, retlw 0; //past eof
+;    ifbit BORROW TRUE, GOTO addr_ok;
+;    mov16 FSR_HATPTR, LITERAL((DATA_END - 1) | 0x8000); //clamp
+;	mov16 addr, LITERAL(2 * (DATA_END - DATA_START) - 1);
+;addr_ok: ;//convert rel addr to abs addr
+#endif
+;TODO: update memory if write req
+;    mov8 WREG, INDF_HATPTR_postinc; //prefetch in case next req is a read
+#ifdef A2PACK
+	LSRF REGHI(addr), W;
+	MOVWF REGHI(NVMADR);
+	RRF REGLO(addr), W;
+	MOVWF REGLO(NVMADR);
+    inc16 addr;
+	add16 NVMADR, LITERAL(DATA_START);
+    setbit NVMCON1, RD, TRUE; start read; CAUTION: CPU suspends until read completes => unpredictable timing; should be ok with clock stetching (SEN)
+	ifbit REGLO(addr), log2(1), FALSE, GOTO get_lsb; RETURN; NOTE: reversed to compensate for ++
+get_msb:
+	RLF REGLO(NVMDAT), W;
+	RLF REGHI(NVMDAT), W;
+    BANKCHK SSP1STAT; //avoid bank selects during timing-critical section
+	RETURN;
+BANK_TRACKER = NVMCON1;
+get_lsb:
+	mov8 WREG, REGLO(NVMDAT);
+	ANDLW 0x7F;
+    BANKCHK SSP1STAT; //avoid bank selects during timing-critical section
+	RETURN;
+#else
+	error [TODO] packed 8-bit storage @__LINE__
+#endif
 ;BANK_TRACKER = SSP1STAT;
 ;set_addr:
 ;#if 1
@@ -3178,6 +3304,18 @@ LSLF macro reg, dest
 XORWF macro reg, dest
     BANKCHK reg
     BANKSAFE EMIT dest_arg(dest) xorwf reg;, dest
+    endm; @__LINE__
+
+
+#define RLF  rlf_banksafe
+RLF macro reg, dest
+;    EXPAND_PUSH FALSE
+    BANKCHK reg
+    BANKSAFE EMIT dest_arg(dest) rlf reg;, dest;
+    if (reg == WREG) || !BOOL2INT(dest)
+WREG_TRACKER = WREG_UNKN; IIF(ISLIT(WREG_TRACKER), WREG_TRACKER + 1, WREG_UNKN)
+    endif; @__LINE__
+;    EXPAND_POP
     endm; @__LINE__
 
 
