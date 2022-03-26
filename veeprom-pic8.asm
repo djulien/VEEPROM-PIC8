@@ -297,10 +297,10 @@ JSON3_START: ;//	/tmp/defaults/config/co-pixelStrings.json
     DA " { \n";
     DA "  \"type\": \"DPIPixels\", \n";
     DA "  \"subType\": \"DPI24Hat\", \n";
-    DA "  \"pinoutVersion\": \"1.x\",\n";
+    DA "  \"pinoutVersion\": \"1.0\",\n";
     DA "  \"outputs\": [ \n";
     DA "  { \"portNumber\": 0, \"protocol\": \"ws2811\" }, \n";
-;    DA "   \"virtualStrings\": [ { \"description\": \"\"} \n";
+;    DA "   \"virtualStrings\": [ { \"description\": \"\", \"startChannel\": 0, \"pixelCount\": 0, \"order\": \"RGB\", \"brightness\": 100} \n";
     DA "  { \"portNumber\": 1, \"protocol\": \"ws2811\" }, \n";
     DA "  { \"portNumber\": 2, \"protocol\": \"ws2811\" }, \n";
     DA "  { \"portNumber\": 3, \"protocol\": \"ws2811\" }, \n";
