@@ -1,4 +1,4 @@
-MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-22-2022  22:15:53         PAGE  1
+MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-25-2022  18:17:48         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ Message[301]: MESSAGE: (TODO: fix this ^^^ vvv @4900)
                       00064 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00065 
                       00066 ;//pin assignments:
-MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-22-2022  22:15:53         PAGE  2
+MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-25-2022  18:17:48         PAGE  2
 VEEPROM-PIC8 - serial EEPROM emulator for 8-pin/8-bit Microchip PIC
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -517,10 +517,10 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        1022 2250 24B2 
        1A48 30F4 112C 
        100A 
-029E   1020 1170 34EE 00300     DA "  \"pinoutVersion\": \"1.x\",\n";
+029E   1020 1170 34EE 00300     DA "  \"pinoutVersion\": \"1.0\",\n";
        37F5 3A56 32F2 
        39E9 37EE 113A 
-       1022 18AE 3C22 
+       1022 18AE 1822 
        160A 
 02AB   1020 116F 3AF4 00301     DA "  \"outputs\": [ \n";
        3875 3A73 113A 
@@ -533,7 +533,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-                      00303 ;    DA "   \"virtualStrings\": [ { \"description\": \"\"} \n";
+                      00303 ;    DA "   \"virtualStrings\": [ { \"description\": \"\", \"startChannel\": 0, \"pixelCount\": 0, \"order\": \"RGB\", \"brightness\": 100} \n";
 02CA   1020 3DA0 1170 00304     DA "  { \"portNumber\": 1, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
@@ -1707,7 +1707,7 @@ Message[301]: MESSAGE: ([INFO] #threads: 1, stack alloc: 6/16 (38%) @2037)
   00000071                M stkptr_1 EQU stkptr_0
 056A   0063               M     sleep
 056B                      M _2799jump_placeholder:
-MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-22-2022  22:15:53         PAGE  3
+MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-25-2022  18:17:48         PAGE  3
 VEEPROM-PIC8 - serial EEPROM emulator for 8-pin/8-bit Microchip PIC
 
 SYMBOL TABLE
