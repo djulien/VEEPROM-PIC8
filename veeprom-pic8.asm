@@ -207,6 +207,7 @@ DATA_START: ;//start of EEPROM contents
     DA "DPI24Hat\x00                 "; //hat/cape name
     DA "1.0\x00      "; //hat/cape version
     DA "000000000000000\x00"; //serial# (not used)
+	ERRIF(2 * ($ - DATA_START) != 58, [ERROR] veeprom header length wrong: #v(2 * ($ - DATA_START)) expected #v(58) @__LINE__);
 ;//second section (var len, multi):
 ;//0-5      LENGTH (as a string).  If the string "0", end of eeprom data
 ;//6-7      Code representing the type of record.  Number between 0-99 as a string
@@ -214,9 +215,11 @@ DATA_START: ;//start of EEPROM contents
 ;//If code is less than 50, the code is immediately followed by:
 ;//8-71     Filename as null terminated string.  ex:  "tmp/cape-info.json" (64 char)
 ;//         The 64 bytes for the filename is NOT included in the LENGTH
-	DA "298\x00  "; //length of json file contents; CAUTION: must match JSON length below
+HDR1_START:
+	DA "310\x00  "; //length of json file contents; CAUTION: must match JSON length below
     DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
     DA "tmp/cape-info.json\x00                                             ";
+	ERRIF(2 * ($ - HDR1_START) != 72, [ERROR] veeprom header length wrong: #v(2 * ($ - HDR1_START)) expected #v(72) @__LINE__);
 ;//start of first .json file:    
 ;//start of .json file:    
 JSON1_START: ;//	/tmp/cape-info.json
@@ -230,16 +233,19 @@ JSON1_START: ;//	/tmp/cape-info.json
     DA " \"provides\": [ \"strings\" ],\n";
     DA " \"designer\": \"djulien\",\n";
     DA " \"copyFiles\": {\n";
-	DA "  \"tmp/co-pixelStrings.json\": \"config/co-pixelStrings.json\", \n";
+;	DA "  \"tmp/co-pixelStrings.json\": \"config/co-pixelStrings.json\", \n";
+	DA "  \"tmp/co-pixelStrings.json\": \"tmp/defaults/config/co-pixelStrings.json\",\n";
 	DA "  \"tmp/DPI24Hat.json\": \"/opt/fpp/capes/pi/strings/DPI24Hat.json\" \n";
     DA " } \n";
     DA "}\n";
 JSON1_END:
     messg [INFO] json1 length: #v(2 * (JSON1_END - JSON1_START)) @__LINE__; //use this to update length above
 ;//second file:
+HDR2_START:
 	DA "654\x00  "; //length of json file contents; CAUTION: must match JSON length below
     DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
     DA "tmp/DPI24Hat.json\x00                                              "; //hat/cape name
+	ERRIF(2 * ($ - HDR2_START) != 72, [ERROR] veeprom header length wrong: #v(2 * ($ - HDR2_START)) expected #v(72) @__LINE__);
 ;//start of .json file:    
 JSON2_START: ;//	/tmp/strings/DPI24Hat.json
     DA "{\n";
@@ -287,9 +293,12 @@ JSON2_START: ;//	/tmp/strings/DPI24Hat.json
 JSON2_END:
     messg [INFO] json2 length: #v(2 * (JSON2_END - JSON2_START)) @__LINE__; //use this to update length above
 ;//third file:
+HDR3_START:
 	DA "1234\x00 "; //length of json file contents; CAUTION: must match JSON length below
     DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
     DA "tmp/co-pixelStrings.json\x00                                       ";
+;	DA "tmp/defaults/config/co-pixelStrings.json\x00                       ";
+	ERRIF(2 * ($ - HDR3_START) != 72, [ERROR] veeprom header length wrong: #v(2 * ($ - HDR3_START)) expected #v(72) @__LINE__);
 ;//start of .json file:    
 JSON3_START: ;//	/tmp/defaults/config/co-pixelStrings.json
     DA "{\n";
@@ -643,6 +652,9 @@ fptest macro
 #if 1; hard-coded, read-only, works with i2cdump and eepflash -r
 	nbDCL16 addr; //relative byte addr
 veeprom: DROP_CONTEXT;
+#if 0; disable veeprom
+	sleep
+#endif
     i2c_init LITERAL(I2C_ADDR);
     setbit PMD0, NVMMD, PMD_ENABLE; //ENABLED(NVMMD); //CAUTION: must be done < any NVM reg access
     setbit NVMCON1, NVMREGS, FALSE; access prog space only, !config space

@@ -1,4 +1,4 @@
-MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-25-2022  18:17:48         PAGE  1
+MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-27-2022  20:59:37         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -52,12 +52,12 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00045 ;  https://projects-raspberry.com/rpp-raspberry-pi-pic-programmer-using-gpio/
                       00046 ;  https://www.teachmemicro.com/raspberry-pi-i2c/
                       00047 ;================================================================================
-Message[301]: MESSAGE: (TODO: fix this ^^^ vvv @4900)
+Message[301]: MESSAGE: (TODO: fix this ^^^ vvv @4912)
                       00063 ;    EXPAND_PUSH FALSE, @__LINE__
                       00064 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00065 
                       00066 ;//pin assignments:
-MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-25-2022  18:17:48         PAGE  2
+MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-27-2022  20:59:37         PAGE  2
 VEEPROM-PIC8 - serial EEPROM emulator for 8-pin/8-bit Microchip PIC
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -83,16 +83,16 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00083 ;    EXPAND_POP @__LINE__
                       00084 ;    LIST_DEBUG @63
   80000000                M ASM_MSB EQU -2147483648
-Message[301]: MESSAGE: ([TODO]: need to UNLIT WREG_TRACKER when used in arith (else upper bits might be affected) @3354)
+Message[301]: MESSAGE: ([TODO]: need to UNLIT WREG_TRACKER when used in arith (else upper bits might be affected) @3366)
 0000                      M init_0:
 0000                      M     ORG RESET_VECTOR_
 0000   0000               M     nop
 0001                      M _47jump_placeholder:
 0001                      M init_1:
-                      02299 ;    EXPAND_DEBUG @2299
-                      02300 ;    iopin_init;
-                      02301 ;    EXPAND_DEBUG @2301
-                      02302     fosc_init;
+                      02311 ;    EXPAND_DEBUG @2311
+                      02312 ;    iopin_init;
+                      02313 ;    EXPAND_DEBUG @2313
+                      02314     fosc_init;
 0001   0151               M     banksel OSCCON3
                           M     withbit_7 bcf OSCCON3
 0002   138F               M     bcf OSCCON3, 7
@@ -100,13 +100,13 @@ Message[301]: MESSAGE: ([TODO]: need to UNLIT WREG_TRACKER when used in arith (e
 0004   008D               M     movwf OSCCON1
 0005   3006               M     movlw (((ASM_MSB | (HFFRQ_32000000))) & ~ASM_MSB)
 0006   0093               M     movwf OSCFRQ
-                      02303 ;    EXPAND_DEBUG @2303
-                      02304     pmd_init; turn off unused peripherals
-                          M ;    exitm; @2135
+                      02315 ;    EXPAND_DEBUG @2315
+                      02316     pmd_init; turn off unused peripherals
+                          M ;    exitm; @2147
 0007   307F               M     movlw (((ASM_MSB | ((~((1 << (SYSCMD))) & 0xFF)))) & ~ASM_MSB)
 0008   014F               M     banksel PMD0
 0009   0096               M     movwf PMD0
-Message[301]: MESSAGE: (^^ disable until needed? @2157)
+Message[301]: MESSAGE: (^^ disable until needed? @2169)
 000A   30FF               M     movlw (((ASM_MSB | ((~(0) & 0xFF)))) & ~ASM_MSB)
 000B   0097               M     movwf PMD1
 000C   0098               M     movwf PMD2
@@ -114,19 +114,19 @@ Message[301]: MESSAGE: (^^ disable until needed? @2157)
 000E   009A               M     movwf PMD4
 000F   009B               M     movwf PMD5
 0010                      M _303jump_placeholder:
-Message[301]: MESSAGE: ([TODO] use RSTOSC HFINT 1MHz? @2351)
-Message[301]: MESSAGE: ([TODO] boot loader? @2370)
-8007   178C           02382     __config _CONFIG1, 6028; @2382
-8008   2FFE           02383     __config _CONFIG2, 12286; @2383
-8009   3F9F           02384     __config _CONFIG3, 16287; @2384
-800A   3FFF           02385     __config _CONFIG4, 16383; @2385
-800B   3FFF           02386     __config _CONFIG5, 16383; @2386
-Message[301]: MESSAGE: ([TODO] change this to use postscaler 1..16 instead of just powers of 2 (for more accuracy) @1511)
-                          M     CBLOCK NEXT_RAM9999; BOOL2INT(banked))  ;continue where we left off last time @2780
-  00000070                M         pxbits8 ; @2781
+Message[301]: MESSAGE: ([TODO] use RSTOSC HFINT 1MHz? @2363)
+Message[301]: MESSAGE: ([TODO] boot loader? @2382)
+8007   178C           02394     __config _CONFIG1, 6028; @2394
+8008   2FFE           02395     __config _CONFIG2, 12286; @2395
+8009   3F9F           02396     __config _CONFIG3, 16287; @2396
+800A   3FFF           02397     __config _CONFIG4, 16383; @2397
+800B   3FFF           02398     __config _CONFIG5, 16383; @2398
+Message[301]: MESSAGE: ([TODO] change this to use postscaler 1..16 instead of just powers of 2 (for more accuracy) @1523)
+                          M     CBLOCK NEXT_RAM9999; BOOL2INT(banked))  ;continue where we left off last time @2792
+  00000070                M         pxbits8 ; @2793
                           M     ENDC  ;can't span macros
   0001                    M     CONSTANT pxbits80size = LATEST_RAM1 - pxbits8
-Message[301]: MESSAGE: ([INFO] custom rgb order 0x213: R [1], G [0], B [2] @1200)
+Message[301]: MESSAGE: ([INFO] custom rgb order 0x213: R [1], G [0], B [2] @1212)
                       00093 ;    EXPAND_PUSH FALSE, @93
                       00094 ;; custom main ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00095 
@@ -251,16 +251,18 @@ Message[301]: MESSAGE: ([INFO] custom rgb order 0x213: R [1], G [0], B [2] @1200
 0027   1830 1830 1830 00209     DA "000000000000000\x00"; //serial# (not used)
        1830 1830 1830 
        1830 1800 
-                      00210 ;//second section (var len, multi):
-                      00211 ;//0-5      LENGTH (as a string).  If the string "0", end of eeprom data
-                      00212 ;//6-7      Code representing the type of record.  Number between 0-99 as a string
-                      00213 ;//         The 2 bytes for the code is NOT included in LENGTH
-                      00214 ;//If code is less than 50, the code is immediately followed by:
-                      00215 ;//8-71     Filename as null terminated string.  ex:  "tmp/cape-info.json" (64 char)
-                      00216 ;//         The 64 bytes for the filename is NOT included in the LENGTH
-002F   1939 1C00 1020 00217         DA "298\x00  "; //length of json file contents; CAUTION: must match JSON length below
-0032   1800           00218     DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
-0033   3A6D 382F 31E1 00219     DA "tmp/cape-info.json\x00                                             ";
+                      00210         ERRIF(2 * ($ - DATA_START) != 58, [ERROR] veeprom header length wrong: 58                       expected 58     @210);;
+                      00211 ;//second section (var len, multi):
+                      00212 ;//0-5      LENGTH (as a string).  If the string "0", end of eeprom data
+                      00213 ;//6-7      Code representing the type of record.  Number between 0-99 as a string
+                      00214 ;//         The 2 bytes for the code is NOT included in LENGTH
+                      00215 ;//If code is less than 50, the code is immediately followed by:
+                      00216 ;//8-71     Filename as null terminated string.  ex:  "tmp/cape-info.json" (64 char)
+                      00217 ;//         The 64 bytes for the filename is NOT included in the LENGTH
+002F                  00218 HDR1_START:
+002F   19B1 1800 1020 00219         DA "310\x00  "; //length of json file contents; CAUTION: must match JSON length below
+0032   1800           00220     DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+0033   3A6D 382F 31E1 00221     DA "tmp/cape-info.json\x00                                             ";
        3865 16E9 3766 
        37AE 3573 37EE 
        0020 1020 1020 
@@ -271,53 +273,57 @@ Message[301]: MESSAGE: ([INFO] custom rgb order 0x213: R [1], G [0], B [2] @1200
        1020 1020 1020 
        1020 1020 1020 
        1020 1020 
-                      00220 ;//start of first .json file:    
-                      00221 ;//start of .json file:    
-0053                  00222 JSON1_START: ;//        /tmp/cape-info.json
-0053   3D8A           00223     DA "{\n";
-0054   1022 34E4 113A 00224     DA " \"id\": \"DPI24Hat(v1.0)\", \n";
+                      00222         ERRIF(2 * ($ - HDR1_START) != 72, [ERROR] veeprom header length wrong: 72                       expected 72     @222);;
+                      00223 ;//start of first .json file:    
+                      00224 ;//start of .json file:    
+0053                  00225 JSON1_START: ;//        /tmp/cape-info.json
+0053   3D8A           00226     DA "{\n";
+0054   1022 34E4 113A 00227     DA " \"id\": \"DPI24Hat(v1.0)\", \n";
        1022 2250 24B2 
        1A48 30F4 1476 
        18AE 1829 112C 
        100A 
-0061   1022 3B65 3973 00225     DA " \"version\": \"1.0\", \n";
+0061   1022 3B65 3973 00228     DA " \"version\": \"1.0\", \n";
        34EF 3722 1D20 
        1131 1730 112C 
        100A 
-006B   1022 3761 36E5 00226     DA " \"name\": \"DPI24Hat\", \n";
+006B   1022 3761 36E5 00229     DA " \"name\": \"DPI24Hat\", \n";
        113A 1022 2250 
        24B2 1A48 30F4 
        112C 100A 
-0076   1022 3265 3361 00227     DA " \"defaultSettings\": {\n";
+0076   1022 3265 3361 00230     DA " \"defaultSettings\": {\n";
        3AEC 3A53 32F4 
        3A69 3767 39A2 
        1D20 3D8A 
-                      00228 ;       DW "  "showAllOptions": "1"\n";
-0081   107D 160A      00229     DA " },\n";
-0083   1022 3872 37F6 00230     DA " \"provides\": [ \"strings\" ],\n";
+                      00231 ;       DW "  "showAllOptions": "1"\n";
+0081   107D 160A      00232     DA " },\n";
+0083   1022 3872 37F6 00233     DA " \"provides\": [ \"strings\" ],\n";
        34E4 32F3 113A 
        105B 1022 39F4 
        3969 3767 39A2 
        105D 160A 
-0091   1022 3265 39E9 00231     DA " \"designer\": \"djulien\",\n";
+0091   1022 3265 39E9 00234     DA " \"designer\": \"djulien\",\n";
        33EE 32F2 113A 
        1022 326A 3AEC 
        34E5 3722 160A 
-009D   1022 31EF 3879 00232     DA " \"copyFiles\": {\n";
+009D   1022 31EF 3879 00235     DA " \"copyFiles\": {\n";
        2369 3665 39A2 
        1D20 3D8A 
-00A5   1020 1174 36F0 00233         DA "  \"tmp/co-pixelStrings.json\": \"config/co-pixelStrings.json\", \n";
+                      00236 ;       DA "  \"tmp/co-pixelStrings.json\": \"config/co-pixelStrings.json\", \n";
+00A5   1020 1174 36F0 00237         DA "  \"tmp/co-pixelStrings.json\": \"tmp/defaults/config/co-pixelStrings.json\",\n";
        17E3 37AD 3869 
        3C65 3653 3A72 
        34EE 33F3 176A 
        39EF 3722 1D20 
-       1163 37EE 3369 
-       33AF 31EF 16F0 
-       34F8 32EC 29F4 
-       3969 3767 39AE 
-       3573 37EE 112C 
-       100A 
-00C4   1020 1174 36F0 00234         DA "  \"tmp/DPI24Hat.json\": \"/opt/fpp/capes/pi/strings/DPI24Hat.json\" \n";
+       1174 36F0 17E4 
+       32E6 30F5 3674 
+       39AF 31EF 3766 
+       34E7 17E3 37AD 
+       3869 3C65 3653 
+       3A72 34EE 33F3 
+       176A 39EF 3722 
+       160A 
+00CA   1020 1174 36F0 00238         DA "  \"tmp/DPI24Hat.json\": \"/opt/fpp/capes/pi/strings/DPI24Hat.json\" \n";
        17C4 2849 1934 
        2461 3A2E 3573 
        37EE 113A 1022 
@@ -328,15 +334,16 @@ Message[301]: MESSAGE: ([INFO] custom rgb order 0x213: R [1], G [0], B [2] @1200
        39AF 2250 24B2 
        1A48 30F4 176A 
        39EF 3722 100A 
-00E5   107D 100A      00235     DA " } \n";
-00E7   3E8A           00236     DA "}\n";
-00E8                  00237 JSON1_END:
-Message[301]: MESSAGE: ([INFO] json1 length: 298 @238)
-                      00238     messg [INFO] json1 length: 298                               @238; //use this to update length above
-                      00239 ;//second file:
-00E8   1B35 1A00 1020 00240         DA "654\x00  "; //length of json file contents; CAUTION: must match JSON length below
-00EB   1800           00241     DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
-00EC   3A6D 382F 2250 00242     DA "tmp/DPI24Hat.json\x00                                              "; //hat/cape name
+00EB   107D 100A      00239     DA " } \n";
+00ED   3E8A           00240     DA "}\n";
+00EE                  00241 JSON1_END:
+Message[301]: MESSAGE: ([INFO] json1 length: 310 @242)
+                      00242     messg [INFO] json1 length: 310                               @242; //use this to update length above
+                      00243 ;//second file:
+00EE                  00244 HDR2_START:
+00EE   1B35 1A00 1020 00245         DA "654\x00  "; //length of json file contents; CAUTION: must match JSON length below
+00F1   1800           00246     DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+00F2   3A6D 382F 2250 00247     DA "tmp/DPI24Hat.json\x00                                              "; //hat/cape name
        24B2 1A48 30F4 
        176A 39EF 3700 
        1020 1020 1020 
@@ -347,149 +354,151 @@ Message[301]: MESSAGE: ([INFO] json1 length: 298 @238)
        1020 1020 1020 
        1020 1020 1020 
        1020 1020 
-                      00243 ;//start of .json file:    
-010C                  00244 JSON2_START: ;//        /tmp/strings/DPI24Hat.json
-010C   3D8A           00245     DA "{\n";
-010D   1022 3761 36E5 00246     DA " \"name\": \"DPI24Hat\", \n";
+                      00248         ERRIF(2 * ($ - HDR2_START) != 72, [ERROR] veeprom header length wrong: 72                       expected 72     @248);;
+                      00249 ;//start of .json file:    
+0112                  00250 JSON2_START: ;//        /tmp/strings/DPI24Hat.json
+0112   3D8A           00251     DA "{\n";
+0113   1022 3761 36E5 00252     DA " \"name\": \"DPI24Hat\", \n";
        113A 1022 2250 
        24B2 1A48 30F4 
        112C 100A 
-0118   1022 366F 3767 00247     DA " \"longName\": \"DPI24Hat\", \n";
+011E   1022 366F 3767 00253     DA " \"longName\": \"DPI24Hat\", \n";
        2761 36E5 113A 
        1022 2250 24B2 
        1A48 30F4 112C 
        100A 
-0125   1022 3272 34F6 00248     DA " \"driver\": \"DPIPixels\",\n";
+012B   1022 3272 34F6 00254     DA " \"driver\": \"DPIPixels\",\n";
        32F2 113A 1022 
        2250 24D0 34F8 
        32EC 39A2 160A 
-0131   1022 3775 36D3 00249     DA " \"numSerial\": 0, \n";
+0137   1022 3775 36D3 00255     DA " \"numSerial\": 0, \n";
        32F2 34E1 3622 
        1D20 182C 100A 
-013A   1022 37F5 3A70 00250     DA " \"outputs\": [\n";
+0140   1022 37F5 3A70 00256     DA " \"outputs\": [\n";
        3AF4 39A2 1D20 
        2D8A 
-0141   1020 3DA2 3869 00251     DA "  {\"pin\": \"P1-8\"}, \n";
+0147   1020 3DA2 3869 00257     DA "  {\"pin\": \"P1-8\"}, \n";
        3722 1D20 1150 
        18AD 1C22 3EAC 
        100A 
-014B   1020 3DA2 3869 00252     DA "  {\"pin\": \"P1-16\"},\n";
+0151   1020 3DA2 3869 00258     DA "  {\"pin\": \"P1-16\"},\n";
        3722 1D20 1150 
        18AD 18B6 117D 
        160A 
-0155   1020 3DA2 3869 00253     DA "  {\"pin\": \"P1-12\"},\n";
+015B   1020 3DA2 3869 00259     DA "  {\"pin\": \"P1-12\"},\n";
        3722 1D20 1150 
        18AD 18B2 117D 
        160A 
-015F   1020 3DA2 3869 00254     DA "  {\"pin\": \"P1-10\"},\n";
+0165   1020 3DA2 3869 00260     DA "  {\"pin\": \"P1-10\"},\n";
        3722 1D20 1150 
        18AD 18B0 117D 
        160A 
-0169   1020 3DA2 3869 00255     DA "  {\"pin\": \"P1-21\"},\n";
+016F   1020 3DA2 3869 00261     DA "  {\"pin\": \"P1-21\"},\n";
        3722 1D20 1150 
        18AD 1931 117D 
        160A 
-0173   1020 3DA2 3869 00256     DA "  {\"pin\": \"P1-15\"},\n";
+0179   1020 3DA2 3869 00262     DA "  {\"pin\": \"P1-15\"},\n";
        3722 1D20 1150 
        18AD 18B5 117D 
        160A 
-017D   1020 3DA2 3869 00257     DA "  {\"pin\": \"P1-13\"},\n";
+0183   1020 3DA2 3869 00263     DA "  {\"pin\": \"P1-13\"},\n";
        3722 1D20 1150 
        18AD 18B3 117D 
        160A 
-0187   1020 3DA2 3869 00258     DA "  {\"pin\": \"P1-11\"},\n";
+018D   1020 3DA2 3869 00264     DA "  {\"pin\": \"P1-11\"},\n";
        3722 1D20 1150 
        18AD 18B1 117D 
        160A 
-0191   100A           00259     DA " \n";
-0192   1020 3DA2 3869 00260     DA "  {\"pin\": \"P1-31\"},\n";
+0197   100A           00265     DA " \n";
+0198   1020 3DA2 3869 00266     DA "  {\"pin\": \"P1-31\"},\n";
        3722 1D20 1150 
        18AD 19B1 117D 
        160A 
-019C   1020 3DA2 3869 00261     DA "  {\"pin\": \"P1-7\"}, \n";
+01A2   1020 3DA2 3869 00267     DA "  {\"pin\": \"P1-7\"}, \n";
        3722 1D20 1150 
        18AD 1BA2 3EAC 
        100A 
-01A6   1020 3DA2 3869 00262     DA "  {\"pin\": \"P1-19\"},\n";
+01AC   1020 3DA2 3869 00268     DA "  {\"pin\": \"P1-19\"},\n";
        3722 1D20 1150 
        18AD 18B9 117D 
        160A 
-01B0   1020 3DA2 3869 00263     DA "  {\"pin\": \"P1-22\"},\n";
+01B6   1020 3DA2 3869 00269     DA "  {\"pin\": \"P1-22\"},\n";
        3722 1D20 1150 
        18AD 1932 117D 
        160A 
-01BA   1020 3DA2 3869 00264     DA "  {\"pin\": \"P1-24\"},\n";
+01C0   1020 3DA2 3869 00270     DA "  {\"pin\": \"P1-24\"},\n";
        3722 1D20 1150 
        18AD 1934 117D 
        160A 
-01C4   1020 3DA2 3869 00265     DA "  {\"pin\": \"P1-18\"},\n";
+01CA   1020 3DA2 3869 00271     DA "  {\"pin\": \"P1-18\"},\n";
        3722 1D20 1150 
        18AD 18B8 117D 
        160A 
-01CE   1020 3DA2 3869 00266     DA "  {\"pin\": \"P1-26\"},\n";
+01D4   1020 3DA2 3869 00272     DA "  {\"pin\": \"P1-26\"},\n";
        3722 1D20 1150 
        18AD 1936 117D 
        160A 
-01D8   1020 3DA2 3869 00267     DA "  {\"pin\": \"P1-29\"},\n";
+01DE   1020 3DA2 3869 00273     DA "  {\"pin\": \"P1-29\"},\n";
        3722 1D20 1150 
        18AD 1939 117D 
        160A 
-01E2   100A           00268     DA " \n";
-01E3   1020 3DA2 3869 00269     DA "  {\"pin\": \"P1-36\"},\n";
+01E8   100A           00274     DA " \n";
+01E9   1020 3DA2 3869 00275     DA "  {\"pin\": \"P1-36\"},\n";
        3722 1D20 1150 
        18AD 19B6 117D 
        160A 
-01ED   1020 3DA2 3869 00270     DA "  {\"pin\": \"P1-40\"},\n";
+01F3   1020 3DA2 3869 00276     DA "  {\"pin\": \"P1-40\"},\n";
        3722 1D20 1150 
        18AD 1A30 117D 
        160A 
-01F7   1020 3DA2 3869 00271     DA "  {\"pin\": \"P1-37\"},\n";
+01FD   1020 3DA2 3869 00277     DA "  {\"pin\": \"P1-37\"},\n";
        3722 1D20 1150 
        18AD 19B7 117D 
        160A 
-0201   1020 3DA2 3869 00272     DA "  {\"pin\": \"P1-33\"},\n";
+0207   1020 3DA2 3869 00278     DA "  {\"pin\": \"P1-33\"},\n";
        3722 1D20 1150 
        18AD 19B3 117D 
        160A 
-020B   1020 3DA2 3869 00273     DA "  {\"pin\": \"P1-23\"},\n";
+0211   1020 3DA2 3869 00279     DA "  {\"pin\": \"P1-23\"},\n";
        3722 1D20 1150 
        18AD 1933 117D 
        160A 
-0215   1020 3DA2 3869 00274     DA "  {\"pin\": \"P1-38\"},\n";
+021B   1020 3DA2 3869 00280     DA "  {\"pin\": \"P1-38\"},\n";
        3722 1D20 1150 
        18AD 19B8 117D 
        160A 
-021F   1020 3DA2 3869 00275     DA "  {\"pin\": \"P1-35\"},\n";
+0225   1020 3DA2 3869 00281     DA "  {\"pin\": \"P1-35\"},\n";
        3722 1D20 1150 
        18AD 19B5 117D 
        160A 
-0229   1020 3DA2 3869 00276     DA "  {\"pin\": \"P1-32\"} \n";
+022F   1020 3DA2 3869 00282     DA "  {\"pin\": \"P1-32\"} \n";
        3722 1D20 1150 
        18AD 19B2 117D 
        100A 
-0233   105D 160A      00277     DA " ],\n";
-0235   1022 33F2 37F5 00278     DA " \"groups\": [ \n";
+0239   105D 160A      00283     DA " ],\n";
+023B   1022 33F2 37F5 00284     DA " \"groups\": [ \n";
        3873 113A 105B 
        100A 
-023C   1020 3D8A      00279     DA "  {\n";
-023E   1020 1022 39F4 00280     DA "   \"start\": 1, \n";
+0242   1020 3D8A      00285     DA "  {\n";
+0244   1020 1022 39F4 00286     DA "   \"start\": 1, \n";
        30F2 3A22 1D20 
        18AC 100A 
-0246   1020 1022 31EF 00281     DA "   \"count\": 24 \n";
+024C   1020 1022 31EF 00287     DA "   \"count\": 24 \n";
        3AEE 3A22 1D20 
        1934 100A 
-024E   1020 3E8A      00282     DA "  }\n";
-                      00283 ;FPP seems to want a blank line @eof and is picky about how it ends:  :(
-                      00284 ;       DA "] }\n";
-                      00285 ;    DA "\n\n";
-0250   105D 107D 050A 00286         DA " ] }\n\n";
-0253                  00287 JSON2_END:
-Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
-                      00288     messg [INFO] json2 length: 654                               @288; //use this to update length above
-                      00289 ;//third file:
-0253   18B2 19B4 0020 00290         DA "1234\x00 "; //length of json file contents; CAUTION: must match JSON length below
-0256   1800           00291     DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
-0257   3A6D 382F 31EF 00292     DA "tmp/co-pixelStrings.json\x00                                       ";
+0254   1020 3E8A      00288     DA "  }\n";
+                      00289 ;FPP seems to want a blank line @eof and is picky about how it ends:  :(
+                      00290 ;       DA "] }\n";
+                      00291 ;    DA "\n\n";
+0256   105D 107D 050A 00292         DA " ] }\n\n";
+0259                  00293 JSON2_END:
+Message[301]: MESSAGE: ([INFO] json2 length: 654 @294)
+                      00294     messg [INFO] json2 length: 654                               @294; //use this to update length above
+                      00295 ;//third file:
+0259                  00296 HDR3_START:
+0259   18B2 19B4 0020 00297         DA "1234\x00 "; //length of json file contents; CAUTION: must match JSON length below
+025C   1800           00298     DA "0\x00"; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+025D   3A6D 382F 31EF 00299     DA "tmp/co-pixelStrings.json\x00                                       ";
        16F0 34F8 32EC 
        29F4 3969 3767 
        39AE 3573 37EE 
@@ -500,32 +509,34 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        1020 1020 1020 
        1020 1020 1020 
        1020 1020 
-                      00293 ;//start of .json file:    
-0277                  00294 JSON3_START: ;//        /tmp/defaults/config/co-pixelStrings.json
-0277   3D8A           00295     DA "{\n";
-0278   1022 31E8 30EE 00296     DA " \"channelOutputs\": [ \n";
+                      00300 ;       DA "tmp/defaults/config/co-pixelStrings.json\x00                       ";
+                      00301         ERRIF(2 * ($ - HDR3_START) != 72, [ERROR] veeprom header length wrong: 72                       expected 72     @301);;
+                      00302 ;//start of .json file:    
+027D                  00303 JSON3_START: ;//        /tmp/defaults/config/co-pixelStrings.json
+027D   3D8A           00304     DA "{\n";
+027E   1022 31E8 30EE 00305     DA " \"channelOutputs\": [ \n";
        3765 364F 3AF4 
        3875 3A73 113A 
        105B 100A 
-0283   107B 100A      00297     DA " { \n";
-0285   1020 1174 3CF0 00298     DA "  \"type\": \"DPIPixels\", \n";
+0289   107B 100A      00306     DA " { \n";
+028B   1020 1174 3CF0 00307     DA "  \"type\": \"DPIPixels\", \n";
        32A2 1D20 1144 
        2849 2869 3C65 
        3673 112C 100A 
-0291   1020 1173 3AE2 00299     DA "  \"subType\": \"DPI24Hat\", \n";
+0297   1020 1173 3AE2 00308     DA "  \"subType\": \"DPI24Hat\", \n";
        2A79 3865 113A 
        1022 2250 24B2 
        1A48 30F4 112C 
        100A 
-029E   1020 1170 34EE 00300     DA "  \"pinoutVersion\": \"1.0\",\n";
+02A4   1020 1170 34EE 00309     DA "  \"pinoutVersion\": \"1.0\",\n";
        37F5 3A56 32F2 
        39E9 37EE 113A 
        1022 18AE 1822 
        160A 
-02AB   1020 116F 3AF4 00301     DA "  \"outputs\": [ \n";
+02B1   1020 116F 3AF4 00310     DA "  \"outputs\": [ \n";
        3875 3A73 113A 
        105B 100A 
-02B3   1020 3DA0 1170 00302     DA "  { \"portNumber\": 0, \"protocol\": \"ws2811\" }, \n";
+02B9   1020 3DA0 1170 00311     DA "  { \"portNumber\": 0, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        182C 1022 3872 
@@ -533,8 +544,8 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-                      00303 ;    DA "   \"virtualStrings\": [ { \"description\": \"\", \"startChannel\": 0, \"pixelCount\": 0, \"order\": \"RGB\", \"brightness\": 100} \n";
-02CA   1020 3DA0 1170 00304     DA "  { \"portNumber\": 1, \"protocol\": \"ws2811\" }, \n";
+                      00312 ;    DA "   \"virtualStrings\": [ { \"description\": \"\", \"startChannel\": 0, \"pixelCount\": 0, \"order\": \"RGB\", \"brightness\": 100} \n";
+02D0   1020 3DA0 1170 00313     DA "  { \"portNumber\": 1, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18AC 1022 3872 
@@ -542,7 +553,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-02E1   1020 3DA0 1170 00305     DA "  { \"portNumber\": 2, \"protocol\": \"ws2811\" }, \n";
+02E7   1020 3DA0 1170 00314     DA "  { \"portNumber\": 2, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        192C 1022 3872 
@@ -550,7 +561,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-02F8   1020 3DA0 1170 00306     DA "  { \"portNumber\": 3, \"protocol\": \"ws2811\" }, \n";
+02FE   1020 3DA0 1170 00315     DA "  { \"portNumber\": 3, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        19AC 1022 3872 
@@ -558,7 +569,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-030F   1020 3DA0 1170 00307     DA "  { \"portNumber\": 4, \"protocol\": \"ws2811\" }, \n";
+0315   1020 3DA0 1170 00316     DA "  { \"portNumber\": 4, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1A2C 1022 3872 
@@ -566,7 +577,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-0326   1020 3DA0 1170 00308     DA "  { \"portNumber\": 5, \"protocol\": \"ws2811\" }, \n";
+032C   1020 3DA0 1170 00317     DA "  { \"portNumber\": 5, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1AAC 1022 3872 
@@ -574,7 +585,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-033D   1020 3DA0 1170 00309     DA "  { \"portNumber\": 6, \"protocol\": \"ws2811\" }, \n";
+0343   1020 3DA0 1170 00318     DA "  { \"portNumber\": 6, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1B2C 1022 3872 
@@ -582,7 +593,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-0354   1020 3DA0 1170 00310     DA "  { \"portNumber\": 7, \"protocol\": \"ws2811\" }, \n";
+035A   1020 3DA0 1170 00319     DA "  { \"portNumber\": 7, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1BAC 1022 3872 
@@ -590,7 +601,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-036B   1020 3DA0 1170 00311     DA "  { \"portNumber\": 8, \"protocol\": \"ws2811\" }, \n";
+0371   1020 3DA0 1170 00320     DA "  { \"portNumber\": 8, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1C2C 1022 3872 
@@ -598,7 +609,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-0382   1020 3DA0 1170 00312     DA "  { \"portNumber\": 9, \"protocol\": \"ws2811\" }, \n";
+0388   1020 3DA0 1170 00321     DA "  { \"portNumber\": 9, \"protocol\": \"ws2811\" }, \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1CAC 1022 3872 
@@ -606,7 +617,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        113A 1022 3BF3 
        1938 18B1 1120 
        3EAC 100A 
-0399   1020 3DA0 1170 00313     DA "  { \"portNumber\": 10, \"protocol\": \"ws2811\" },\n";
+039F   1020 3DA0 1170 00322     DA "  { \"portNumber\": 10, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B0 1620 1170 
@@ -614,7 +625,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-03B0   1020 3DA0 1170 00314     DA "  { \"portNumber\": 11, \"protocol\": \"ws2811\" },\n";
+03B6   1020 3DA0 1170 00323     DA "  { \"portNumber\": 11, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B1 1620 1170 
@@ -622,7 +633,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-03C7   1020 3DA0 1170 00315     DA "  { \"portNumber\": 12, \"protocol\": \"ws2811\" },\n";
+03CD   1020 3DA0 1170 00324     DA "  { \"portNumber\": 12, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B2 1620 1170 
@@ -630,7 +641,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-03DE   1020 3DA0 1170 00316     DA "  { \"portNumber\": 13, \"protocol\": \"ws2811\" },\n";
+03E4   1020 3DA0 1170 00325     DA "  { \"portNumber\": 13, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B3 1620 1170 
@@ -638,7 +649,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-03F5   1020 3DA0 1170 00317     DA "  { \"portNumber\": 14, \"protocol\": \"ws2811\" },\n";
+03FB   1020 3DA0 1170 00326     DA "  { \"portNumber\": 14, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B4 1620 1170 
@@ -646,7 +657,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-040C   1020 3DA0 1170 00318     DA "  { \"portNumber\": 15, \"protocol\": \"ws2811\" },\n";
+0412   1020 3DA0 1170 00327     DA "  { \"portNumber\": 15, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B5 1620 1170 
@@ -654,7 +665,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-0423   1020 3DA0 1170 00319     DA "  { \"portNumber\": 16, \"protocol\": \"ws2811\" },\n";
+0429   1020 3DA0 1170 00328     DA "  { \"portNumber\": 16, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B6 1620 1170 
@@ -662,7 +673,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-043A   1020 3DA0 1170 00320     DA "  { \"portNumber\": 17, \"protocol\": \"ws2811\" },\n";
+0440   1020 3DA0 1170 00329     DA "  { \"portNumber\": 17, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B7 1620 1170 
@@ -670,7 +681,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-0451   1020 3DA0 1170 00321     DA "  { \"portNumber\": 18, \"protocol\": \"ws2811\" },\n";
+0457   1020 3DA0 1170 00330     DA "  { \"portNumber\": 18, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B8 1620 1170 
@@ -678,7 +689,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-0468   1020 3DA0 1170 00322     DA "  { \"portNumber\": 19, \"protocol\": \"ws2811\" },\n";
+046E   1020 3DA0 1170 00331     DA "  { \"portNumber\": 19, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        18B9 1620 1170 
@@ -686,7 +697,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-047F   1020 3DA0 1170 00323     DA "  { \"portNumber\": 20, \"protocol\": \"ws2811\" },\n";
+0485   1020 3DA0 1170 00332     DA "  { \"portNumber\": 20, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1930 1620 1170 
@@ -694,7 +705,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-0496   1020 3DA0 1170 00324     DA "  { \"portNumber\": 21, \"protocol\": \"ws2811\" },\n";
+049C   1020 3DA0 1170 00333     DA "  { \"portNumber\": 21, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1931 1620 1170 
@@ -702,7 +713,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-04AD   1020 3DA0 1170 00325     DA "  { \"portNumber\": 22, \"protocol\": \"ws2811\" },\n";
+04B3   1020 3DA0 1170 00334     DA "  { \"portNumber\": 22, \"protocol\": \"ws2811\" },\n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1932 1620 1170 
@@ -710,7 +721,7 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 160A 
-04C4   1020 3DA0 1170 00326     DA "  { \"portNumber\": 23, \"protocol\": \"ws2811\" } \n";
+04CA   1020 3DA0 1170 00335     DA "  { \"portNumber\": 23, \"protocol\": \"ws2811\" } \n";
        37F2 3A4E 3AED 
        3165 3922 1D20 
        1933 1620 1170 
@@ -718,996 +729,999 @@ Message[301]: MESSAGE: ([INFO] json2 length: 654 @288)
        3622 1D20 1177 
        39B2 1C31 18A2 
        107D 100A 
-04DB   105D 107D 100A 00327     DA " ] } \n";
-04DE   2EA0 3E8A      00328     DA "] }\n";
-04E0                  00329 JSON3_END:
-Message[301]: MESSAGE: ([INFO] json3 length: 1234 @330)
-                      00330     messg [INFO] json3 length: 1234                              @330; //use this to update length above
-                      00331 ;//eof:
-04E0   1800 1020 1020 00332     DA "0\x00    "; | LDI_EOF; //eof
-                      00333 ;    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
-                      00334 ;    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
-04E3                  00335 DATA_END: ;DATA_END SET $;    CONSTANT DATA_END = $; //DATA_END:
-                      00336 #else ;1 byte/word (takes up too much space)
-                      00337 ;    ORG DATA_START; //start of EEPROM contents
-                      00338 ;    variable JSON_NUMPATCH = 0;
-                      00339 DATA_START: ;//start of EEPROM contents
-                      00340 ;//first section (fixed len):
-                      00341 ;//0-5      EEPROM format identifier string, null terminated.  Currently "FPP02"
-                      00342 ;//6-31     Cape name as null terminated string (26 bytes)
-                      00343 ;//32-41    Cape version as null terminated string (10 bytes)
-                      00344 ;//42-57    Cape serial number as null terminated string (16 bytes)
-                      00345     DW 'F', 'P', 'P', '0', '2', 0; //signature string
-                      00346     DW 'D', 'P', 'I', '2', '4', 'H', 'a', 't', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; //hat/cape name
-                      00347     DW '1', '.', '0', 0, 0, 0, 0, 0, 0, 0; //hat/cape version
-                      00348     DW '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0; //serial# (not used)
-                      00349 ;//second section (var len, multi):
-                      00350 ;//0-5      LENGTH (as a string).  If the string "0", end of eeprom data
-                      00351 ;//6-7      Code representing the type of record.  Number between 0-99 as a string
-                      00352 ;//         The 2 bytes for the code is NOT included in LENGTH
-                      00353 ;//If code is less than 50, the code is immediately followed by:
-                      00354 ;//8-71     Filename as null terminated string.  ex:  "tmp/cape-info.json" (64 char)
-                      00355 ;//         The 64 bytes for the filename is NOT included in the LENGTH
-                      00356         DW '2', '9', '2', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
-                      00357     DW '0', 0; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
-                      00358     DW 't', 'm', 'p', '/', 'c', 'a', 'p', 'e', '-', 'i', 'n', 'f', 'o', '.', 'j', 's';
-                      00359     DW 'o', 'n', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-                      00360 ;JSON_PATCH#v(JSON_NUMPATCH) EQU $-12;
-                      00361 ;JSON_NUMPATCH += 1
-                      00362     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-                      00363     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-                      00364 ;//start of .json file:    
-                      00365 JSON1_START: ;//        /tmp/cape-info.json
-                      00366     DW '{', '\n';
-                      00367     DW ' ', '"', 'i', 'd', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '(', 'v', '1', '.', '0', ')', '"', ',', '\n';
-                      00368     DW ' ', '"', 'v', 'e', 'r', 's', 'i', 'o', 'n', '"', ':', ' ', '"', '1', '.', '0', '"', ',', '\n';
-                      00369     DW ' ', '"', 'n', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
-                      00370     DW ' ', '"', 'd', 'e', 'f', 'a', 'u', 'l', 't', 'S', 'e', 't', 't', 'i', 'n', 'g', 's', '"', ':', ' ', '{', '\n';
-                      00371 ;       DW ' ', ' ', '"', 's', 'h', 'o', 'w', 'A', 'l', 'l', 'O', 'p', 't', 'i', 'o', 'n', 's', '"', ':', ' ', '"', '1', '"', '\n';
-                      00372     DW ' ', '}', ',', '\n';
-                      00373     DW ' ', '"', 'p', 'r', 'o', 'v', 'i', 'd', 'e', 's', '"', ':', ' ', '[', ' ', '"', 's', 't', 'r', 'i', 'n', 'g', 's', '"', ' ', ']', ',', '\n';
-                      00374     DW ' ', '"', 'd', 'e', 's', 'i', 'g', 'n', 'e', 'r', '"', ':', ' ', '"', 'd', 'j', 'u', 'l', 'i', 'e', 'n', '"', ',', '\n';
-                      00375     DW ' ', '"', 'c', 'o', 'p', 'y', 'F', 'i', 'l', 'e', 's', '"', ':', ' ', '{', '\n';
-                      00376         DW ' ', ' ', '"', 't', 'm', 'p', '/', 'c', 'o', '-', 'p', 'i', 'x', 'e', 'l', 'S', 't', 'r', 'i', 'n', 'g', 's', '.', 'j', 's', 'o', 'n', '"', ':', ' ';
-                      00377     DW '"', 'c', 'o', 'n', 'f', 'i', 'g', '/', 'c', 'o', '-', 'p', 'i', 'x', 'e', 'l', 'S', 't', 'r', 'i', 'n', 'g', 's', '.', 'j', 's', 'o', 'n', '"', ',', '\n';
-                      00378         DW ' ', ' ', '"', 't', 'm', 'p', '/', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '.', 'j', 's', 'o', 'n', '"', ':', ' ';
-                      00379     DW '"', '/', 'o', 'p', 't', '/', 'f', 'p', 'p', '/', 'c', 'a', 'p', 'e', 's', '/', 'p', 'i', '/', 's', 't', 'r', 'i', 'n', 'g', 's', '/', 'D', 'P', 'I', '2', '4', 'H', 
-                      00380         DW '.', 'j', 's', 'o', 'n', '"', '\n';
-                      00381     DW ' ', '}', '\n';
-                      00382     DW '}', '\n';
-                      00383 JSON1_END:
-                      00384     messg [INFO] json1 length: 149                         @384; //use this to update length above
-                      00385 ;//second file:
-                      00386         DW '7', '1', '4', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
-                      00387     DW '0', 0; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
-                      00388     DW 't', 'm', 'p', '/', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '.', 'j', 's', 'o';
-                      00389         DW 'n', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-                      00390     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-                      00391     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-                      00392 ;//start of .json file:    
-                      00393 JSON2_START: ;//        /tmp/strings/DPI24Hat.json
-                      00394     DW '{', '\n';
-                      00395     DW ' ', '"', 'n', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
-                      00396     DW ' ', '"', 'l', 'o', 'n', 'g', 'N', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
-                      00397     DW ' ', '"', 'd', 'r', 'i', 'v', 'e', 'r', '"', ':', ' ', '"', 'D', 'P', 'I', 'P', 'i', 'x', 'e', 'l', 's', '"', ',', '\n';
-                      00398     DW ' ', '"', 'n', 'u', 'm', 'S', 'e', 'r', 'i', 'a', 'l', '"', ':', ' ', '0', ',', '\n';
-                      00399     DW ' ', '"', 'o', 'u', 't', 'p', 'u', 't', 's', '"', ':', ' ', '[', '\n';
-                      00400     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '8', '"', ' ', '}', ',', '\n';
-                      00401     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '6', '"', ' ', '}', ',', '\n';
-                      00402     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '2', '"', ' ', '}', ',', '\n';
-                      00403     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '0', '"', ' ', '}', ',', '\n';
-                      00404     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '1', '"', ' ', '}', ',', '\n';
-                      00405     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '5', '"', ' ', '}', ',', '\n';
-                      00406     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '3', '"', ' ', '}', ',', '\n';
-                      00407     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '1', '"', ' ', '}', ',', '\n';
-                      00408     DW '\n';
-                      00409     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '1', '"', ' ', '}', ',', '\n';
-                      00410     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '7', '"', ' ', '}', ',', '\n';
-                      00411     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '9', '"', ' ', '}', ',', '\n';
-                      00412     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '2', '"', ' ', '}', ',', '\n';
-                      00413     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '4', '"', ' ', '}', ',', '\n';
-                      00414     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '8', '"', ' ', '}', ',', '\n';
-                      00415     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '6', '"', ' ', '}', ',', '\n';
-                      00416     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '9', '"', ' ', '}', ',', '\n';
+04E1   105D 107D 100A 00336     DA " ] } \n";
+04E4   2EA0 3E8A      00337     DA "] }\n";
+04E6                  00338 JSON3_END:
+Message[301]: MESSAGE: ([INFO] json3 length: 1234 @339)
+                      00339     messg [INFO] json3 length: 1234                              @339; //use this to update length above
+                      00340 ;//eof:
+04E6   1800 1020 1020 00341     DA "0\x00    "; | LDI_EOF; //eof
+                      00342 ;    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
+                      00343 ;    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
+04E9                  00344 DATA_END: ;DATA_END SET $;    CONSTANT DATA_END = $; //DATA_END:
+                      00345 #else ;1 byte/word (takes up too much space)
+                      00346 ;    ORG DATA_START; //start of EEPROM contents
+                      00347 ;    variable JSON_NUMPATCH = 0;
+                      00348 DATA_START: ;//start of EEPROM contents
+                      00349 ;//first section (fixed len):
+                      00350 ;//0-5      EEPROM format identifier string, null terminated.  Currently "FPP02"
+                      00351 ;//6-31     Cape name as null terminated string (26 bytes)
+                      00352 ;//32-41    Cape version as null terminated string (10 bytes)
+                      00353 ;//42-57    Cape serial number as null terminated string (16 bytes)
+                      00354     DW 'F', 'P', 'P', '0', '2', 0; //signature string
+                      00355     DW 'D', 'P', 'I', '2', '4', 'H', 'a', 't', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; //hat/cape name
+                      00356     DW '1', '.', '0', 0, 0, 0, 0, 0, 0, 0; //hat/cape version
+                      00357     DW '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0; //serial# (not used)
+                      00358 ;//second section (var len, multi):
+                      00359 ;//0-5      LENGTH (as a string).  If the string "0", end of eeprom data
+                      00360 ;//6-7      Code representing the type of record.  Number between 0-99 as a string
+                      00361 ;//         The 2 bytes for the code is NOT included in LENGTH
+                      00362 ;//If code is less than 50, the code is immediately followed by:
+                      00363 ;//8-71     Filename as null terminated string.  ex:  "tmp/cape-info.json" (64 char)
+                      00364 ;//         The 64 bytes for the filename is NOT included in the LENGTH
+                      00365         DW '2', '9', '2', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
+                      00366     DW '0', 0; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+                      00367     DW 't', 'm', 'p', '/', 'c', 'a', 'p', 'e', '-', 'i', 'n', 'f', 'o', '.', 'j', 's';
+                      00368     DW 'o', 'n', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+                      00369 ;JSON_PATCH#v(JSON_NUMPATCH) EQU $-12;
+                      00370 ;JSON_NUMPATCH += 1
+                      00371     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+                      00372     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+                      00373 ;//start of .json file:    
+                      00374 JSON1_START: ;//        /tmp/cape-info.json
+                      00375     DW '{', '\n';
+                      00376     DW ' ', '"', 'i', 'd', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '(', 'v', '1', '.', '0', ')', '"', ',', '\n';
+                      00377     DW ' ', '"', 'v', 'e', 'r', 's', 'i', 'o', 'n', '"', ':', ' ', '"', '1', '.', '0', '"', ',', '\n';
+                      00378     DW ' ', '"', 'n', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
+                      00379     DW ' ', '"', 'd', 'e', 'f', 'a', 'u', 'l', 't', 'S', 'e', 't', 't', 'i', 'n', 'g', 's', '"', ':', ' ', '{', '\n';
+                      00380 ;       DW ' ', ' ', '"', 's', 'h', 'o', 'w', 'A', 'l', 'l', 'O', 'p', 't', 'i', 'o', 'n', 's', '"', ':', ' ', '"', '1', '"', '\n';
+                      00381     DW ' ', '}', ',', '\n';
+                      00382     DW ' ', '"', 'p', 'r', 'o', 'v', 'i', 'd', 'e', 's', '"', ':', ' ', '[', ' ', '"', 's', 't', 'r', 'i', 'n', 'g', 's', '"', ' ', ']', ',', '\n';
+                      00383     DW ' ', '"', 'd', 'e', 's', 'i', 'g', 'n', 'e', 'r', '"', ':', ' ', '"', 'd', 'j', 'u', 'l', 'i', 'e', 'n', '"', ',', '\n';
+                      00384     DW ' ', '"', 'c', 'o', 'p', 'y', 'F', 'i', 'l', 'e', 's', '"', ':', ' ', '{', '\n';
+                      00385         DW ' ', ' ', '"', 't', 'm', 'p', '/', 'c', 'o', '-', 'p', 'i', 'x', 'e', 'l', 'S', 't', 'r', 'i', 'n', 'g', 's', '.', 'j', 's', 'o', 'n', '"', ':', ' ';
+                      00386     DW '"', 'c', 'o', 'n', 'f', 'i', 'g', '/', 'c', 'o', '-', 'p', 'i', 'x', 'e', 'l', 'S', 't', 'r', 'i', 'n', 'g', 's', '.', 'j', 's', 'o', 'n', '"', ',', '\n';
+                      00387         DW ' ', ' ', '"', 't', 'm', 'p', '/', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '.', 'j', 's', 'o', 'n', '"', ':', ' ';
+                      00388     DW '"', '/', 'o', 'p', 't', '/', 'f', 'p', 'p', '/', 'c', 'a', 'p', 'e', 's', '/', 'p', 'i', '/', 's', 't', 'r', 'i', 'n', 'g', 's', '/', 'D', 'P', 'I', '2', '4', 'H', 
+                      00389         DW '.', 'j', 's', 'o', 'n', '"', '\n';
+                      00390     DW ' ', '}', '\n';
+                      00391     DW '}', '\n';
+                      00392 JSON1_END:
+                      00393     messg [INFO] json1 length: 155                         @393; //use this to update length above
+                      00394 ;//second file:
+                      00395         DW '7', '1', '4', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
+                      00396     DW '0', 0; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+                      00397     DW 't', 'm', 'p', '/', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '.', 'j', 's', 'o';
+                      00398         DW 'n', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+                      00399     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+                      00400     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+                      00401 ;//start of .json file:    
+                      00402 JSON2_START: ;//        /tmp/strings/DPI24Hat.json
+                      00403     DW '{', '\n';
+                      00404     DW ' ', '"', 'n', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
+                      00405     DW ' ', '"', 'l', 'o', 'n', 'g', 'N', 'a', 'm', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
+                      00406     DW ' ', '"', 'd', 'r', 'i', 'v', 'e', 'r', '"', ':', ' ', '"', 'D', 'P', 'I', 'P', 'i', 'x', 'e', 'l', 's', '"', ',', '\n';
+                      00407     DW ' ', '"', 'n', 'u', 'm', 'S', 'e', 'r', 'i', 'a', 'l', '"', ':', ' ', '0', ',', '\n';
+                      00408     DW ' ', '"', 'o', 'u', 't', 'p', 'u', 't', 's', '"', ':', ' ', '[', '\n';
+                      00409     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '8', '"', ' ', '}', ',', '\n';
+                      00410     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '6', '"', ' ', '}', ',', '\n';
+                      00411     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '2', '"', ' ', '}', ',', '\n';
+                      00412     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '0', '"', ' ', '}', ',', '\n';
+                      00413     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '1', '"', ' ', '}', ',', '\n';
+                      00414     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '5', '"', ' ', '}', ',', '\n';
+                      00415     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '3', '"', ' ', '}', ',', '\n';
+                      00416     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '1', '"', ' ', '}', ',', '\n';
                       00417     DW '\n';
-                      00418     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '6', '"', ' ', '}', ',', '\n';
-                      00419     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '4', '0', '"', ' ', '}', ',', '\n';
-                      00420     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '7', '"', ' ', '}', ',', '\n';
-                      00421     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '3', '"', ' ', '}', ',', '\n';
-                      00422     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '3', '"', ' ', '}', ',', '\n';
-                      00423     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '8', '"', ' ', '}', ',', '\n';
-                      00424     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '5', '"', ' ', '}', ',', '\n';
-                      00425     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '2', '"', ' ', '}', '\n';
-                      00426     DW ' ', ']', ',', '\n';
-                      00427     DW ' ', '"', 'g', 'r', 'o', 'u', 'p', 's', '"', ':', ' ', '[', '\n';
-                      00428     DW ' ', ' ', '{', '\n';
-                      00429     DW ' ', ' ', ' ', '"', 's', 't', 'a', 'r', 't', '"', ':', ' ', '1', ',', '\n';
-                      00430     DW ' ', ' ', ' ', '"', 'c', 'o', 'u', 'n', 't', '"', ':', ' ', '2', '4', '\n';
-                      00431     DW ' ', ' ', '}', '\n';
-                      00432     DW ' ', ']', '\n';
-                      00433     DW '}', '\n';
-                      00434 JSON2_END:
-                      00435     messg [INFO] json2 length: 327                         @435; //use this to update length above
-                      00436 ;//third file:
-                      00437         DW '3', '2', '5', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
-                      00438     DW '0', 0; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
-                      00439     DW 't', 'm', 'p', '/', 'c', 'o', '-', 'p', 'i', 'x', 'e', 'l', 'S', 't', 'r', 'i';
-                      00440         DW 'n', 'g', 's', '.', 'j', 's', 'o', 'n', 0, 0, 0, 0, 0, 0, 0, 0;
-                      00441     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-                      00442     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-                      00443 ;//start of .json file:    
-                      00444 JSON3_START: ;//        /tmp/defaults/config/co-pixelStrings.json
-                      00445     DW '{', '\n';
-                      00446     DW ' ', '"', 'c', 'h', 'a', 'n', 'n', 'e', 'l', 'O', 'u', 't', 'p', 'u', 't', 's', '"', ':', ' ', '[', '\n';
-                      00447     DW ' ', '{', '\n';
-                      00448     DW ' ', ' ', '"', 't', 'y', 'p', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', 'P', 'i', 'x', 'e', 'l', 's', '"', ',', '\n';
-                      00449     DW ' ', ' ', '"', 's', 'u', 'b', 'T', 'y', 'p', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
-                      00450     DW ' ', ' ', '"', 'p', 'i', 'n', 'o', 'u', 't', 'V', 'e', 'r', 's', 'i', 'o', 'n', '"', ':', ' ', '"', '1', '.', 'x', '"', ',', '\n';
-                      00451     DW ' ', ' ', '"', 'o', 'u', 't', 'p', 'u', 't', 's', '"', ':', ' ', '[', '\n';
-                      00452     DW ' ', ' ', '{', '\n';
-                      00453     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '0', ',', '\n';
-                      00454     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00455 ;    DW ' ', ' ', ' ', '"', 'v', 'i', 'r', 't', 'u', 'a', 'l', 'S', 't', 'r', 'i', 'n', 'g', 's', '"', ':', ' ', '[', ' ', '{', ' ', '"', 'd', 'e', 's', 'c', 'r', 'i', 'p',
-                      00456 ;       DW ':';
-                      00457 ;       DW ' ', '"', '"', ' ', '}', ' ', ']', '\n';
-                      00458     DW ' ', ' ', '}', ',', '\n';
-                      00459     DW ' ', ' ', '{', '\n';
-                      00460     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', ',', '\n';
-                      00461     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00462     DW ' ', ' ', '}', ',', '\n';
-                      00463     DW ' ', ' ', '{', '\n';
-                      00464     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', ',', '\n';
-                      00465     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00466     DW ' ', ' ', '}', ',', '\n';
-                      00467     DW ' ', ' ', '{', '\n';
-                      00468     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '3', ',', '\n';
-                      00469     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00470     DW ' ', ' ', '}', ',', '\n';
-                      00471     DW ' ', ' ', '{', '\n';
-                      00472     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '4', ',', '\n';
-                      00473     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00474     DW ' ', ' ', '}', ',', '\n';
-                      00475     DW ' ', ' ', '{', '\n';
-                      00476     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '5', ',', '\n';
-                      00477     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00478     DW ' ', ' ', '}', ',', '\n';
-                      00479     DW ' ', ' ', '{', '\n';
-                      00480     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '6', ',', '\n';
-                      00481     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00482     DW ' ', ' ', '}', ',', '\n';
-                      00483     DW ' ', ' ', '{', '\n';
-                      00484     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '7', ',', '\n';
-                      00485     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00486     DW ' ', ' ', '}', ',', '\n';
-                      00487     DW ' ', ' ', '{', '\n';
-                      00488     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '8', ',', '\n';
-                      00489     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00490     DW ' ', ' ', '}', ',', '\n';
-                      00491     DW ' ', ' ', '{', '\n';
-                      00492     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '9', ',', '\n';
-                      00493     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00494     DW ' ', ' ', '}', ',', '\n';
-                      00495     DW ' ', ' ', '{', '\n';
-                      00496     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '0', ',', '\n';
-                      00497     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00498     DW ' ', ' ', '}', ',', '\n';
-                      00499     DW ' ', ' ', '{', '\n';
-                      00500     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '1', ',', '\n';
-                      00501     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00502     DW ' ', ' ', '}', ',', '\n';
-                      00503     DW ' ', ' ', '{', '\n';
-                      00504     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '2', ',', '\n';
-                      00505     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00506     DW ' ', ' ', '}', ',', '\n';
-                      00507     DW ' ', ' ', '{', '\n';
-                      00508     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '3', ',', '\n';
-                      00509     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00510     DW ' ', ' ', '}', ',', '\n';
-                      00511     DW ' ', ' ', '{', '\n';
-                      00512     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '4', ',', '\n';
-                      00513     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00514     DW ' ', ' ', '}', ',', '\n';
-                      00515     DW ' ', ' ', '{', '\n';
-                      00516     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '5', ',', '\n';
-                      00517     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00518     DW ' ', ' ', '}', ',', '\n';
-                      00519     DW ' ', ' ', '{', '\n';
-                      00520     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '6', ',', '\n';
-                      00521     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00522     DW ' ', ' ', '}', ',', '\n';
-                      00523     DW ' ', ' ', '{', '\n';
-                      00524     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '7', ',', '\n';
-                      00525     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00526     DW ' ', ' ', '}', ',', '\n';
-                      00527     DW ' ', ' ', '{', '\n';
-                      00528     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '8', ',', '\n';
-                      00529     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00530     DW ' ', ' ', '}', ',', '\n';
-                      00531     DW ' ', ' ', '{', '\n';
-                      00532     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '9', ',', '\n';
-                      00533     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00534     DW ' ', ' ', '}', ',', '\n';
-                      00535     DW ' ', ' ', '{', '\n';
-                      00536     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '0', ',', '\n';
-                      00537     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00538     DW ' ', ' ', '}', ',', '\n';
-                      00539     DW ' ', ' ', '{', '\n';
-                      00540     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '1', ',', '\n';
-                      00541     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00542     DW ' ', ' ', '}', ',', '\n';
-                      00543     DW ' ', ' ', '{', '\n';
-                      00544     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '2', ',', '\n';
-                      00545     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00546     DW ' ', ' ', '}', ',', '\n';
-                      00547     DW ' ', ' ', '{', '\n';
-                      00548     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '3', ',', '\n';
-                      00549     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
-                      00550     DW ' ', ' ', '}', ' ', ']', '\n';
-                      00551     DW ' ', '}', ' ', ']', '\n';
-                      00552     DW '}', '\n';
-                      00553 JSON3_END:
-                      00554     messg [INFO] json3 length: 617                         @554; //use this to update length above
-                      00555 ;//eof:
-                      00556     DW '0', 0;, 0, 0, 0, 0, 0 | LDI_EOF; //eof
-                      00557 ;    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
-                      00558 ;    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
-                      00559 DATA_END: ;DATA_END SET $;    CONSTANT DATA_END = $; //DATA_END:
-                      00560 ;    DB 0; //read ptr clamps here
-                      00561 #endif; //def A2PACK
-                      00562 
-                      00563 ;convert relative to absolute ptr:
-                      00564 ;rel2abs macro ptr
-                      00565 ;    add16 ptr, LITERAL(DATA_START | 0x8000);
-                      00566 ;    endm
-                      00567 ;REL2ABS EQU LITERAL(DATA_START | 0x8000);
-                      00568 ;conv abs to rel ptr:
-                      00569 ;abs2rel macro ptr
-                      00570 ;    add16 ptr, LITERAL(-DATA_START & 0xFFFF | 0x8000);
-                      00571 ;    endm
-                      00572 ;ABS2REL EQU LITERAL((0x8000 - DATA_START) & 0xFFFF); //wrong! -DATA_START & 0xFFFF | 0x8000);
-                      00573 
-                      00574 
-                      00575     THREAD_DEF veeprom, 6;
-                          M     CBLOCK NEXT_RAM9999; BOOL2INT(banked))  ;continue where we left off last time @2780
-  00000071                M         stkptr_0 ; @2781
+                      00418     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '1', '"', ' ', '}', ',', '\n';
+                      00419     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '7', '"', ' ', '}', ',', '\n';
+                      00420     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '9', '"', ' ', '}', ',', '\n';
+                      00421     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '2', '"', ' ', '}', ',', '\n';
+                      00422     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '4', '"', ' ', '}', ',', '\n';
+                      00423     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '1', '8', '"', ' ', '}', ',', '\n';
+                      00424     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '6', '"', ' ', '}', ',', '\n';
+                      00425     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '9', '"', ' ', '}', ',', '\n';
+                      00426     DW '\n';
+                      00427     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '6', '"', ' ', '}', ',', '\n';
+                      00428     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '4', '0', '"', ' ', '}', ',', '\n';
+                      00429     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '7', '"', ' ', '}', ',', '\n';
+                      00430     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '3', '"', ' ', '}', ',', '\n';
+                      00431     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '2', '3', '"', ' ', '}', ',', '\n';
+                      00432     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '8', '"', ' ', '}', ',', '\n';
+                      00433     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '5', '"', ' ', '}', ',', '\n';
+                      00434     DW ' ', ' ', '{', ' ', ' ', '"', 'p', 'i', 'n', '"', ':', ' ', '"', 'P', '1', '-', '3', '2', '"', ' ', '}', '\n';
+                      00435     DW ' ', ']', ',', '\n';
+                      00436     DW ' ', '"', 'g', 'r', 'o', 'u', 'p', 's', '"', ':', ' ', '[', '\n';
+                      00437     DW ' ', ' ', '{', '\n';
+                      00438     DW ' ', ' ', ' ', '"', 's', 't', 'a', 'r', 't', '"', ':', ' ', '1', ',', '\n';
+                      00439     DW ' ', ' ', ' ', '"', 'c', 'o', 'u', 'n', 't', '"', ':', ' ', '2', '4', '\n';
+                      00440     DW ' ', ' ', '}', '\n';
+                      00441     DW ' ', ']', '\n';
+                      00442     DW '}', '\n';
+                      00443 JSON2_END:
+                      00444     messg [INFO] json2 length: 327                         @444; //use this to update length above
+                      00445 ;//third file:
+                      00446         DW '3', '2', '5', 0, 0, 0; //length of json file contents; CAUTION: must match JSON length below
+                      00447     DW '0', 0; //uncompressed file follows; CAUTION: don't change file name (it's hard-coded in FPP cape detect)
+                      00448     DW 't', 'm', 'p', '/', 'c', 'o', '-', 'p', 'i', 'x', 'e', 'l', 'S', 't', 'r', 'i';
+                      00449         DW 'n', 'g', 's', '.', 'j', 's', 'o', 'n', 0, 0, 0, 0, 0, 0, 0, 0;
+                      00450     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+                      00451     DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+                      00452 ;//start of .json file:    
+                      00453 JSON3_START: ;//        /tmp/defaults/config/co-pixelStrings.json
+                      00454     DW '{', '\n';
+                      00455     DW ' ', '"', 'c', 'h', 'a', 'n', 'n', 'e', 'l', 'O', 'u', 't', 'p', 'u', 't', 's', '"', ':', ' ', '[', '\n';
+                      00456     DW ' ', '{', '\n';
+                      00457     DW ' ', ' ', '"', 't', 'y', 'p', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', 'P', 'i', 'x', 'e', 'l', 's', '"', ',', '\n';
+                      00458     DW ' ', ' ', '"', 's', 'u', 'b', 'T', 'y', 'p', 'e', '"', ':', ' ', '"', 'D', 'P', 'I', '2', '4', 'H', 'a', 't', '"', ',', '\n';
+                      00459     DW ' ', ' ', '"', 'p', 'i', 'n', 'o', 'u', 't', 'V', 'e', 'r', 's', 'i', 'o', 'n', '"', ':', ' ', '"', '1', '.', 'x', '"', ',', '\n';
+                      00460     DW ' ', ' ', '"', 'o', 'u', 't', 'p', 'u', 't', 's', '"', ':', ' ', '[', '\n';
+                      00461     DW ' ', ' ', '{', '\n';
+                      00462     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '0', ',', '\n';
+                      00463     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00464 ;    DW ' ', ' ', ' ', '"', 'v', 'i', 'r', 't', 'u', 'a', 'l', 'S', 't', 'r', 'i', 'n', 'g', 's', '"', ':', ' ', '[', ' ', '{', ' ', '"', 'd', 'e', 's', 'c', 'r', 'i', 'p',
+                      00465 ;       DW ':';
+                      00466 ;       DW ' ', '"', '"', ' ', '}', ' ', ']', '\n';
+                      00467     DW ' ', ' ', '}', ',', '\n';
+                      00468     DW ' ', ' ', '{', '\n';
+                      00469     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', ',', '\n';
+                      00470     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00471     DW ' ', ' ', '}', ',', '\n';
+                      00472     DW ' ', ' ', '{', '\n';
+                      00473     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', ',', '\n';
+                      00474     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00475     DW ' ', ' ', '}', ',', '\n';
+                      00476     DW ' ', ' ', '{', '\n';
+                      00477     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '3', ',', '\n';
+                      00478     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00479     DW ' ', ' ', '}', ',', '\n';
+                      00480     DW ' ', ' ', '{', '\n';
+                      00481     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '4', ',', '\n';
+                      00482     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00483     DW ' ', ' ', '}', ',', '\n';
+                      00484     DW ' ', ' ', '{', '\n';
+                      00485     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '5', ',', '\n';
+                      00486     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00487     DW ' ', ' ', '}', ',', '\n';
+                      00488     DW ' ', ' ', '{', '\n';
+                      00489     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '6', ',', '\n';
+                      00490     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00491     DW ' ', ' ', '}', ',', '\n';
+                      00492     DW ' ', ' ', '{', '\n';
+                      00493     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '7', ',', '\n';
+                      00494     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00495     DW ' ', ' ', '}', ',', '\n';
+                      00496     DW ' ', ' ', '{', '\n';
+                      00497     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '8', ',', '\n';
+                      00498     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00499     DW ' ', ' ', '}', ',', '\n';
+                      00500     DW ' ', ' ', '{', '\n';
+                      00501     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '9', ',', '\n';
+                      00502     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00503     DW ' ', ' ', '}', ',', '\n';
+                      00504     DW ' ', ' ', '{', '\n';
+                      00505     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '0', ',', '\n';
+                      00506     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00507     DW ' ', ' ', '}', ',', '\n';
+                      00508     DW ' ', ' ', '{', '\n';
+                      00509     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '1', ',', '\n';
+                      00510     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00511     DW ' ', ' ', '}', ',', '\n';
+                      00512     DW ' ', ' ', '{', '\n';
+                      00513     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '2', ',', '\n';
+                      00514     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00515     DW ' ', ' ', '}', ',', '\n';
+                      00516     DW ' ', ' ', '{', '\n';
+                      00517     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '3', ',', '\n';
+                      00518     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00519     DW ' ', ' ', '}', ',', '\n';
+                      00520     DW ' ', ' ', '{', '\n';
+                      00521     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '4', ',', '\n';
+                      00522     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00523     DW ' ', ' ', '}', ',', '\n';
+                      00524     DW ' ', ' ', '{', '\n';
+                      00525     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '5', ',', '\n';
+                      00526     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00527     DW ' ', ' ', '}', ',', '\n';
+                      00528     DW ' ', ' ', '{', '\n';
+                      00529     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '6', ',', '\n';
+                      00530     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00531     DW ' ', ' ', '}', ',', '\n';
+                      00532     DW ' ', ' ', '{', '\n';
+                      00533     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '7', ',', '\n';
+                      00534     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00535     DW ' ', ' ', '}', ',', '\n';
+                      00536     DW ' ', ' ', '{', '\n';
+                      00537     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '8', ',', '\n';
+                      00538     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00539     DW ' ', ' ', '}', ',', '\n';
+                      00540     DW ' ', ' ', '{', '\n';
+                      00541     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '1', '9', ',', '\n';
+                      00542     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00543     DW ' ', ' ', '}', ',', '\n';
+                      00544     DW ' ', ' ', '{', '\n';
+                      00545     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '0', ',', '\n';
+                      00546     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00547     DW ' ', ' ', '}', ',', '\n';
+                      00548     DW ' ', ' ', '{', '\n';
+                      00549     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '1', ',', '\n';
+                      00550     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00551     DW ' ', ' ', '}', ',', '\n';
+                      00552     DW ' ', ' ', '{', '\n';
+                      00553     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '2', ',', '\n';
+                      00554     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00555     DW ' ', ' ', '}', ',', '\n';
+                      00556     DW ' ', ' ', '{', '\n';
+                      00557     DW ' ', ' ', ' ', '"', 'p', 'o', 'r', 't', 'N', 'u', 'm', 'b', 'e', 'r', '"', ':', ' ', '2', '3', ',', '\n';
+                      00558     DW ' ', ' ', ' ', '"', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l', '"', ':', ' ', '"', 'w', 's', '2', '8', '1', '1', '"', '\n';
+                      00559     DW ' ', ' ', '}', ' ', ']', '\n';
+                      00560     DW ' ', '}', ' ', ']', '\n';
+                      00561     DW '}', '\n';
+                      00562 JSON3_END:
+                      00563     messg [INFO] json3 length: 617                         @563; //use this to update length above
+                      00564 ;//eof:
+                      00565     DW '0', 0;, 0, 0, 0, 0, 0 | LDI_EOF; //eof
+                      00566 ;    DW 0x012, 0x345, 0x678, 0x9ab, 0xcde, 0xf00;
+                      00567 ;    DW 0x55A, 0xA55, 0xAA5, 0x5AA | LDI_EOF;
+                      00568 DATA_END: ;DATA_END SET $;    CONSTANT DATA_END = $; //DATA_END:
+                      00569 ;    DB 0; //read ptr clamps here
+                      00570 #endif; //def A2PACK
+                      00571 
+                      00572 ;convert relative to absolute ptr:
+                      00573 ;rel2abs macro ptr
+                      00574 ;    add16 ptr, LITERAL(DATA_START | 0x8000);
+                      00575 ;    endm
+                      00576 ;REL2ABS EQU LITERAL(DATA_START | 0x8000);
+                      00577 ;conv abs to rel ptr:
+                      00578 ;abs2rel macro ptr
+                      00579 ;    add16 ptr, LITERAL(-DATA_START & 0xFFFF | 0x8000);
+                      00580 ;    endm
+                      00581 ;ABS2REL EQU LITERAL((0x8000 - DATA_START) & 0xFFFF); //wrong! -DATA_START & 0xFFFF | 0x8000);
+                      00582 
+                      00583 
+                      00584     THREAD_DEF veeprom, 6;
+                          M     CBLOCK NEXT_RAM9999; BOOL2INT(banked))  ;continue where we left off last time @2792
+  00000071                M         stkptr_0 ; @2793
                           M     ENDC  ;can't span macros
   0001                    M     CONSTANT stkptr_00size = LATEST_RAM2 - stkptr_0
-Message[301]: MESSAGE: ([INFO] creating veeprom thread# 0 @$1251, stack size 6, host stack remaining: 10 @1839)
+Message[301]: MESSAGE: ([INFO] creating veeprom thread# 0 @$1257, stack size 6, host stack remaining: 10 @1851)
                           M     goto_pagesafe init_2
 0010   3184               M     movlp ((init_2) / 0x100)
-0011   2CE3               M     goto init_2
-04E3                      M init_2:
-04E3   24ED               M     call stack_alloc_0
-04E4                      M _341rerun_thread:
-04E4   24F3               M     call veeprom
-04E5   2CE4               M     goto _341rerun_thread
+0011   2CE9               M     goto init_2
+04E9                      M init_2:
+04E9   24F3               M     call stack_alloc_0
+04EA                      M _345rerun_thread:
+04EA   24F9               M     call veeprom
+04EB   2CEA               M     goto _345rerun_thread
                           M yield_from_0: DROP_CONTEXT
-04E6   017F               M     banksel STKPTR
+04EC   017F               M     banksel STKPTR
                           M     withdest_0 movf STKPTR
-04E7   086D               M     movf STKPTR, W;
-04E8   00F1               M     movwf stkptr_0
+04ED   086D               M     movf STKPTR, W;
+04EE   00F1               M     movwf stkptr_0
                           M yield_again_0: DROP_CONTEXT
                           M     withdest_0 movf stkptr_1
-04E9   0871               M     movf stkptr_1, W;
-04EA   017F               M     banksel STKPTR
-04EB   00ED               M     movwf STKPTR
-04EC   0008               M     return
+04EF   0871               M     movf stkptr_1, W;
+04F0   017F               M     banksel STKPTR
+04F1   00ED               M     movwf STKPTR
+04F2   0008               M     return
                           M stack_alloc_0: DROP_CONTEXT
-04ED   017F               M     banksel STKPTR
+04F3   017F               M     banksel STKPTR
                           M     withdest_0 movf STKPTR
-04EE   086D               M     movf STKPTR, W;
-04EF   00F1               M     movwf stkptr_0
-04F0   3005               M     movlw 6 - 1
+04F4   086D               M     movf STKPTR, W;
+04F5   00F1               M     movwf stkptr_0
+04F6   3005               M     movlw 6 - 1
                           M     withdest_1 addwf STKPTR
-04F1   07ED               M     addwf STKPTR, F;
-04F2                      M _652jump_placeholder:
-                      00576 ;    nbDCL8 eepromAddress;
-                      00577 ;    BITDCL is_addr; //initialized to 0
-                      00578 ;    BITDCL is_write;
-                      00579 ;    nbDCL8 i2c_data; //non-banked to reduce bank switching during i2c processing
-                      00580 ;    b0DCL veepbuf, :16; //NOTE: addressing is simpler if this is placed @start of bank 0
-                      00581 
-                      00582 #ifdef ROWSIZE; //rd-wr
-                      00583 ; #define DATA_START  (divup(eof, ROWSIZE) * ROWSIZE); //start of space available for user storage; immediately follows code
-                      00584     messg [TODO] add bootloader (or use NVM with row erase?), decide on 8 vs 14 bit packing to allow writes @584
-                      00585     RESERVE(IIF($ ^ ROWSIZE, ROWSIZE - $ ^ ROWSIZE, 0); ; //pad to start of next row (for row erase)
-                      00586 #else; //read-only
-                      00587 ; #define ROWSIZE 0
-                      00588 ; #define DATA_START $; //no need to pad, just put it anywhere
-Message[301]: MESSAGE: ([INFO] VEEPROM Write-protect is ON (writes ignored) @589)
-                      00589     messg [INFO] VEEPROM Write-protect is ON (writes ignored) @589
-                      00590 #endif
-                      00591 
-                      00592 
-                      00593 ;#ifdef WANT_DEBUG; dev test/debug (timer calibration, threading, and front panel)
-                      00594 #if 0
-                      00595 ;    nbDCL8 counter;
-                      00596 fptest macro
-                      00597     PinMode FP_LED, OutLow;
-                      00598 ;    mov8 counter, LITERAL(5)
-                      00599 ;fploop: DROP_CONTEXT
-                      00600 ;    FrontPanel LITERAL(0x020000);
-                      00601     biton BITWRAP(LATA, FP_LED); ; //on/off only; TODO: PWM or serial blink?
-                      00602     CALL wait1sec;
-                      00603 ;    FrontPanel LITERAL(0x000200);
-                      00604     bitoff BITWRAP(LATA, FP_LED); ; //on/off only; TODO: PWM or serial blink?
-                      00605     CALL wait1sec;
-                      00606 ;    FrontPanel LITERAL(0x000002);
-                      00607     biton BITWRAP(LATA, FP_LED); ; //on/off only; TODO: PWM or serial blink?
-                      00608     CALL wait1sec;
-                      00609 ;    FrontPanel LITERAL(0);
-                      00610     bitoff BITWRAP(LATA, FP_LED); ; //on/off only; TODO: PWM or serial blink?
-                      00611 ;    CALL wait1sec;
-                      00612 ;    GOTO fploop;
-                      00613 ;    DECFSZ counter, F
-                      00614 ;    GOTO fploop;
-                      00615     endm
-                      00616 
-                      00617 wait1sec: DROP_CONTEXT;
-                      00618 ;    WAIT 1 sec, YIELD, YIELD_AGAIN; RESERVE(0), RESERVE(0); busy wait
-                      00619     WAIT 1 sec, RESERVE(0), RESERVE(0); ; busy wait
-                      00620 ;    set_timeout 1 sec/2, NOP 1; RESERVE(0); YIELD; //display for 1/2 sec
-                      00621     RETURN;
-                      00622 #else
-                      00623 fptest macro
+04F7   07ED               M     addwf STKPTR, F;
+04F8                      M _656jump_placeholder:
+                      00585 ;    nbDCL8 eepromAddress;
+                      00586 ;    BITDCL is_addr; //initialized to 0
+                      00587 ;    BITDCL is_write;
+                      00588 ;    nbDCL8 i2c_data; //non-banked to reduce bank switching during i2c processing
+                      00589 ;    b0DCL veepbuf, :16; //NOTE: addressing is simpler if this is placed @start of bank 0
+                      00590 
+                      00591 #ifdef ROWSIZE; //rd-wr
+                      00592 ; #define DATA_START  (divup(eof, ROWSIZE) * ROWSIZE); //start of space available for user storage; immediately follows code
+                      00593     messg [TODO] add bootloader (or use NVM with row erase?), decide on 8 vs 14 bit packing to allow writes @593
+                      00594     RESERVE(IIF($ ^ ROWSIZE, ROWSIZE - $ ^ ROWSIZE, 0); ; //pad to start of next row (for row erase)
+                      00595 #else; //read-only
+                      00596 ; #define ROWSIZE 0
+                      00597 ; #define DATA_START $; //no need to pad, just put it anywhere
+Message[301]: MESSAGE: ([INFO] VEEPROM Write-protect is ON (writes ignored) @598)
+                      00598     messg [INFO] VEEPROM Write-protect is ON (writes ignored) @598
+                      00599 #endif
+                      00600 
+                      00601 
+                      00602 ;#ifdef WANT_DEBUG; dev test/debug (timer calibration, threading, and front panel)
+                      00603 #if 0
+                      00604 ;    nbDCL8 counter;
+                      00605 fptest macro
+                      00606     PinMode FP_LED, OutLow;
+                      00607 ;    mov8 counter, LITERAL(5)
+                      00608 ;fploop: DROP_CONTEXT
+                      00609 ;    FrontPanel LITERAL(0x020000);
+                      00610     biton BITWRAP(LATA, FP_LED); ; //on/off only; TODO: PWM or serial blink?
+                      00611     CALL wait1sec;
+                      00612 ;    FrontPanel LITERAL(0x000200);
+                      00613     bitoff BITWRAP(LATA, FP_LED); ; //on/off only; TODO: PWM or serial blink?
+                      00614     CALL wait1sec;
+                      00615 ;    FrontPanel LITERAL(0x000002);
+                      00616     biton BITWRAP(LATA, FP_LED); ; //on/off only; TODO: PWM or serial blink?
+                      00617     CALL wait1sec;
+                      00618 ;    FrontPanel LITERAL(0);
+                      00619     bitoff BITWRAP(LATA, FP_LED); ; //on/off only; TODO: PWM or serial blink?
+                      00620 ;    CALL wait1sec;
+                      00621 ;    GOTO fploop;
+                      00622 ;    DECFSZ counter, F
+                      00623 ;    GOTO fploop;
                       00624     endm
-                      00625 #endif
-                      00626 
-                      00627 
-                      00628 ;24C256 behavior:
-                      00629 ;A0/A1 addr: defaults to 0 so device addr is 0b1010000x (0x50)
-                      00630 ;WP: disables write
-                      00631 ;memory reset: addr 0xFF followed by Start condition
-                      00632 ;byte write: rcv 2-byte data addr followed by send 0/rcv write byte, send 0
-                      00633 ;page write: similar to byte write except can rcv up to 64 data bytes (> 64 wraps to same page addr)
-                      00634 ;ack polling: respond to device addr with 0 byte if ready for another read/write
-                      00635 ;read current: inc prev ptr and send byte (wrap last page/byte to first page/byte)
-                      00636 ;random read: requires dummy byte write, followed by read current
-                      00637 ;seq read: continue sending bytes byte as long as rcv ACK
-                      00638 ;VEEPROM variances:
-                      00639 ;memory reset: !implemented
-                      00640 ;write protect: set at compile time
-                      00641 ;memory endurance: much lower (can be improved with software, see AN)
-                      00642 ;memory size: < 7KB available
-                      00643 #if 1; hard-coded, read-only, works with i2cdump and eepflash -r
-                      00644         nbDCL16 addr; //relative byte addr
-                          M     CBLOCK NEXT_RAM9999; BOOL2INT(banked))  ;continue where we left off last time @2780
-  00000072                M         addr :2; @2781
+                      00625 
+                      00626 wait1sec: DROP_CONTEXT;
+                      00627 ;    WAIT 1 sec, YIELD, YIELD_AGAIN; RESERVE(0), RESERVE(0); busy wait
+                      00628     WAIT 1 sec, RESERVE(0), RESERVE(0); ; busy wait
+                      00629 ;    set_timeout 1 sec/2, NOP 1; RESERVE(0); YIELD; //display for 1/2 sec
+                      00630     RETURN;
+                      00631 #else
+                      00632 fptest macro
+                      00633     endm
+                      00634 #endif
+                      00635 
+                      00636 
+                      00637 ;24C256 behavior:
+                      00638 ;A0/A1 addr: defaults to 0 so device addr is 0b1010000x (0x50)
+                      00639 ;WP: disables write
+                      00640 ;memory reset: addr 0xFF followed by Start condition
+                      00641 ;byte write: rcv 2-byte data addr followed by send 0/rcv write byte, send 0
+                      00642 ;page write: similar to byte write except can rcv up to 64 data bytes (> 64 wraps to same page addr)
+                      00643 ;ack polling: respond to device addr with 0 byte if ready for another read/write
+                      00644 ;read current: inc prev ptr and send byte (wrap last page/byte to first page/byte)
+                      00645 ;random read: requires dummy byte write, followed by read current
+                      00646 ;seq read: continue sending bytes byte as long as rcv ACK
+                      00647 ;VEEPROM variances:
+                      00648 ;memory reset: !implemented
+                      00649 ;write protect: set at compile time
+                      00650 ;memory endurance: much lower (can be improved with software, see AN)
+                      00651 ;memory size: < 7KB available
+                      00652 #if 1; hard-coded, read-only, works with i2cdump and eepflash -r
+                      00653         nbDCL16 addr; //relative byte addr
+                          M     CBLOCK NEXT_RAM9999; BOOL2INT(banked))  ;continue where we left off last time @2792
+  00000072                M         addr :2; @2793
                           M     ENDC  ;can't span macros
   0002                    M     CONSTANT addr0size = LATEST_RAM3 - addr
   0073                    M     CONSTANT addr0hi = addr + 1
-                      00645 veeprom: DROP_CONTEXT;
-                      00646     i2c_init LITERAL(I2C_ADDR);;
-04F3   014F               M     banksel PMD4
+                      00654 veeprom: DROP_CONTEXT;
+                      00655 #if 0; disable veeprom
+                      00656         sleep
+                      00657 #endif
+                      00658     i2c_init LITERAL(I2C_ADDR);;
+04F9   014F               M     banksel PMD4
                           M     withbit_4 bcf PMD4
-04F4   121A               M     bcf PMD4, 4
-Message[301]: MESSAGE: ([INFO] SDA1 remapped from RA2 to RA0 @1712)
-04F5   017D               M     banksel SSP1DATPPS
-04F6   01C6               M     clrf SSP1DATPPS
-04F7   3016               M     movlw (((ASM_MSB | (0x16))) & ~ASM_MSB)
-04F8   017E               M     banksel RA0PPS
-04F9   0090               M     movwf RA0PPS
+04FA   121A               M     bcf PMD4, 4
+Message[301]: MESSAGE: ([INFO] SDA1 remapped from RA2 to RA0 @1724)
+04FB   017D               M     banksel SSP1DATPPS
+04FC   01C6               M     clrf SSP1DATPPS
+04FD   3016               M     movlw (((ASM_MSB | (0x16))) & ~ASM_MSB)
+04FE   017E               M     banksel RA0PPS
+04FF   0090               M     movwf RA0PPS
                           M     PinMode RA0, InDigital
                           M     withbit_0 bcf ANSELA
-04FA   1038               M     bcf ANSELA, 0;
+0500   1038               M     bcf ANSELA, 0;
                           M     withbit_0 bcf WPUA
-04FB   1039               M     bcf WPUA, 0;
-04FC   0140               M     banksel TRISA
+0501   1039               M     bcf WPUA, 0;
+0502   0140               M     banksel TRISA
                           M     withbit_0 bsf TRISA
-04FD   1412               M     bsf TRISA, 0;
+0503   1412               M     bsf TRISA, 0;
                           M     PinMode RA1, InDigital
-04FE   017E               M     banksel ANSELA
+0504   017E               M     banksel ANSELA
                           M     withbit_1 bcf ANSELA
-04FF   10B8               M     bcf ANSELA, 1;
+0505   10B8               M     bcf ANSELA, 1;
                           M     withbit_1 bcf WPUA
-0500   10B9               M     bcf WPUA, 1;
-0501   0140               M     banksel TRISA
+0506   10B9               M     bcf WPUA, 1;
+0507   0140               M     banksel TRISA
                           M     withbit_1 bsf TRISA
-0502   1492               M     bsf TRISA, 1;
-0503   0143               M     banksel SSP1CON1
-0504   0090               M     movwf SSP1CON1
-0505   3080               M     movlw (((ASM_MSB | ((1 << (SMP))))) & ~ASM_MSB)
-0506   008F               M     movwf SSP1STAT
-0507   3001               M     movlw (((ASM_MSB | (0 | 0 | (1 << (SEN))))) & ~ASM_MSB)
-0508   0091               M     movwf SSP1CON2
-0509   0192               M     clrf SSP1CON3
-050A   30FE               M     movlw (((ASM_MSB | (0x7F << 1))) & ~ASM_MSB)
-050B   008E               M     movwf SSP1MSK
+0508   1492               M     bsf TRISA, 1;
+0509   0143               M     banksel SSP1CON1
+050A   0090               M     movwf SSP1CON1
+050B   3080               M     movlw (((ASM_MSB | ((1 << (SMP))))) & ~ASM_MSB)
+050C   008F               M     movwf SSP1STAT
+050D   3001               M     movlw (((ASM_MSB | (0 | 0 | (1 << (SEN))))) & ~ASM_MSB)
+050E   0091               M     movwf SSP1CON2
+050F   0192               M     clrf SSP1CON3
+0510   30FE               M     movlw (((ASM_MSB | (0x7F << 1))) & ~ASM_MSB)
+0511   008E               M     movwf SSP1MSK
                           M     mov8 SSP1ADD, (ASM_MSB | (0x50))
-050C   3050               M     movlw (((ASM_MSB | (0x50))) & ~ASM_MSB)
-050D   008D               M     movwf SSP1ADD
+0512   3050               M     movlw (((ASM_MSB | (0x50))) & ~ASM_MSB)
+0513   008D               M     movwf SSP1ADD
                           M     withdest_1 lslf SSP1ADD
-050E   358D               M     lslf SSP1ADD, F;
-050F   014E               M     banksel PIR3
+0514   358D               M     lslf SSP1ADD, F;
+0515   014E               M     banksel PIR3
                           M     withbit_0 bcf PIR3
-0510   100F               M     bcf PIR3, 0;
-0511   0143               M     banksel SSP1CON1
+0516   100F               M     bcf PIR3, 0;
+0517   0143               M     banksel SSP1CON1
                           M     withbit_5 bsf SSP1CON1
-0512   1690               M     bsf SSP1CON1, 5
-                      00647     setbit PMD0, NVMMD, PMD_ENABLE; //ENABLED(NVMMD); //CAUTION: must be done < any NVM reg access
-0513   014F               M     banksel PMD0
+0518   1690               M     bsf SSP1CON1, 5
+                      00659     setbit PMD0, NVMMD, PMD_ENABLE; //ENABLED(NVMMD); //CAUTION: must be done < any NVM reg access
+0519   014F               M     banksel PMD0
                           M     withbit_2 bcf PMD0
-0514   1116               M     bcf PMD0, 2
-                      00648     setbit NVMCON1, NVMREGS, FALSE; access prog space only, !config space
-0515   0150               M     banksel NVMCON1
+051A   1116               M     bcf PMD0, 2
+                      00660     setbit NVMCON1, NVMREGS, FALSE; access prog space only, !config space
+051B   0150               M     banksel NVMCON1
                           M     withbit_6 bcf NVMCON1
-0516   131E               M     bcf NVMCON1, 6
-                      00649     fptest
-                      00650     mov16 FSR1,            LITERAL(PIR3); ; //kludge: use INDF to avoid bank selects during timing-critical section
-0517   300F               M     movlw (((ASM_MSB | (_1213SRC & 0xFF))) & ~ASM_MSB)
-0518   0086               M     movwf FSR1
-0519   3007               M     movlw (((ASM_MSB | (_1213SRC >> 8 & 0xFF))) & ~ASM_MSB)
-051A   0087               M     movwf FSR10hi
-                      00651         mov16 addr, LITERAL(0);;
-051B   01F2               M     clrf addr
-051C   01F3               M     clrf addr0hi
-                      00652 next_byte: DROP_CONTEXT;
-                      00653         CALL get_byte; pre-fetch for next byte read; takes too long to do during SSP1BUF handling
-051D   2547               M     call get_byte
-  0000018C            00654 BANK_TRACKER = SSP1BUF; //reduce delay after SSP1IF
-                      00655     setbit INDF1,            SSP1IF, FALSE;
+051C   131E               M     bcf NVMCON1, 6
+                      00661     fptest
+                      00662     mov16 FSR1,            LITERAL(PIR3); ; //kludge: use INDF to avoid bank selects during timing-critical section
+051D   300F               M     movlw (((ASM_MSB | (_1217SRC & 0xFF))) & ~ASM_MSB)
+051E   0086               M     movwf FSR1
+051F   3007               M     movlw (((ASM_MSB | (_1217SRC >> 8 & 0xFF))) & ~ASM_MSB)
+0520   0087               M     movwf FSR10hi
+                      00663         mov16 addr, LITERAL(0);;
+0521   01F2               M     clrf addr
+0522   01F3               M     clrf addr0hi
+                      00664 next_byte: DROP_CONTEXT;
+                      00665         CALL get_byte; pre-fetch for next byte read; takes too long to do during SSP1BUF handling
+0523   254D               M     call get_byte
+  0000018C            00666 BANK_TRACKER = SSP1BUF; //reduce delay after SSP1IF
+                      00667     setbit INDF1,            SSP1IF, FALSE;
                           M     withbit_0 bcf INDF1
-051E   1001               M     bcf INDF1, 0;
-                      00656     whilebit INDF1,            SSP1IF, FALSE, RESERVE(0); ; //CAUTION: SCIE always ON for slave mode, so Start bits received also
-051F                      M _1372whilebit_loop:
-0521                      M     ORG$+0
-                          M     goto_pagesafe _1372before_idler
-0520   2D1F               M     goto _1372before_idler
+0524   1001               M     bcf INDF1, 0;
+                      00668     whilebit INDF1,            SSP1IF, FALSE, RESERVE(0); ; //CAUTION: SCIE always ON for slave mode, so Start bits received also
+0525                      M _1376whilebit_loop:
+0527                      M     ORG$+0
+                          M     goto_pagesafe _1376before_idler
+0526   2D25               M     goto _1376before_idler
                           M     withbit_0 btfss INDF1
-051F   1C01               M     btfss INDF1, 0;
-0521                      M _1372whilebit_around:
-                      00657 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-                      00658 ;not enough time to check status < ack, so assume next req is a read and send prefetched data (i2cdump sees *only this* data, eepflsh.sh sees this at start of req):
-                      00659 ;    mov8 SSP1BUF, i2c_data; LITERAL(0xCC); //reply to dev addr byte with a 0 byte (return data not prepped yet)
-                      00660     swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
-                          M     withdest_0 xorwf SSP1BUF
-0521   060C               M     xorwf SSP1BUF, W;
-                          M     withdest_1 xorwf SSP1BUF
-0522   068C               M     xorwf SSP1BUF, F;
-                          M     withdest_0 xorwf SSP1BUF
-0523   060C               M     xorwf SSP1BUF, W;
-                      00661     setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-                          M     withbit_4 bsf SSP1CON1
-0524   1610               M     bsf SSP1CON1, 4
-                      00662     ifbit SSP1STAT, D_NOT_A, TRUE, GOTO next_byte; rdloop; prefetch; //not new req
-                          M     goto_pagesafe next_byte
-0526   2D1D               M     goto next_byte
-                          M     withbit_5 btfsc SSP1STAT
-0525   1A8F               M     btfsc SSP1STAT, 5
-                      00663 ;?    ifbit SSP1STAT, ACKSTAT, TRUE, GOTO prefetch; i2c_read; //master wants more data
-                      00664     ifbit SSP1STAT, R_NOT_W, TRUE, GOTO next_byte; rdloop; prefetch; veeprom; //already did prefetch?; prefetch; i2c_read; CAUTION: only valid until next start/stop bit
-                          M     goto_pagesafe next_byte
-0528   2D1D               M     goto next_byte
-                          M     withbit_2 btfsc SSP1STAT
-0527   190F               M     btfsc SSP1STAT, 2
-0529                  00665 i2c_wr_req:
-                      00666 ;CAUTION: i2cdump only sends 1 addr byte (LSB), but eepflah.sh/dd/eeprom driver sends 2 addr bytes (MSB then LSB)
-                      00667 ;in order to handle both cases, set up valid addr + prefetch after *each* byte received
-                      00668         mov8 WREG, LITERAL(0); ; //send dummy byte in response to read/write device addr
-0529   3000               M     movlw (((ASM_MSB | (0))) & ~ASM_MSB)
-                      00669 ;    BANKCHK SSP1BUF; //reduce delay after SSP1IF
-                      00670     setbit INDF1,            SSP1IF, FALSE;
-                          M     withbit_0 bcf INDF1
-052A   1001               M     bcf INDF1, 0;
-                      00671     whilebit INDF1,            SSP1IF, FALSE, RESERVE(0); ; //CAUTION: SCIE always ON for slave mode, so Start bits received also
-052B                      M _1634whilebit_loop:
-052D                      M     ORG$+0
-                          M     goto_pagesafe _1634before_idler
-052C   2D2B               M     goto _1634before_idler
-                          M     withbit_0 btfss INDF1
-052B   1C01               M     btfss INDF1, 0;
-052D                      M _1634whilebit_around:
+0525   1C01               M     btfss INDF1, 0;
+0527                      M _1376whilebit_around:
+                      00669 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
+                      00670 ;not enough time to check status < ack, so assume next req is a read and send prefetched data (i2cdump sees *only this* data, eepflsh.sh sees this at start of req):
+                      00671 ;    mov8 SSP1BUF, i2c_data; LITERAL(0xCC); //reply to dev addr byte with a 0 byte (return data not prepped yet)
                       00672     swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
                           M     withdest_0 xorwf SSP1BUF
-052D   060C               M     xorwf SSP1BUF, W;
+0527   060C               M     xorwf SSP1BUF, W;
                           M     withdest_1 xorwf SSP1BUF
-052E   068C               M     xorwf SSP1BUF, F;
+0528   068C               M     xorwf SSP1BUF, F;
                           M     withdest_0 xorwf SSP1BUF
-052F   060C               M     xorwf SSP1BUF, W;
+0529   060C               M     xorwf SSP1BUF, W;
                       00673     setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
                           M     withbit_4 bsf SSP1CON1
-0530   1610               M     bsf SSP1CON1, 4
-                      00674     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_wr_req; //master started new req?
-                          M     goto_pagesafe i2c_wr_req
-0532   2D29               M     goto i2c_wr_req
-                          M     withbit_5 btfss SSP1STAT
-0531   1E8F               M     btfss SSP1STAT, 5
-                      00675 ;//i2cdump is only for debug; it only sends 1 addr byte so use it as addr LSB:
-                      00676         mov8 REGLO(addr), WREG;
-0533   00F2               M     movwf addr
-                      00677         mov8 REGHI(addr), LITERAL(0);;
-0534   01F3               M     clrf addr0hi
-                          M             exitm; @2890
-                      00678         CALL get_byte;
-0535   2547               M     call get_byte
-  0000018C            00679 BANK_TRACKER = SSP1BUF; //reduce delay after SSP1IF
-                      00680     setbit INDF1,            SSP1IF, FALSE;
+052A   1610               M     bsf SSP1CON1, 4
+                      00674     ifbit SSP1STAT, D_NOT_A, TRUE, GOTO next_byte; rdloop; prefetch; //not new req
+                          M     goto_pagesafe next_byte
+052C   2D23               M     goto next_byte
+                          M     withbit_5 btfsc SSP1STAT
+052B   1A8F               M     btfsc SSP1STAT, 5
+                      00675 ;?    ifbit SSP1STAT, ACKSTAT, TRUE, GOTO prefetch; i2c_read; //master wants more data
+                      00676     ifbit SSP1STAT, R_NOT_W, TRUE, GOTO next_byte; rdloop; prefetch; veeprom; //already did prefetch?; prefetch; i2c_read; CAUTION: only valid until next start/stop bit
+                          M     goto_pagesafe next_byte
+052E   2D23               M     goto next_byte
+                          M     withbit_2 btfsc SSP1STAT
+052D   190F               M     btfsc SSP1STAT, 2
+052F                  00677 i2c_wr_req:
+                      00678 ;CAUTION: i2cdump only sends 1 addr byte (LSB), but eepflah.sh/dd/eeprom driver sends 2 addr bytes (MSB then LSB)
+                      00679 ;in order to handle both cases, set up valid addr + prefetch after *each* byte received
+                      00680         mov8 WREG, LITERAL(0); ; //send dummy byte in response to read/write device addr
+052F   3000               M     movlw (((ASM_MSB | (0))) & ~ASM_MSB)
+                      00681 ;    BANKCHK SSP1BUF; //reduce delay after SSP1IF
+                      00682     setbit INDF1,            SSP1IF, FALSE;
                           M     withbit_0 bcf INDF1
-0536   1001               M     bcf INDF1, 0;
-                      00681     whilebit INDF1,            SSP1IF, FALSE, RESERVE(0); ; //CAUTION: SCIE always ON for slave mode, so Start bits received also
-0537                      M _1909whilebit_loop:
-0539                      M     ORG$+0
-                          M     goto_pagesafe _1909before_idler
-0538   2D37               M     goto _1909before_idler
+0530   1001               M     bcf INDF1, 0;
+                      00683     whilebit INDF1,            SSP1IF, FALSE, RESERVE(0); ; //CAUTION: SCIE always ON for slave mode, so Start bits received also
+0531                      M _1638whilebit_loop:
+0533                      M     ORG$+0
+                          M     goto_pagesafe _1638before_idler
+0532   2D31               M     goto _1638before_idler
                           M     withbit_0 btfss INDF1
-0537   1C01               M     btfss INDF1, 0;
-0539                      M _1909whilebit_around:
-                      00682     swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
+0531   1C01               M     btfss INDF1, 0;
+0533                      M _1638whilebit_around:
+                      00684     swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
                           M     withdest_0 xorwf SSP1BUF
-0539   060C               M     xorwf SSP1BUF, W;
+0533   060C               M     xorwf SSP1BUF, W;
                           M     withdest_1 xorwf SSP1BUF
-053A   068C               M     xorwf SSP1BUF, F;
+0534   068C               M     xorwf SSP1BUF, F;
                           M     withdest_0 xorwf SSP1BUF
-053B   060C               M     xorwf SSP1BUF, W;
-                      00683     setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
+0535   060C               M     xorwf SSP1BUF, W;
+                      00685     setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
                           M     withbit_4 bsf SSP1CON1
-053C   1610               M     bsf SSP1CON1, 4
-                      00684     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_wr_req; //master started new req?
+0536   1610               M     bsf SSP1CON1, 4
+                      00686     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_wr_req; //master started new req?
                           M     goto_pagesafe i2c_wr_req
-053E   2D29               M     goto i2c_wr_req
+0538   2D2F               M     goto i2c_wr_req
                           M     withbit_5 btfss SSP1STAT
-053D   1E8F               M     btfss SSP1STAT, 5
-                      00685 ;//set MSB+LSB addr for eepflash.sh/dd/eeprom driver:
-                      00686         dec16 addr; //compensate for ++ in above speculative get_byte
+0537   1E8F               M     btfss SSP1STAT, 5
+                      00687 ;//i2cdump is only for debug; it only sends 1 addr byte so use it as addr LSB:
+                      00688         mov8 REGLO(addr), WREG;
+0539   00F2               M     movwf addr
+                      00689         mov8 REGHI(addr), LITERAL(0);;
+053A   01F3               M     clrf addr0hi
+                          M             exitm; @2902
+                      00690         CALL get_byte;
+053B   254D               M     call get_byte
+  0000018C            00691 BANK_TRACKER = SSP1BUF; //reduce delay after SSP1IF
+                      00692     setbit INDF1,            SSP1IF, FALSE;
+                          M     withbit_0 bcf INDF1
+053C   1001               M     bcf INDF1, 0;
+                      00693     whilebit INDF1,            SSP1IF, FALSE, RESERVE(0); ; //CAUTION: SCIE always ON for slave mode, so Start bits received also
+053D                      M _1913whilebit_loop:
+053F                      M     ORG$+0
+                          M     goto_pagesafe _1913before_idler
+053E   2D3D               M     goto _1913before_idler
+                          M     withbit_0 btfss INDF1
+053D   1C01               M     btfss INDF1, 0;
+053F                      M _1913whilebit_around:
+                      00694     swapreg SSP1BUF, WREG; //SSP1BUF <-> i2c_data; CAUTION: 3 instr max (RPi clock stretch !worky)
+                          M     withdest_0 xorwf SSP1BUF
+053F   060C               M     xorwf SSP1BUF, W;
+                          M     withdest_1 xorwf SSP1BUF
+0540   068C               M     xorwf SSP1BUF, F;
+                          M     withdest_0 xorwf SSP1BUF
+0541   060C               M     xorwf SSP1BUF, W;
+                      00695     setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
+                          M     withbit_4 bsf SSP1CON1
+0542   1610               M     bsf SSP1CON1, 4
+                      00696     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_wr_req; //master started new req?
+                          M     goto_pagesafe i2c_wr_req
+0544   2D2F               M     goto i2c_wr_req
+                          M     withbit_5 btfss SSP1STAT
+0543   1E8F               M     btfss SSP1STAT, 5
+                      00697 ;//set MSB+LSB addr for eepflash.sh/dd/eeprom driver:
+                      00698         dec16 addr; //compensate for ++ in above speculative get_byte
                           M     withdest_1 decfsz addr
-053F   0BF2               M     decfsz addr, F;
+0545   0BF2               M     decfsz addr, F;
                           M     withdest_1 incf addr0hi
-0540   0AF3               M     incf addr0hi, F;
+0546   0AF3               M     incf addr0hi, F;
                           M     withdest_1 decf addr0hi
-0541   03F3               M     decf addr0hi, F;
-                      00687         swapreg REGLO(addr), WREG;
+0547   03F3               M     decf addr0hi, F;
+                      00699         swapreg REGLO(addr), WREG;
                           M     withdest_0 xorwf addr
-0542   0672               M     xorwf addr, W;
+0548   0672               M     xorwf addr, W;
                           M     withdest_1 xorwf addr
-0543   06F2               M     xorwf addr, F;
+0549   06F2               M     xorwf addr, F;
                           M     withdest_0 xorwf addr
-0544   0672               M     xorwf addr, W;
-                      00688         mov8 REGHI(addr), WREG;
-0545   00F3               M     movwf addr0hi
-                      00689     GOTO next_byte;
-0546   2D1D               M     goto next_byte
-                      00690 
-                      00691 ;get next byte from prog space:
-                      00692 get_byte: DROP_CONTEXT;
-                      00693 #if 1; want range check
-                      00694         cmp16 addr, LITERAL(2 * (DATA_END - DATA_START));;
-0547   3009               M     movlw ((((ASM_MSB | (((-2147481182) >> (8 * (1))) & 0xFF)))) & ~ASM_MSB)
+054A   0672               M     xorwf addr, W;
+                      00700         mov8 REGHI(addr), WREG;
+054B   00F3               M     movwf addr0hi
+                      00701     GOTO next_byte;
+054C   2D23               M     goto next_byte
+                      00702 
+                      00703 ;get next byte from prog space:
+                      00704 get_byte: DROP_CONTEXT;
+                      00705 #if 1; want range check
+                      00706         cmp16 addr, LITERAL(2 * (DATA_END - DATA_START));;
+054D   3009               M     movlw ((((ASM_MSB | (((-2147481170) >> (8 * (1))) & 0xFF)))) & ~ASM_MSB)
                           M     withdest_0 subwf (((114) + (1)))
-0548   0273               M     subwf (((114) + (1))), W;
-                          M     goto_pagesafe _2228not_eq
-054A   2D4D               M     goto _2228not_eq
+054E   0273               M     subwf (((114) + (1))), W;
+                          M     goto_pagesafe _2232not_eq
+0550   2D53               M     goto _2232not_eq
                           M     withbit_2 btfss STATUS
-0549   1D03               M     btfss STATUS, 2
-054B   30A2               M     movlw ((((ASM_MSB | (((-2147481182) >> (8 * (0))) & 0xFF)))) & ~ASM_MSB)
+054F   1D03               M     btfss STATUS, 2
+0551   30AE               M     movlw ((((ASM_MSB | (((-2147481170) >> (8 * (0))) & 0xFF)))) & ~ASM_MSB)
                           M     withdest_0 subwf (((114) + (0)))
-054C   0272               M     subwf (((114) + (0))), W;
-054D                      M _2228not_eq:
-                      00695     ifbit BORROW FALSE, retlw 0; //past eof
-054E   3400               M     retlw 0
+0552   0272               M     subwf (((114) + (0))), W;
+0553                      M _2232not_eq:
+                      00707     ifbit BORROW FALSE, retlw 0; //past eof
+0554   3400               M     retlw 0
                           M     withbit_0 btfsc STATUS
-054D   1803               M     btfsc STATUS, 0;
-                      00696 ;    ifbit BORROW TRUE, GOTO addr_ok;
-                      00697 ;    mov16 FSR_HATPTR, LITERAL((DATA_END - 1) | 0x8000); //clamp
-                      00698 ;       mov16 addr, LITERAL(2 * (DATA_END - DATA_START) - 1);
-                      00699 ;addr_ok: ;//convert rel addr to abs addr
-                      00700 #endif
-                      00701 ;TODO: update memory if write req
-                      00702 ;    mov8 WREG, INDF_HATPTR_postinc; //prefetch in case next req is a read
-                      00703 #ifdef A2PACK
-054F   3673           00704         LSRF REGHI(addr), W;
-                      00705         MOVWF REGHI(NVMADR);;
-0550   0150               M     banksel NVMADR0hi
-0551   009B               M     movwf NVMADR0hi
-0552   0C72           00706         RRF REGLO(addr), W;
-                      00707         MOVWF REGLO(NVMADR);;
-0553   009A               M     movwf NVMADR
-                      00708     inc16 addr;
+0553   1803               M     btfsc STATUS, 0;
+                      00708 ;    ifbit BORROW TRUE, GOTO addr_ok;
+                      00709 ;    mov16 FSR_HATPTR, LITERAL((DATA_END - 1) | 0x8000); //clamp
+                      00710 ;       mov16 addr, LITERAL(2 * (DATA_END - DATA_START) - 1);
+                      00711 ;addr_ok: ;//convert rel addr to abs addr
+                      00712 #endif
+                      00713 ;TODO: update memory if write req
+                      00714 ;    mov8 WREG, INDF_HATPTR_postinc; //prefetch in case next req is a read
+                      00715 #ifdef A2PACK
+0555   3673           00716         LSRF REGHI(addr), W;
+                      00717         MOVWF REGHI(NVMADR);;
+0556   0150               M     banksel NVMADR0hi
+0557   009B               M     movwf NVMADR0hi
+0558   0C72           00718         RRF REGLO(addr), W;
+                      00719         MOVWF REGLO(NVMADR);;
+0559   009A               M     movwf NVMADR
+                      00720     inc16 addr;
                           M     withdest_1 incfsz addr
-0554   0FF2               M     incfsz addr, F;
+055A   0FF2               M     incfsz addr, F;
                           M     withdest_1 decf addr0hi
-0555   03F3               M     decf addr0hi, F;
+055B   03F3               M     decf addr0hi, F;
                           M     withdest_1 incf addr0hi
-0556   0AF3               M     incf addr0hi, F;
-                      00709         add16 NVMADR, LITERAL(DATA_START);;
-0557   3012               M     movlw ((((ASM_MSB | (((-2147483630) >> (8 * (0))) & 0xFF)))) & ~ASM_MSB)
+055C   0AF3               M     incf addr0hi, F;
+                      00721         add16 NVMADR, LITERAL(DATA_START);;
+055D   3012               M     movlw ((((ASM_MSB | (((-2147483630) >> (8 * (0))) & 0xFF)))) & ~ASM_MSB)
                           M     withdest_1 addwf NVMADR
-0558   079A               M     addwf NVMADR, F;
-0559   3000               M     movlw ((((ASM_MSB | (((-2147483630) >> (8 * (1))) & 0xFF)))) & ~ASM_MSB)
+055E   079A               M     addwf NVMADR, F;
+055F   3000               M     movlw ((((ASM_MSB | (((-2147483630) >> (8 * (1))) & 0xFF)))) & ~ASM_MSB)
                           M     withdest_1 addwfc NVMADR0hi
-055A   3D9B               M     addwfc NVMADR0hi, F;
-                      00710     setbit NVMCON1, RD, TRUE; start read; CAUTION: CPU suspends until read completes => unpredictable timing; should be ok with clock stetching (SEN)
+0560   3D9B               M     addwfc NVMADR0hi, F;
+                      00722     setbit NVMCON1, RD, TRUE; start read; CAUTION: CPU suspends until read completes => unpredictable timing; should be ok with clock stetching (SEN)
                           M     withbit_0 bsf NVMCON1
-055B   141E               M     bsf NVMCON1, 0;
-                      00711         ifbit REGLO(addr), log2(1), FALSE, GOTO get_lsb; RETURN; NOTE: reversed to compensate for ++
+0561   141E               M     bsf NVMCON1, 0;
+                      00723         ifbit REGLO(addr), log2(1), FALSE, GOTO get_lsb; RETURN; NOTE: reversed to compensate for ++
                           M     goto_pagesafe get_lsb
-055D   2D62               M     goto get_lsb
+0563   2D68               M     goto get_lsb
                           M     withbit_0 btfss addr
-055C   1C72               M     btfss addr, 0;
-055E                  00712 get_msb:
-                      00713         RLF REGLO(NVMDAT), W;
+0562   1C72               M     btfss addr, 0;
+0564                  00724 get_msb:
+                      00725         RLF REGLO(NVMDAT), W;
                           M     withdest_0 rlf NVMDAT
-055E   0D1C               M     rlf NVMDAT, W;
-                      00714         RLF REGHI(NVMDAT), W;
+0564   0D1C               M     rlf NVMDAT, W;
+                      00726         RLF REGHI(NVMDAT), W;
                           M     withdest_0 rlf NVMDAT0hi
-055F   0D1D               M     rlf NVMDAT0hi, W;
-                      00715     BANKCHK SSP1STAT; //avoid bank selects during timing-critical section
-0560   0143               M     banksel SSP1STAT
-                      00716         RETURN;
-0561   0008               M     return
-  0000081E            00717 BANK_TRACKER = NVMCON1;
-0562                  00718 get_lsb:
-                      00719         mov8 WREG, REGLO(NVMDAT);;
+0565   0D1D               M     rlf NVMDAT0hi, W;
+                      00727     BANKCHK SSP1STAT; //avoid bank selects during timing-critical section
+0566   0143               M     banksel SSP1STAT
+                      00728         RETURN;
+0567   0008               M     return
+  0000081E            00729 BANK_TRACKER = NVMCON1;
+0568                  00730 get_lsb:
+                      00731         mov8 WREG, REGLO(NVMDAT);;
                           M     withdest_0 movf NVMDAT
-0562   081C               M     movf NVMDAT, W;
-                      00720         ANDLW 0x7F;
-0563   397F               M     andlw 0x7F
-                      00721     BANKCHK SSP1STAT; //avoid bank selects during timing-critical section
-0564   0143               M     banksel SSP1STAT
-                      00722         RETURN;
-0565   0008               M     return
-                      00723 #else
-                      00724         error [TODO] packed 8-bit storage @724
-                      00725 #endif
-                      00726 ;BANK_TRACKER = SSP1STAT;
-                      00727 ;set_addr:
-                      00728 ;#if 1
-                      00729 ;    cmp16 FSR_HATPTR, LITERAL(DATA_END - DATA_START); | 0x8000);
-                      00730 ;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
-                      00731 ;    ifbit BORROW TRUE, GOTO addr_ok;
-                      00732 ;    mov16 FSR_HATPTR, LITERAL(DATA_END - 1); //clamp
-                      00733 ;addr_ok: ;//convert rel addr to abs addr
-                      00734 ;#endif
-                      00735 ;    dec16 FSR_HATPTR;
-                      00736 ;    add16 FSR_HATPTR, LITERAL(DATA_START | 0x8000);
-                      00737 ;    MOVLW (DATA_START | 0x8000) & 0xFF;
-                      00738 ;    ADDWF REGLO(FSR_HATPTR), F;
-                      00739 ;    MOVLW (DATA_START | 0x8000) >> 8;
-                      00740 ;    ADDWFC REGHI(FSR_HATPTR), F;
-                      00741 ;    rel2abs FSR_HATPTR;
-                      00742 ;    add16 FSR_HATPTR, REL2ABS;
-                      00743 ;    mov16 FSR_HATPTR, LITERAL(DATA_START | 0x8000);
-                      00744 ;    mov8 i2c_data, INDF_HATPTR_postinc; //prefetch for next read req
-                      00745 ;    mov8 WREG, INDF_HATPTR_postinc; //prefetch for next read req
-                      00746 ;    BANKCHK SSP1STAT; //reduce delay after SSP1IF
-                      00747 ;    RETURN;
-                      00748 ;i2c_read:
-                      00749 ;    cmp16 FSR_HATPTR, LITERAL(DATA_END | 0x8000);
-                      00750 ;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
-                      00751 ;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-                      00752 ;    setbit INDF_PIR3, SSP1IF, FALSE;
-                      00753 ;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-                      00754 ;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
-                      00755 ;    mov8 i2c_save, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-                      00756 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-                      00757 ;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
-                      00758 ;    mov8 SSP1BUF, i2c_data; send prepped data (not enough time to prep here)
-                      00759 ;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-                      00760 ;    ifbit SSP1STAT, ACKSTAT, TRUE, GOTO i2c_read; //master wants more data
-                      00761 ;    GOTO veeprom; //wait for next read/write req
-                      00762 ;NOTE: RPi mishandles clock stretching, so prep next data byte here while MSSP sends current byte:
-                      00763 ;    setbit INDF_PIR3, SSP1IF, FALSE;
-                      00764 ;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-                      00765 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-                      00766 ;#endif
-                      00767 ;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
-                      00768 ;    mov8 SSP1BUF, i2c_data; send prepped data (not enough time to prep here)
-                      00769 ;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-                      00770 ;    GOTO veeprom; //wait for next read/write request
-                      00771 ;i2c_write:
-                      00772 ;throw away device addr (never changes), save data addr (next byte):
-                      00773 ;    mov8 i2c_data, LITERAL(0); //prefetch first read byte; NOTE: this assumes data addr 0
-                      00774 ;    mov16 FSR_HATPTR, LITERAL(DATA_START | 0x8000);
-                      00775 ;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
-                      00776 ;    setbit INDF_PIR3, SSP1IF, FALSE;
-                      00777 ;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
-                      00778 ;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
-                      00779 ;    mov8 i2c_data, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
-                      00780 ;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
-                      00781 ;    ifbit SSP1STAT, I2C_START, TRUE, GOTO veeprom; //kludge: skip start bit
-                      00782 ;    ifbit SSP1STAT, ACKSTAT, FALSE, GOTO veeprom; //end of block
-                      00783 ;    GOTO veeprom;
-                      00784 ;    GOTO prefetch;
-                      00785 #endif
-                      00786 #if 0; comm check: echo seq# (wrapped) or status bits
-                      00787     nbDCL8 i2c_data;
-                      00788 ;BANK_TRACKER = SSP1STAT;
-                      00789 ;i2c_ignore:
-                      00790 veeprom: DROP_CONTEXT;
-                      00791     setbit PIR3, SSP1IF, FALSE;
-                      00792     whilebit PIR3, SSP1IF, FALSE, RESERVE(0); ; //CAUTION: SCIE always ON for slave mode, so Start bits received also
-                      00793 ;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
-                      00794     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-                      00795 ;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
-                      00796 ;SSP1CON2 == 0x01 (SEN)
-                      00797     mov8 SSP1BUF, SSP1STAT; i2c_data;
-                      00798 ;    mov8 SSP1BUF, SSP1CON2; i2c_data;
-                      00799 #if 0; //takes too long :(
-                      00800     MOVF SSP1STAT, W;
-                      00801     ADDLW 0x3D;
-                      00802     ifbit SSP1CON2, ACKSTAT, TRUE, IORLW 0x40;
-                      00803     ifbit SSP1CON2, ACKDT, TRUE, IORLW 0x80;
-                      00804     MOVWF SSP1BUF;
-                      00805 #endif
-                      00806     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
-                      00807 ;    ifbit SSP1STAT, I2C_START, TRUE, GOTO veeprom; //kludge:
-                      00808 ;    setbit PIR3, SSP1IF, FALSE;
-                      00809     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO veeprom; //address
-                      00810     ifbit SSP1STAT, R_NOT_W, FALSE, GOTO veeprom; //write
-                      00811 ;    ifbit SSP1STAT, I2C_START, TRUE, GOTO veeprom; //kludge: skip start bit
-                      00812     INCF i2c_data, F;
-                      00813     cmp8 i2c_data, LITERAL(0x67);;
-                      00814     ifbit BORROW TRUE, GOTO veeprom;
-                      00815     mov8 i2c_data, LITERAL(0x17); ; //wrap 0x67 -> 0x17
-                      00816 ;    ifbit SSP1STAT, ACKSTAT, FALSE, GOTO veeprom; //end of block
-                      00817     GOTO veeprom;
-                      00818 #endif
-                      00819 #if 0; //24C256 implementation
-                      00820 BANK_TRACKER = SSP1CON1; TODO: implement call/return bank affinity
-                      00821 ;i2c_rewind:
-                      00822 ;    mov8 i2c_data, LITERAL(0);
-                      00823 ;i2c_buf:
-                      00824 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-                      00825 i2c_err: DROP_CONTEXT;
-                      00826     setbit LATA, FP_LED, TRUE;
-                      00827     BANKCHK SSP1CON1
-                      00828 i2c_done: ;DROP_CONTEXT;
-                      00829 ;    set_timeout 30 usec, RESERVE(0); kludge: force clock strech > 1 bit time
-                      00830     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
-                      00831 veeprom: DROP_CONTEXT;
-                      00832     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
-                      00833     ifbit SSP1STAT, R_NOT_W, FALSE, GOTO i2c_write; //CAUTION: only valid < next start/stop bit; must save R/W
-                      00834 i2c_read:
-                      00835 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-                      00836     ifbit SSP1STAT, D_NOT_A, FALSE, dest_arg(W) MOVF SSP1BUF; GOTO i2c_rewind; //CAUTION: only valid < next start/stop bit; must save R/W
-                      00837 ;    ifbit SSP1STAT, BF, TRUE, GOTO i2c_err; biton BITWRAP(LATA, FP_LED); error
-                      00838 ;    NOP 2
-                      00839     mov8 SSP1BUF, i2c_data;
-                      00840 ;    ifbit SSP1CON1, WCOL, TRUE, GOTO i2c_err; biton BITWRAP(LATA, FP_LED); error
-                      00841 ;    NOP 2;
-                      00842     INCF i2c_data, F;
-                      00843     GOTO i2c_done;
-                      00844 ;i2c_rdloop:
-                      00845 ;    setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
-                      00846 ;    wait4i2c RESERVE(0), RESERVE(0); YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
-                      00847 ;    ifbit SSP1STAT, ACKSTAT, FALSE, GOTO i2c_rdloop;
-                      00848 ;    GOTO veeprom;
-                      00849 BANK_TRACKER = SSP1STAT;
-                      00850 i2c_write:
-                      00851     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-                      00852     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_done; i2c_buf; //CAUTION: only valid < next start/stop bit; must save R/W
-                      00853 ;    cmp16 NVMADR, LITERAL(DATA_END);
-                      00854 ;    cmp8
-                      00855 ;TODO    mov8 INDF0_postinc, SSP1BUF;
-                      00856     mov8 i2c_data, WREG; TODO: set data
-                      00857 ;    mov8 WREG, SSP1BUF;
-                      00858     GOTO i2c_done;
-                      00859 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-                      00860 ;    setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
-                      00861 ;    wait4i2c RESERVE(0), RESERVE(0); YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
-                      00862 ;    ifbit SSP1STAT, I2C_STOP, FALSE, GOTO i2c_write; //receive another byte
-                      00863 ;    GOTO veeprom;
-                      00864 #endif
-                      00865 #if 0; //back ack works
-                      00866 ;    BITDCL is_read; //initialized to 0
-                      00867 ;BANK_TRACKER = SSP1BUF; set context for code below
-                      00868 ;i2c_ready: ;//start of new message: save rd/wr flag and respond with 0 byte (ACK)
-                      00869 ;    FrontPanel LITERAL(0x010100); //yellow
-                      00870 ;    bitoff is_write;
-                      00871 ;    ifbit SSP1STAT, R_NOT_W, FALSE, biton is_write; //CAUTION: only valid < next start/stop bit; must save R/W
-                      00872 ;    mov8 SSP1BUF, i2c_count; LITERAL(0); //ACK: respond to dev addr with 0 byte when ready for next read/write
-                      00873 ;    INCF i2c_count, F;
-                      00874 BANK_TRACKER = SSP1CON1; TODO: implement call/return bank affinity
-                      00875 i2c_done: ;DROP_CONTEXT;
-                      00876     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
-                      00877 veeprom: DROP_CONTEXT;
-                      00878 ;//    test
-                      00879 ;    wait4i2c YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
-                      00880     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
-                      00881 ;?    setbit SSP1CON1, CKP, FALSE; //?? hold SCL
-                      00882     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-                      00883 ;BF/SSPOV shouldn't occur with clock stretching (SEN) or if SSP1BUF is read promptly each time
-                      00884 ;    whilebit SSP1STAT, BF, TRUE, CALL i2c_busy; RESERVE(0); busy-wait for buffer empty
-                      00885 ;    setbit SSP1CON1, WCOL, FALSE; //clear write collision flag
-                      00886 #if 0; good status
-                      00887     mov8 SSP1BUF, LITERAL(0x71);;
-                      00888     GOTO i2c_done;
-                      00889 #endif
-                      00890     ifbit SSP1STAT, D_NOT_A, TRUE, GOTO i2c_read;
-                      00891 i2c_newmsg: ;i2c device addr received
-                      00892 ;    mov8 SSP1BUF, LITERAL(0x3F);
-                      00893 ;    FrontPanel LITERAL(0x010100); //yellow
-                      00894 ;??    ifbit SSP1STAT, I2C_START, FALSE, GOTO veeprom; i2c_done; //device addr is first byte of new message; already matched so ignore
-                      00895 ;    biton BITWRAP(LATA, FP_LED); //on/off only; TODO: PWM or serial blink?
-                      00896     ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read;
-                      00897 i2c_write:
-                      00898 #if 1; good status
-                      00899     mov8 SSP1BUF, LITERAL(0x37);;
+0568   081C               M     movf NVMDAT, W;
+                      00732         ANDLW 0x7F;
+0569   397F               M     andlw 0x7F
+                      00733     BANKCHK SSP1STAT; //avoid bank selects during timing-critical section
+056A   0143               M     banksel SSP1STAT
+                      00734         RETURN;
+056B   0008               M     return
+                      00735 #else
+                      00736         error [TODO] packed 8-bit storage @736
+                      00737 #endif
+                      00738 ;BANK_TRACKER = SSP1STAT;
+                      00739 ;set_addr:
+                      00740 ;#if 1
+                      00741 ;    cmp16 FSR_HATPTR, LITERAL(DATA_END - DATA_START); | 0x8000);
+                      00742 ;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
+                      00743 ;    ifbit BORROW TRUE, GOTO addr_ok;
+                      00744 ;    mov16 FSR_HATPTR, LITERAL(DATA_END - 1); //clamp
+                      00745 ;addr_ok: ;//convert rel addr to abs addr
+                      00746 ;#endif
+                      00747 ;    dec16 FSR_HATPTR;
+                      00748 ;    add16 FSR_HATPTR, LITERAL(DATA_START | 0x8000);
+                      00749 ;    MOVLW (DATA_START | 0x8000) & 0xFF;
+                      00750 ;    ADDWF REGLO(FSR_HATPTR), F;
+                      00751 ;    MOVLW (DATA_START | 0x8000) >> 8;
+                      00752 ;    ADDWFC REGHI(FSR_HATPTR), F;
+                      00753 ;    rel2abs FSR_HATPTR;
+                      00754 ;    add16 FSR_HATPTR, REL2ABS;
+                      00755 ;    mov16 FSR_HATPTR, LITERAL(DATA_START | 0x8000);
+                      00756 ;    mov8 i2c_data, INDF_HATPTR_postinc; //prefetch for next read req
+                      00757 ;    mov8 WREG, INDF_HATPTR_postinc; //prefetch for next read req
+                      00758 ;    BANKCHK SSP1STAT; //reduce delay after SSP1IF
+                      00759 ;    RETURN;
+                      00760 ;i2c_read:
+                      00761 ;    cmp16 FSR_HATPTR, LITERAL(DATA_END | 0x8000);
+                      00762 ;    ifbit BORROW FALSE, dec16 FSR_HATPTR; //clamp to data end
+                      00763 ;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
+                      00764 ;    setbit INDF_PIR3, SSP1IF, FALSE;
+                      00765 ;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
+                      00766 ;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
+                      00767 ;    mov8 i2c_save, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
+                      00768 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
+                      00769 ;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
+                      00770 ;    mov8 SSP1BUF, i2c_data; send prepped data (not enough time to prep here)
+                      00771 ;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
+                      00772 ;    ifbit SSP1STAT, ACKSTAT, TRUE, GOTO i2c_read; //master wants more data
+                      00773 ;    GOTO veeprom; //wait for next read/write req
+                      00774 ;NOTE: RPi mishandles clock stretching, so prep next data byte here while MSSP sends current byte:
+                      00775 ;    setbit INDF_PIR3, SSP1IF, FALSE;
+                      00776 ;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
+                      00777 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
+                      00778 ;#endif
+                      00779 ;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
+                      00780 ;    mov8 SSP1BUF, i2c_data; send prepped data (not enough time to prep here)
+                      00781 ;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
+                      00782 ;    GOTO veeprom; //wait for next read/write request
+                      00783 ;i2c_write:
+                      00784 ;throw away device addr (never changes), save data addr (next byte):
+                      00785 ;    mov8 i2c_data, LITERAL(0); //prefetch first read byte; NOTE: this assumes data addr 0
+                      00786 ;    mov16 FSR_HATPTR, LITERAL(DATA_START | 0x8000);
+                      00787 ;    mov8 i2c_data, INDF_HATPTR_postinc; prefetch to avoid i2c read delay (RPi mishandles clock stretching)
+                      00788 ;    setbit INDF_PIR3, SSP1IF, FALSE;
+                      00789 ;    whilebit INDF_PIR3, SSP1IF, FALSE, RESERVE(0); //CAUTION: SCIE always ON for slave mode, so Start bits received also
+                      00790 ;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
+                      00791 ;    mov8 i2c_data, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK); save in case it's write data
+                      00792 ;    setbit SSP1CON1, CKP, TRUE; //release SCL (only with clock stretching (SEN)); CAUTION: must be quick! (RPi mishandles clock stretching)
+                      00793 ;    ifbit SSP1STAT, I2C_START, TRUE, GOTO veeprom; //kludge: skip start bit
+                      00794 ;    ifbit SSP1STAT, ACKSTAT, FALSE, GOTO veeprom; //end of block
+                      00795 ;    GOTO veeprom;
+                      00796 ;    GOTO prefetch;
+                      00797 #endif
+                      00798 #if 0; comm check: echo seq# (wrapped) or status bits
+                      00799     nbDCL8 i2c_data;
+                      00800 ;BANK_TRACKER = SSP1STAT;
+                      00801 ;i2c_ignore:
+                      00802 veeprom: DROP_CONTEXT;
+                      00803     setbit PIR3, SSP1IF, FALSE;
+                      00804     whilebit PIR3, SSP1IF, FALSE, RESERVE(0); ; //CAUTION: SCIE always ON for slave mode, so Start bits received also
+                      00805 ;//CAUTION: need to handle SSP1BUF asap (clock stretching !worky on RPi); i2c_data holds prepped data
+                      00806     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
+                      00807 ;SSP1STAT == 0x0C (!D !P S R !UA !BF) at start of dump, 0x2C (D !P S R !UA !BF) during reads
+                      00808 ;SSP1CON2 == 0x01 (SEN)
+                      00809     mov8 SSP1BUF, SSP1STAT; i2c_data;
+                      00810 ;    mov8 SSP1BUF, SSP1CON2; i2c_data;
+                      00811 #if 0; //takes too long :(
+                      00812     MOVF SSP1STAT, W;
+                      00813     ADDLW 0x3D;
+                      00814     ifbit SSP1CON2, ACKSTAT, TRUE, IORLW 0x40;
+                      00815     ifbit SSP1CON2, ACKDT, TRUE, IORLW 0x80;
+                      00816     MOVWF SSP1BUF;
+                      00817 #endif
+                      00818     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
+                      00819 ;    ifbit SSP1STAT, I2C_START, TRUE, GOTO veeprom; //kludge:
+                      00820 ;    setbit PIR3, SSP1IF, FALSE;
+                      00821     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO veeprom; //address
+                      00822     ifbit SSP1STAT, R_NOT_W, FALSE, GOTO veeprom; //write
+                      00823 ;    ifbit SSP1STAT, I2C_START, TRUE, GOTO veeprom; //kludge: skip start bit
+                      00824     INCF i2c_data, F;
+                      00825     cmp8 i2c_data, LITERAL(0x67);;
+                      00826     ifbit BORROW TRUE, GOTO veeprom;
+                      00827     mov8 i2c_data, LITERAL(0x17); ; //wrap 0x67 -> 0x17
+                      00828 ;    ifbit SSP1STAT, ACKSTAT, FALSE, GOTO veeprom; //end of block
+                      00829     GOTO veeprom;
+                      00830 #endif
+                      00831 #if 0; //24C256 implementation
+                      00832 BANK_TRACKER = SSP1CON1; TODO: implement call/return bank affinity
+                      00833 ;i2c_rewind:
+                      00834 ;    mov8 i2c_data, LITERAL(0);
+                      00835 ;i2c_buf:
+                      00836 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
+                      00837 i2c_err: DROP_CONTEXT;
+                      00838     setbit LATA, FP_LED, TRUE;
+                      00839     BANKCHK SSP1CON1
+                      00840 i2c_done: ;DROP_CONTEXT;
+                      00841 ;    set_timeout 30 usec, RESERVE(0); kludge: force clock strech > 1 bit time
+                      00842     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
+                      00843 veeprom: DROP_CONTEXT;
+                      00844     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
+                      00845     ifbit SSP1STAT, R_NOT_W, FALSE, GOTO i2c_write; //CAUTION: only valid < next start/stop bit; must save R/W
+                      00846 i2c_read:
+                      00847 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
+                      00848     ifbit SSP1STAT, D_NOT_A, FALSE, dest_arg(W) MOVF SSP1BUF; GOTO i2c_rewind; //CAUTION: only valid < next start/stop bit; must save R/W
+                      00849 ;    ifbit SSP1STAT, BF, TRUE, GOTO i2c_err; biton BITWRAP(LATA, FP_LED); error
+                      00850 ;    NOP 2
+                      00851     mov8 SSP1BUF, i2c_data;
+                      00852 ;    ifbit SSP1CON1, WCOL, TRUE, GOTO i2c_err; biton BITWRAP(LATA, FP_LED); error
+                      00853 ;    NOP 2;
+                      00854     INCF i2c_data, F;
+                      00855     GOTO i2c_done;
+                      00856 ;i2c_rdloop:
+                      00857 ;    setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
+                      00858 ;    wait4i2c RESERVE(0), RESERVE(0); YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
+                      00859 ;    ifbit SSP1STAT, ACKSTAT, FALSE, GOTO i2c_rdloop;
+                      00860 ;    GOTO veeprom;
+                      00861 BANK_TRACKER = SSP1STAT;
+                      00862 i2c_write:
+                      00863     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
+                      00864     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_done; i2c_buf; //CAUTION: only valid < next start/stop bit; must save R/W
+                      00865 ;    cmp16 NVMADR, LITERAL(DATA_END);
+                      00866 ;    cmp8
+                      00867 ;TODO    mov8 INDF0_postinc, SSP1BUF;
+                      00868     mov8 i2c_data, WREG; TODO: set data
+                      00869 ;    mov8 WREG, SSP1BUF;
+                      00870     GOTO i2c_done;
+                      00871 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
+                      00872 ;    setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
+                      00873 ;    wait4i2c RESERVE(0), RESERVE(0); YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
+                      00874 ;    ifbit SSP1STAT, I2C_STOP, FALSE, GOTO i2c_write; //receive another byte
+                      00875 ;    GOTO veeprom;
+                      00876 #endif
+                      00877 #if 0; //back ack works
+                      00878 ;    BITDCL is_read; //initialized to 0
+                      00879 ;BANK_TRACKER = SSP1BUF; set context for code below
+                      00880 ;i2c_ready: ;//start of new message: save rd/wr flag and respond with 0 byte (ACK)
+                      00881 ;    FrontPanel LITERAL(0x010100); //yellow
+                      00882 ;    bitoff is_write;
+                      00883 ;    ifbit SSP1STAT, R_NOT_W, FALSE, biton is_write; //CAUTION: only valid < next start/stop bit; must save R/W
+                      00884 ;    mov8 SSP1BUF, i2c_count; LITERAL(0); //ACK: respond to dev addr with 0 byte when ready for next read/write
+                      00885 ;    INCF i2c_count, F;
+                      00886 BANK_TRACKER = SSP1CON1; TODO: implement call/return bank affinity
+                      00887 i2c_done: ;DROP_CONTEXT;
+                      00888     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit on)
+                      00889 veeprom: DROP_CONTEXT;
+                      00890 ;//    test
+                      00891 ;    wait4i2c YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
+                      00892     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
+                      00893 ;?    setbit SSP1CON1, CKP, FALSE; //?? hold SCL
+                      00894     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
+                      00895 ;BF/SSPOV shouldn't occur with clock stretching (SEN) or if SSP1BUF is read promptly each time
+                      00896 ;    whilebit SSP1STAT, BF, TRUE, CALL i2c_busy; RESERVE(0); busy-wait for buffer empty
+                      00897 ;    setbit SSP1CON1, WCOL, FALSE; //clear write collision flag
+                      00898 #if 0; good status
+                      00899     mov8 SSP1BUF, LITERAL(0x71);;
                       00900     GOTO i2c_done;
                       00901 #endif
-                      00902 ;?    ifbit SSP1STAT, BF, FALSE, GOTO veeprom; i2c_done; //device addr is first byte of new message; already matched so ignore
-                      00903 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-                      00904     mov8 REGHI(NVMADR), WREG; //SSP1BUF; WREG; //save first data addr byte; if packet broken/incomplete, won't get good results anyway
-                      00905     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit) is on
-                      00906     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for next data addr byte (busy-wait)
-                      00907     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-                      00908 ;    ifbit SSP1STAT, BF, FALSE, GOTO veeprom; i2c_done; //device addr is first byte of new message; already matched so ignore
-                      00909     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_newmsg; //device addr is first byte of new message; already matched so ignore
-                      00910 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (sends ACK) and avoid SSPOV
-                      00911     mov8 REGLO(NVMADR), WREG; //save second data addr byte
-                      00912 i2c_wrloop: DROP_CONTEXT
-                      00913     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit) is on
-                      00914     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for next data addr byte (busy-wait)
-                      00915     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
-                      00916 ;    ifbit SSP1STAT, BF, FALSE, GOTO veeprom; i2c_done; //device addr is first byte of new message; already matched so ignore
-                      00917     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_newmsg; //device addr is first byte of new message; already matched so ignore
-                      00918 #ifdef ROWSIZE
-                      00919 ;TODO: clear ROWSIZE, update NVM here
-                      00920 ;TODO: save wr byte
-                      00921 #endif
-                      00922     inc16 NVMADR;
-                      00923     cmp16 NVMADR, LITERAL(DATA_END);;
-                      00924     ifbit BORROW TRUE, CALL i2c_rewind; //GOTO i2c_done; //EQUALS0 TRUE, ADDFSR -SIZEOF(veepbuf);
-                      00925 BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
-                      00926     GOTO i2c_wrloop;
-                      00927 BANK_TRACKER = SSP1STAT; TODO: implement call/return bank affinity
-                      00928 i2c_read: ;//read+send next byte from current data ptr
-                      00929 ;    mov8 wrstate, LITERAL(0);
-                      00930 ;    setbit BITPARENT(has_addr_hi), FALSE;
-                      00931 ;    FrontPanel LITERAL(0x000200); //green
-                      00932     setbit NVMCON1, RD, TRUE; start read; CAUTION: CPU suspends until read completes => unpredictable timing; should be ok with clock stetching (SEN)
-                      00933 ;i2c_rdloop:
-                      00934 ;TODO? use FSR for reads (only gets lower 8 bits)
-                      00935     inc16 NVMADR;
-                      00936     cmp16 NVMADR, LITERAL(DATA_END);;
-                      00937     ifbit BORROW TRUE, CALL i2c_rewind; //GOTO i2c_done; //EQUALS0 TRUE, ADDFSR -SIZEOF(veepbuf);
-                      00938 BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
-                      00939 ;    whilebit SSP1STAT, BF, TRUE, CALL i2c_busy; RESERVE(0); busy-wait for buffer empty
-                      00940 ;    mov8 SSP1BUF, REGLO(NVMDAT); //send lower 8 bits; TODO: handle bit packing for upper 6 bits
-                      00941     mov8 WREG, REGLO(NVMDAT);;
-                      00942 ;BANK_TRACKER = SSP1STAT; TODO: implement call/return bank affinity
-                      00943 ;    BANKCHK SSP1STAT;
-                      00944 ;i2c_try_send:
-                      00945 ;;;;;;    whilebit SSP1STAT, BF, TRUE, RESERVE(0);
-                      00946     nbDCL8 i2c_data;
-                      00947     mov8 WREG, i2c_data; LITERAL(0x39);
-                      00948     INCF i2c_data, F;
-                      00949     BANKCHK SSP1CON1;
-                      00950 i2c_retry:
-                      00951 ;;;;;;    setbit SSP1CON1, WCOL, FALSE; //clear write collision flag
-                      00952     mov8 SSP1BUF, WREG; LITERAL(0x3C);
-                      00953 ;;;;;;;;    ifbit SSP1CON1, WCOL, TRUE, GOTO i2c_retry;
-                      00954     GOTO i2c_done;
-                      00955 ;i2c_rdloop:
-                      00956 #endif
-                      00957 ;BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
-                      00958 ;i2c_rewind:
-                      00959 ;    mov16 NVMADR, LITERAL(DATA_START); default data ptr at power-up
-                      00960 ;    RETURN;
-                      00961 #if 0; //no worky; generic example
-                      00962 i2c_wrdone: DROP_CONTEXT;
-                      00963     setbit BITPARENT(is_addr), FALSE;
-                      00964 i2c_done: DROP_CONTEXT;
-                      00965     setbit SSP1CON1, CKP, TRUE; // release SCL (only needed for clock stretching, SEN set)
-                      00966 ;    setbit LATA, FRPANEL, FALSE;
-                      00967 veeprom: DROP_CONTEXT;
-                      00968 ;//    test
-                      00969     wait4i2c YIELD, YIELD_AGAIN; //NO-nothing else to do so just busy-wait
-                      00970 ;    CKP = 0; // Hold (Stretch) The Clock Line LOW
-                      00971 ;    if (SSPOV || WCOL) // Bus Collision or Buffer Overflow
-                      00972 ;    {
-                      00973 ;      char Dummy = SSPBUF; // Read The Last Byte To Clear The Buffer
-                      00974 ;      SSPOV = 0;           // Clear the overflow flag
-                      00975 ;      WCOL = 0;            // Clear the collision bit
-                      00976 ;      CKP = 1;             // Release Clock Line SCL
-                      00977 ;    }
-                      00978     mov8 i2c_data, SSP1BUF; //read SSPBUF to clear BF
-                      00979 ;    setbit LATA, FRPANEL, TRUE;
-                      00980 ;    mov24 fpcolor, LITERAL(0);
-                      00981     setbit BITPARENT(fpdirty), TRUE;
-                      00982     ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read
-                      00983     ifbit SSP1STAT, D_NOT_A, TRUE, GOTO i2c_write
-                      00984 ;//prepare to receive data from the master
-                      00985 ;//    I2C1_StatusCallback(I2C1_SLAVE_WRITE_REQUEST);
-                      00986 ;// master will send eeprom address next
-                      00987 ;//    mov8 slaveWriteType, LITERAL(SLAVE_DATA_ADDRESS);
-                      00988     setbit BITPARENT(is_addr), TRUE;
-                      00989     GOTO i2c_done;
-                      00990 i2c_write:
-                      00991 ;    I2C1_slaveWriteData = i2c_data;
-                      00992 ;//process I2C1_slaveWriteData from the master
-                      00993 ;//    I2C1_StatusCallback(I2C1_SLAVE_WRITE_COMPLETED);
-                      00994     ifbit BITPARENT(is_addr), TRUE, GOTO i2c_write_addr;
-                      00995 ;    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read;;;;;;;;;;
-                      00996 ;// master has written data to store in the eeprom
-                      00997     mov8 INDF0_postinc, i2c_data;
-                      00998     cmp16 FSR0, LITERAL(LINEAR(veepbuf + SIZEOF(veepbuf)));;
-                      00999     ifbit BORROW TRUE, GOTO i2c_wrdone; //EQUALS0 TRUE, ADDFSR -SIZEOF(veepbuf);
-                      01000 ;//    LED_blink(I2C1_slaveWriteData);
-                      01001     mov16 FSR0, LITERAL(LINEAR(veepbuf)); ; //wrap
-                      01002     GOTO i2c_wrdone;
-                      01003 i2c_write_addr:
-                      01004 ;    mov8 WREG, i2c_data;
-                      01005 ;    ANDLW 0x0F;
-                      01006 ;    mov8 FSR0L, WREG; //i2c_data;
-                      01007     mov16 FSR0, LITERAL(LINEAR(veepbuf));;
-                      01008     cmp8 i2c_data, LITERAL(SIZEOF(veepbuf));;
-                      01009     ifbit BORROW FALSE, CLRF i2c_data; //wrap; ADDWF i2c_data, F; //clamp
-                      01010     add16_8 FSR0, i2c_data;
-                      01011     GOTO i2c_wrdone;
-                      01012 i2c_read:
-                      01013 ;#if 0; //is this correct?
-                      01014     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_rddata;
-                      01015     ifbit SSP1CON2, ACKSTAT, FALSE, GOTO i2c_rddata;
-                      01016 ;// perform any post-read processing
-                      01017 ;//    I2C1_StatusCallback(I2C1_SLAVE_READ_COMPLETED);
-                      01018     mov16 FSR0, LITERAL(LINEAR(veepbuf)); ; //is this needed?
-                      01019     GOTO i2c_done;
-                      01020 i2c_rddata:
-                      01021 ;#endif
-                      01022 ;//write data into SSPBUF
-                      01023 ;//    I2C1_StatusCallback(I2C1_SLAVE_READ_REQUEST);
-                      01024     mov8 SSP1BUF, INDF0_postinc;
-                      01025     cmp16 FSR0, LITERAL(LINEAR(veepbuf + SIZEOF(veepbuf)));;
-                      01026     ifbit BORROW TRUE, GOTO i2c_done; //ADDFSR -SIZEOF(veepbuf)[0];
-                      01027     mov16 FSR0, LITERAL(LINEAR(veepbuf)); ; //addr wrap
-                      01028     GOTO i2c_done;
-                      01029 ;?    GOTO i2c_wrdone;
-                      01030 #endif
-                      01031 #if 0
-                      01032     nbDCL8 i2c_data;
-                      01033     at_init TRUE;
-                      01034     mov8 i2c_data, LITERAL(0x17);;
-                      01035     at_init FALSE;
-                      01036 veeprom: DROP_CONTEXT;
-                      01037     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
-                      01038     mov8 WREG, SSP1BUF; //i2c_data;
-                      01039     mov8 SSP1BUF, i2c_data;
-                      01040     INCF i2c_data, F;
-                      01041     GOTO veeprom;
+                      00902     ifbit SSP1STAT, D_NOT_A, TRUE, GOTO i2c_read;
+                      00903 i2c_newmsg: ;i2c device addr received
+                      00904 ;    mov8 SSP1BUF, LITERAL(0x3F);
+                      00905 ;    FrontPanel LITERAL(0x010100); //yellow
+                      00906 ;??    ifbit SSP1STAT, I2C_START, FALSE, GOTO veeprom; i2c_done; //device addr is first byte of new message; already matched so ignore
+                      00907 ;    biton BITWRAP(LATA, FP_LED); //on/off only; TODO: PWM or serial blink?
+                      00908     ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read;
+                      00909 i2c_write:
+                      00910 #if 1; good status
+                      00911     mov8 SSP1BUF, LITERAL(0x37);;
+                      00912     GOTO i2c_done;
+                      00913 #endif
+                      00914 ;?    ifbit SSP1STAT, BF, FALSE, GOTO veeprom; i2c_done; //device addr is first byte of new message; already matched so ignore
+                      00915 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
+                      00916     mov8 REGHI(NVMADR), WREG; //SSP1BUF; WREG; //save first data addr byte; if packet broken/incomplete, won't get good results anyway
+                      00917     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit) is on
+                      00918     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for next data addr byte (busy-wait)
+                      00919     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
+                      00920 ;    ifbit SSP1STAT, BF, FALSE, GOTO veeprom; i2c_done; //device addr is first byte of new message; already matched so ignore
+                      00921     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_newmsg; //device addr is first byte of new message; already matched so ignore
+                      00922 ;    mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (sends ACK) and avoid SSPOV
+                      00923     mov8 REGLO(NVMADR), WREG; //save second data addr byte
+                      00924 i2c_wrloop: DROP_CONTEXT
+                      00925     setbit SSP1CON1, CKP, TRUE; //release SCL; only needed with clock stretching (SEN bit) is on
+                      00926     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for next data addr byte (busy-wait)
+                      00927     mov8 WREG, SSP1BUF; //read SSPBUF to clear BF (avoid SSPOV, send ACK)
+                      00928 ;    ifbit SSP1STAT, BF, FALSE, GOTO veeprom; i2c_done; //device addr is first byte of new message; already matched so ignore
+                      00929     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_newmsg; //device addr is first byte of new message; already matched so ignore
+                      00930 #ifdef ROWSIZE
+                      00931 ;TODO: clear ROWSIZE, update NVM here
+                      00932 ;TODO: save wr byte
+                      00933 #endif
+                      00934     inc16 NVMADR;
+                      00935     cmp16 NVMADR, LITERAL(DATA_END);;
+                      00936     ifbit BORROW TRUE, CALL i2c_rewind; //GOTO i2c_done; //EQUALS0 TRUE, ADDFSR -SIZEOF(veepbuf);
+                      00937 BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
+                      00938     GOTO i2c_wrloop;
+                      00939 BANK_TRACKER = SSP1STAT; TODO: implement call/return bank affinity
+                      00940 i2c_read: ;//read+send next byte from current data ptr
+                      00941 ;    mov8 wrstate, LITERAL(0);
+                      00942 ;    setbit BITPARENT(has_addr_hi), FALSE;
+                      00943 ;    FrontPanel LITERAL(0x000200); //green
+                      00944     setbit NVMCON1, RD, TRUE; start read; CAUTION: CPU suspends until read completes => unpredictable timing; should be ok with clock stetching (SEN)
+                      00945 ;i2c_rdloop:
+                      00946 ;TODO? use FSR for reads (only gets lower 8 bits)
+                      00947     inc16 NVMADR;
+                      00948     cmp16 NVMADR, LITERAL(DATA_END);;
+                      00949     ifbit BORROW TRUE, CALL i2c_rewind; //GOTO i2c_done; //EQUALS0 TRUE, ADDFSR -SIZEOF(veepbuf);
+                      00950 BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
+                      00951 ;    whilebit SSP1STAT, BF, TRUE, CALL i2c_busy; RESERVE(0); busy-wait for buffer empty
+                      00952 ;    mov8 SSP1BUF, REGLO(NVMDAT); //send lower 8 bits; TODO: handle bit packing for upper 6 bits
+                      00953     mov8 WREG, REGLO(NVMDAT);;
+                      00954 ;BANK_TRACKER = SSP1STAT; TODO: implement call/return bank affinity
+                      00955 ;    BANKCHK SSP1STAT;
+                      00956 ;i2c_try_send:
+                      00957 ;;;;;;    whilebit SSP1STAT, BF, TRUE, RESERVE(0);
+                      00958     nbDCL8 i2c_data;
+                      00959     mov8 WREG, i2c_data; LITERAL(0x39);
+                      00960     INCF i2c_data, F;
+                      00961     BANKCHK SSP1CON1;
+                      00962 i2c_retry:
+                      00963 ;;;;;;    setbit SSP1CON1, WCOL, FALSE; //clear write collision flag
+                      00964     mov8 SSP1BUF, WREG; LITERAL(0x3C);
+                      00965 ;;;;;;;;    ifbit SSP1CON1, WCOL, TRUE, GOTO i2c_retry;
+                      00966     GOTO i2c_done;
+                      00967 ;i2c_rdloop:
+                      00968 #endif
+                      00969 ;BANK_TRACKER = NVMADR; TODO: implement call/return bank affinity
+                      00970 ;i2c_rewind:
+                      00971 ;    mov16 NVMADR, LITERAL(DATA_START); default data ptr at power-up
+                      00972 ;    RETURN;
+                      00973 #if 0; //no worky; generic example
+                      00974 i2c_wrdone: DROP_CONTEXT;
+                      00975     setbit BITPARENT(is_addr), FALSE;
+                      00976 i2c_done: DROP_CONTEXT;
+                      00977     setbit SSP1CON1, CKP, TRUE; // release SCL (only needed for clock stretching, SEN set)
+                      00978 ;    setbit LATA, FRPANEL, FALSE;
+                      00979 veeprom: DROP_CONTEXT;
+                      00980 ;//    test
+                      00981     wait4i2c YIELD, YIELD_AGAIN; //NO-nothing else to do so just busy-wait
+                      00982 ;    CKP = 0; // Hold (Stretch) The Clock Line LOW
+                      00983 ;    if (SSPOV || WCOL) // Bus Collision or Buffer Overflow
+                      00984 ;    {
+                      00985 ;      char Dummy = SSPBUF; // Read The Last Byte To Clear The Buffer
+                      00986 ;      SSPOV = 0;           // Clear the overflow flag
+                      00987 ;      WCOL = 0;            // Clear the collision bit
+                      00988 ;      CKP = 1;             // Release Clock Line SCL
+                      00989 ;    }
+                      00990     mov8 i2c_data, SSP1BUF; //read SSPBUF to clear BF
+                      00991 ;    setbit LATA, FRPANEL, TRUE;
+                      00992 ;    mov24 fpcolor, LITERAL(0);
+                      00993     setbit BITPARENT(fpdirty), TRUE;
+                      00994     ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read
+                      00995     ifbit SSP1STAT, D_NOT_A, TRUE, GOTO i2c_write
+                      00996 ;//prepare to receive data from the master
+                      00997 ;//    I2C1_StatusCallback(I2C1_SLAVE_WRITE_REQUEST);
+                      00998 ;// master will send eeprom address next
+                      00999 ;//    mov8 slaveWriteType, LITERAL(SLAVE_DATA_ADDRESS);
+                      01000     setbit BITPARENT(is_addr), TRUE;
+                      01001     GOTO i2c_done;
+                      01002 i2c_write:
+                      01003 ;    I2C1_slaveWriteData = i2c_data;
+                      01004 ;//process I2C1_slaveWriteData from the master
+                      01005 ;//    I2C1_StatusCallback(I2C1_SLAVE_WRITE_COMPLETED);
+                      01006     ifbit BITPARENT(is_addr), TRUE, GOTO i2c_write_addr;
+                      01007 ;    ifbit SSP1STAT, R_NOT_W, TRUE, GOTO i2c_read;;;;;;;;;;
+                      01008 ;// master has written data to store in the eeprom
+                      01009     mov8 INDF0_postinc, i2c_data;
+                      01010     cmp16 FSR0, LITERAL(LINEAR(veepbuf + SIZEOF(veepbuf)));;
+                      01011     ifbit BORROW TRUE, GOTO i2c_wrdone; //EQUALS0 TRUE, ADDFSR -SIZEOF(veepbuf);
+                      01012 ;//    LED_blink(I2C1_slaveWriteData);
+                      01013     mov16 FSR0, LITERAL(LINEAR(veepbuf)); ; //wrap
+                      01014     GOTO i2c_wrdone;
+                      01015 i2c_write_addr:
+                      01016 ;    mov8 WREG, i2c_data;
+                      01017 ;    ANDLW 0x0F;
+                      01018 ;    mov8 FSR0L, WREG; //i2c_data;
+                      01019     mov16 FSR0, LITERAL(LINEAR(veepbuf));;
+                      01020     cmp8 i2c_data, LITERAL(SIZEOF(veepbuf));;
+                      01021     ifbit BORROW FALSE, CLRF i2c_data; //wrap; ADDWF i2c_data, F; //clamp
+                      01022     add16_8 FSR0, i2c_data;
+                      01023     GOTO i2c_wrdone;
+                      01024 i2c_read:
+                      01025 ;#if 0; //is this correct?
+                      01026     ifbit SSP1STAT, D_NOT_A, FALSE, GOTO i2c_rddata;
+                      01027     ifbit SSP1CON2, ACKSTAT, FALSE, GOTO i2c_rddata;
+                      01028 ;// perform any post-read processing
+                      01029 ;//    I2C1_StatusCallback(I2C1_SLAVE_READ_COMPLETED);
+                      01030     mov16 FSR0, LITERAL(LINEAR(veepbuf)); ; //is this needed?
+                      01031     GOTO i2c_done;
+                      01032 i2c_rddata:
+                      01033 ;#endif
+                      01034 ;//write data into SSPBUF
+                      01035 ;//    I2C1_StatusCallback(I2C1_SLAVE_READ_REQUEST);
+                      01036     mov8 SSP1BUF, INDF0_postinc;
+                      01037     cmp16 FSR0, LITERAL(LINEAR(veepbuf + SIZEOF(veepbuf)));;
+                      01038     ifbit BORROW TRUE, GOTO i2c_done; //ADDFSR -SIZEOF(veepbuf)[0];
+                      01039     mov16 FSR0, LITERAL(LINEAR(veepbuf)); ; //addr wrap
+                      01040     GOTO i2c_done;
+                      01041 ;?    GOTO i2c_wrdone;
                       01042 #endif
-                      01043     THREAD_END;
-                      01044 
-                      01045 ;    EXPAND_POP @1045
+                      01043 #if 0
+                      01044     nbDCL8 i2c_data;
+                      01045     at_init TRUE;
+                      01046     mov8 i2c_data, LITERAL(0x17);;
+                      01047     at_init FALSE;
+                      01048 veeprom: DROP_CONTEXT;
+                      01049     wait4i2c RESERVE(0), RESERVE(0); ; YIELD, YIELD_AGAIN; //wait for SSP1IF (next i2c byte received)
+                      01050     mov8 WREG, SSP1BUF; //i2c_data;
+                      01051     mov8 SSP1BUF, i2c_data;
+                      01052     INCF i2c_data, F;
+                      01053     GOTO veeprom;
+                      01054 #endif
+                      01055     THREAD_END;
+                      01056 
+                      01057 ;    EXPAND_POP @1057
                           M     goto_pagesafe init_3
-04F2   2D66               M     goto init_3
-0566                      M init_3:
+04F8   2D6C               M     goto init_3
+056C                      M init_3:
                           M     at_eof
-                          M ;    EXPAND_PUSH FALSE, @4649
+                          M ;    EXPAND_PUSH FALSE, @4661
                           M ;;broken:    REPEAT EOF_COUNT, eof_#v(repeater)
                           M ;broken:    REPEAT LITERAL(EOF_COUNT), EMITL at_eof_#v(REPEATER): eof_#v(REPEATER)
-                          M     WARNIF(DOING_INIT != 1, [WARNING] doing init @eof: 1              @4652); ; mismatched directives can cause incorrect code gen
+                          M     WARNIF(DOING_INIT != 1, [WARNING] doing init @eof: 1              @4664); ; mismatched directives can cause incorrect code gen
   0000                    M     LOCAL count = 0;
                           M     while count < EOF_COUNT
                           M         EMITL at_eof_0:;         ; only used for debug
-                          M ;    EXPAND_PUSH TRUE, @4833; show expanded opc/data
-0566                      M at_eof_0:
-Message[301]: MESSAGE: ([WARNING] macro expand stack not empty @eof: 2 @4744)
-0566                      M at_eof_1:
-Message[301]: MESSAGE: ([WARNING] list expand stack not empty @eof: 1 @4798)
-0566                      M at_eof_2:
-0566                      M eof:
-Message[301]: MESSAGE: ([INFO] optimization stats: @5046)
-0566                      M at_eof_3:
-Message[301]: MESSAGE: ([INFO] bank sel: 19 (32%), dropped: 40 (68%) @2621)
-0566                      M at_eof_4:
-Message[301]: MESSAGE: ([INFO] non-banked RAM used: 4/16 (25%) @2811)
-0566                      M at_eof_5:
-Message[301]: MESSAGE: ([INFO] (non-banked) Bit vars: allocated 0, used 0 @3781)
-0566                      M at_eof_6:
-Message[301]: MESSAGE: ([INFO] page sel: 1 (6%), dropped: 16 (94%) @4354)
-Message[301]: MESSAGE: ([INFO] page0 used: 1382/2048 (67%) @4356)
-0566                      M at_eof_7:
-0566                      M at_eof_8:
-Message[301]: MESSAGE: ([INFO] #threads: 1, stack alloc: 6/16 (38%) @2037)
+                          M ;    EXPAND_PUSH TRUE, @4845; show expanded opc/data
+056C                      M at_eof_0:
+Message[301]: MESSAGE: ([WARNING] macro expand stack not empty @eof: 2 @4756)
+056C                      M at_eof_1:
+Message[301]: MESSAGE: ([WARNING] list expand stack not empty @eof: 1 @4810)
+056C                      M at_eof_2:
+056C                      M eof:
+Message[301]: MESSAGE: ([INFO] optimization stats: @5058)
+056C                      M at_eof_3:
+Message[301]: MESSAGE: ([INFO] bank sel: 19 (32%), dropped: 40 (68%) @2633)
+056C                      M at_eof_4:
+Message[301]: MESSAGE: ([INFO] non-banked RAM used: 4/16 (25%) @2823)
+056C                      M at_eof_5:
+Message[301]: MESSAGE: ([INFO] (non-banked) Bit vars: allocated 0, used 0 @3793)
+056C                      M at_eof_6:
+Message[301]: MESSAGE: ([INFO] page sel: 1 (6%), dropped: 16 (94%) @4366)
+Message[301]: MESSAGE: ([INFO] page0 used: 1388/2048 (68%) @4368)
+056C                      M at_eof_7:
+056C                      M at_eof_8:
+Message[301]: MESSAGE: ([INFO] #threads: 1, stack alloc: 6/16 (38%) @2049)
                           M     withdest_0 movf stkptr_1
-0566   0871               M     movf stkptr_1, W;
-0567   017F               M     banksel STKPTR
-0568   00ED               M     movwf STKPTR
-0569   0008               M     return
+056C   0871               M     movf stkptr_1, W;
+056D   017F               M     banksel STKPTR
+056E   00ED               M     movwf STKPTR
+056F   0008               M     return
   00000071                M stkptr_1 EQU stkptr_0
-056A   0063               M     sleep
-056B                      M _2799jump_placeholder:
-MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-25-2022  18:17:48         PAGE  3
+0570   0063               M     sleep
+0571                      M _2803jump_placeholder:
+MPASM 5.87  /HOME/DJ/MPLABXPROJECTS/VEEPROM-   3-27-2022  20:59:37         PAGE  3
 VEEPROM-PIC8 - serial EEPROM emulator for 8-pin/8-bit Microchip PIC
 
 SYMBOL TABLE
@@ -1757,7 +1771,7 @@ CONTEXT_RESTORE
 CONTEXT_SAVE                      
 CURRENT_FPS_usec                  FFFFFFFF
 Carry                             00000000
-DATA_END                          000004E3
+DATA_END                          000004E9
 DATA_START                        00000012
 DECF                              decf_banksafe
 DECFSZ                            decfsz_tracker
@@ -1769,7 +1783,7 @@ EMIT
 EMIT2                             
 EMITL                             
 ENDOF                             (name + SIZEOF(name))
-EOF_ADDR                          00000566
+EOF_ADDR                          0000056C
 EOF_COUNT                         00000009
 EQUALS0                           STATUS, Equals0,
 ERRIF                             ERRIF_#v(((assert) != 0))  msg
@@ -1792,6 +1806,9 @@ FrontPanel
 GOTO                              goto_pagesafe
 GPR_END                           0x70
 GPR_START                         0x20
+HDR1_START                        0000002F
+HDR2_START                        000000EE
+HDR3_START                        00000259
 HIBYTE16                          BYTEOF(val, 1)
 HIBYTE24                          BYTEOF(val, 2)
 HOST_STKLEN                       16-0
@@ -1825,14 +1842,14 @@ ISR_VECTOR                        (RESET_VECTOR + 4)
 InAnalog                          00000200
 InDigital                         00000100
 InFlags                           00000380
-JSON1_END                         000000E8
+JSON1_END                         000000EE
 JSON1_START                       00000053
-JSON2_END                         00000253
-JSON2_START                       0000010C
-JSON3_END                         000004E0
-JSON3_START                       00000277
+JSON2_END                         00000259
+JSON2_START                       00000112
+JSON3_END                         000004E6
+JSON3_START                       0000027D
 KHz                               * 1000
-LAST_INIT                         0000056C
+LAST_INIT                         00000572
 LATEST_RAM1                       00000071
 LATEST_RAM2                       00000072
 LATEST_RAM3                       00000074
@@ -1918,7 +1935,7 @@ PAGECHK
 PAGESEL_DROP                      00000010
 PAGESEL_KEEP                      00000001
 PAGE_TRACKER0                     00000000
-PAGE_TRACKER1                     000004E3
+PAGE_TRACKER1                     000004E9
 PASS1_FIXUPS                      00000000
 PASS2_FIXUPS                      00000000
 PLL                               * 2
@@ -2056,7 +2073,7 @@ decfsz_tracker
 dest_arg                          withdest_#v(argg)
 divup                             (((num)+(den)-1)/(den))
 elapsed_fps                       PIR0, TMR0IF
-eof                               00000566
+eof                               0000056C
 eof_0                             
 eof_1                             
 eof_2                             
@@ -2070,13 +2087,13 @@ find_msb
 fosc_init                         
 fps_init                          
 fptest                            
-get_byte                          00000547
-get_lsb                           00000562
-get_msb                           0000055E
+get_byte                          0000054D
+get_lsb                           00000568
+get_msb                           00000564
 goto_pagesafe                     
 has_WREG2                         00000000
 i2c_init                          
-i2c_wr_req                        00000529
+i2c_wr_req                        0000052F
 ifbit                             
 ifbit_const                       
 inc16                             
@@ -2104,7 +2121,7 @@ nbDCL16
 nbDCL24                           
 nbDCL8                            
 need_pagesel                      (LITPAGEOF(dest) != LITPAGEOF(PAGE_TRACKER#v(((DOING_INIT) != 0))))
-next_byte                         0000051D
+next_byte                         00000523
 nop_multi                         
 nopif                             
 pct                               rdiv(100 * (num), den)
@@ -2127,7 +2144,7 @@ swapf_banksafe
 swapreg                           
 usec                              * 1
 val_arg                           showarg_#v(argg)
-veeprom                           000004F3
+veeprom                           000004F9
 wait4frame                        
 wait4i2c                          
 whilebit                          
@@ -2148,8 +2165,8 @@ ws1_sendbyte
 ws1_sendpx                        
 xorlw_tracker                     
 xorwf_banksafe                    
-yield                             000004E6
-yield_again                       000004E9
+yield                             000004EC
+yield_again                       000004EF
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
@@ -2175,13 +2192,13 @@ MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 0480 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 04C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0500 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-0540 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXX----- ----------------
+0540 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX X---------------
 8000 : -------XXXXX---- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Words Used:  1392
-Program Memory Words Free:   656
+Program Memory Words Used:  1398
+Program Memory Words Free:   650
 
 
 Errors   :     0
